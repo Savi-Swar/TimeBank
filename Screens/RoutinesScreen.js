@@ -3,37 +3,49 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import colors from "../config/colors";
 import AppButton from "../components/AppButton";
 import Screen from "../components/Screen";
-import Card from "../components/Card";
 import Minutes from "../components/Minutes";
 import Routine_Header from "../components/Routine_Header";
 import * as firebase from "../firebase";
+import LottieView from "lottie-react-native";
 
 function RoutinesScreen({ navigation }) {
-  const [routines, setRoutines] = useState([]); // Initial empty array of users
+  const [routines, setRoutines] = useState([]);
 
   firebase.Routines(routines, setRoutines);
+
   return (
-    <Screen>
+    <Screen style = {styles.fullScreen}>
       <View style={styles.MinBar}>
         <Minutes />
       </View>
 
-      <View style={{  alignItems: "center" }}>
+      <View style={styles.titleContainer}>
         <Text style={styles.text}>Routines</Text>
       </View>
       <View style={styles.screen}>
-        <FlatList
-          data={routines}
-          keyExtractor={routines => routines.id}
-          renderItem={({ item }) => (
-            <Routine_Header
-              title={item.title}
-              id={item.id}
+        {routines.length > 0 ? (
+          <FlatList
+            data={routines}
+            keyExtractor={(routines) => routines.id}
+            renderItem={({ item }) => (
+              <Routine_Header title={item.title} id={item.id} />
+            )}
+          />
+        ) : (
+          <View style={styles.emptyStateContainer}>
+            <LottieView
+              source={require("../animations/no_routine.json")}
+              autoPlay
+              loop
+              style={styles.lottie}
             />
-          )}
-        /> 
+            <Text style={styles.emptyStateText}>
+              No routines found. Add one below!
+            </Text>
+          </View>
+        )}
       </View>
-      <View style={{ padding: 20 }}>
+      <View style={styles.addButton}>
         <AppButton
           title="Add+"
           onPress={() => navigation.navigate("CreateRoutineSet")}
@@ -44,18 +56,46 @@ function RoutinesScreen({ navigation }) {
 }
 
 export default RoutinesScreen;
+
 const styles = StyleSheet.create({
+  fullScreen: {
+    backgroundColor: colors.light,
+  },
   screen: {
     backgroundColor: colors.light,
     top: 20,
+    flex: 1,
   },
   MinBar: {
     flex: 0.2,
     alignItems: "center",
-    padding:20
-
+    padding: 20,
+  },
+  titleContainer: {
+    alignItems: "center",
+    marginBottom: 10,
   },
   text: {
     fontSize: 30,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.dark
+  },
+  emptyStateText: {
+    fontSize: 20,
+    color: colors.medium,
+    textAlign: "center",
+    marginTop: 20,
+  },
+  lottie: {
+    width: 250,
+    height: 250,
+  },
+  addButton: {
+    padding: 20,
+    paddingBottom: 40,
   },
 });

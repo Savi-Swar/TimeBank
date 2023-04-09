@@ -50,7 +50,8 @@ function Card({ title, subTitle, image, id, location }) {
   firebase.retrieveUser(named, setName);
 
   firebase.Mins(minutes, setMinutes, named);
-  let black = (minutes < subTitle && location == "store")
+  let black = (minutes < parseInt(subTitle) && location == "store")
+
   return (
     <View style={styles.card}>
         { black == true ?

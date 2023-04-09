@@ -14,7 +14,7 @@ function TasksScreen({ navigation, route }) {
   firebase.Tasks(tasks, setTasks);
   return (
     // <View></View>
-    <Screen>
+    <Screen style = {{backgroundColor: colors.light}}>
       <View style={styles.minutes}>
         <Minutes />
       </View>

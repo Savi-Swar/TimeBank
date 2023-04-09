@@ -9,7 +9,7 @@ import CompleteTaskScreen from "./Screens/CompleteTaskScreen";
 import RoutinesScreen from "./Screens/RoutinesScreen";
 import SplashScreen from "./Screens/SplashScreen";
 import SignInScreen from "./Screens/SignInScreen";
-import React, {  useState } from "react";
+import React, { useEffect, useState } from "react";
 import SignUpScreen from "./Screens/SignUpScreen";
 import RoutineViewScreen from "./Screens/RoutineViewScreen";
 import CreateRoutine from "./Screens/CreateRoutine";
@@ -18,28 +18,39 @@ import CreateRoutineSet from "./Screens/CreateRoutineSet";
 import LinkAccountScreen from "./Screens/LinkAccountScreen";
 import Tabs from "./Navigator/tabs";
 import AccountScreen from "./Screens/AccountScreen";
-import { retrieveUser } from "./firebase";
+import { retrieveUserId } from "./firebase";
 import FinishRoutineScreen from "./Screens/FinishRoutineScreen";
+import KidsScreen from "./Screens/KidsScreen";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [user, setUser] = useState("");
-  retrieveUser(user,setUser);
+  const [isUserLoaded, setIsUserLoaded] = useState(false); // Add this line
 
+  useEffect(() => {
+    const unsubscribe = retrieveUserId(user, setUser);
+    return () => {
+      unsubscribe && unsubscribe();
+    };
+  }, []);
 
-  let x = Tabs;
+  useEffect(() => {
+    if (user) {
+      setIsUserLoaded(true);
+    } else {
+      setIsUserLoaded(false);
+    }
+  }, [user]);
 
-  if (user.length < 1) {
-    x = WelcomeScreen;
+  if (!isUserLoaded) {
+    return <WelcomeScreen />;
   }
-
   return (
-    <NavigationContainer >
-      <Stack.Navigator initialRouteName = {x} screenOptions={{
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="HomeFile" screenOptions={{
         headerShown: false
       }}>
-
-        <Stack.Screen name = {"HomeFile"} component={x} />
+        <Stack.Screen name="HomeFile" component={Tabs} />
 
 
         <Stack.Screen name="LinkAccountScreen" component={LinkAccountScreen} />
@@ -50,18 +61,20 @@ export default function App() {
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
         <Stack.Screen name="CompleteTaskScreen" component={CompleteTaskScreen} />
         <Stack.Screen name="CreateTask" component={CreateTask} />
+        <Stack.Screen name="KidsScreen" component={KidsScreen} />
+
         <Stack.Screen name="RoutinesScreen" component={RoutinesScreen} />
         <Stack.Screen name = "FinishedRoutineScreen" component={FinishRoutineScreen}/>
         <Stack.Screen name = "Home" component = {AccountScreen}/>
-            <Stack.Screen name="StoreScreen" component={StoreScreen} />
-            <Stack.Screen name="TasksScreen" component={TasksScreen} />
+        <Stack.Screen name="StoreScreen" component={StoreScreen} />
+        <Stack.Screen name="TasksScreen" component={TasksScreen} />
         <Stack.Screen name="RoutineViewScreen" component={RoutineViewScreen} />
         <Stack.Screen name="CreateRoutine" component={CreateRoutine} />
         <Stack.Screen name="CreateRoutineSet" component={CreateRoutineSet} />
         <Stack.Screen name = "BuyScreen" component = {BuyScreen} />
         <Stack.Screen name={"WelcomeScreen"} component={WelcomeScreen} />
 
-      </Stack.Navigator>
+        </Stack.Navigator>
     </NavigationContainer>
 
       // mbbom

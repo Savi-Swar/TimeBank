@@ -52,6 +52,18 @@ const routineRefs = collection(firestores, "routines");
 const kidsRef = collection(firestores, "kids");
 const activeRef = collection(firestores, "Active");
 
+export const retrieveUserId = (user, setUser) => {
+  const unsubscribe = firebase.auth().onAuthStateChanged((firebaseUser) => {
+    if (firebaseUser) {
+      setUser(firebaseUser);
+    } else {
+      setUser(null);
+    }
+  });
+
+  return unsubscribe;
+};
+
 export function Tasks(tasks, setTasks) {
   const [loading, setLoading] = useState(true); // Set loading to true on component mount
 
@@ -308,9 +320,34 @@ export function Routines(store, setStore) {
   // ...
 }
 
+export function getRoutineLength(collections, id, onRoutineLengthFetched) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [x, setX] = useState(0) 
+  useEffect(() => {
+    const routineRef = collection(firestores, 'routines', id, collections);
+    const order = query(routineRef);
+
+    getDocs(order).then(snapshot => {
+      const routines = [];
+      snapshot.docs.forEach(doc => {
+        routines.push({ ...doc.data(), id: doc.id });
+      });
+
+      // Call the callback function with the length of the routines array
+      setX(routines.length);
+     
+
+      // Set loading state to false
+      setIsLoading(false);
+    });
+  });
+
+  return x;
+}
+
 export function RoutinesCollections(routines, setRoutines, collections, id) {
   const routineRef = collection(firestores, "routines", id, collections);
-  const order = query(routineRef, orderBy("time"));
+  const order = query(routineRef, orderBy("indx"));
   useEffect(() => {
     const item = getDocs(order).then(snapshot => {
       routines = [];
@@ -325,8 +362,7 @@ export function RoutinesCollections(routines, setRoutines, collections, id) {
   });
 }
 export function updateTimes(textVal, title, graphic, id, collections) {
-  console.log(textVal);
-  let x = parseInt(textVal);
+  x = textVal
   const routineDocRef = doc(
     firestores,
     "routines",
@@ -368,4 +404,5 @@ export default {
   retrieveDays,
   retrieveMonths,
   retrieveUser,
+  getRoutineLength
 };
