@@ -31,7 +31,6 @@ function CompleteTaskScreen({ navigation, route }) {
   const [named, setName] = useState("def");
   firebase.retrieveUser(named, setName);
   const [minutes, setMinutes] = useState(0);
-
   return (
     <View style={styles.container}>
       <Image style={styles.image} source={{ uri: url }} />
@@ -62,7 +61,7 @@ function CompleteTaskScreen({ navigation, route }) {
       <View style={styles.button}>
         <AppButton
           title="Back to Tasks"
-          onPress={() => navigation.navigate("TasksScreen")}
+          onPress={() => navigation.navigate("HomeFile")}
         />
       </View>
     </View>

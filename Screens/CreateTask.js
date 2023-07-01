@@ -29,7 +29,7 @@ function CreateTask({ navigation, route }) {
     .collection(route.params.location);
   let bytes;
   let id = firebase.makeid(20);
-  // add a new field
+
   function addField() {
     if (
       minutesInputValue &&
@@ -43,8 +43,14 @@ function CreateTask({ navigation, route }) {
         title: nameInputValue,
         id: id,
       };
-
-      todoRef
+  
+      // Get the current user's ID
+      const userId = firebase.auth.currentUser.uid;
+  
+      // Reference the user's 'tasks' sub-collection
+      const tasksRef = firebase.firestores.collection(userId).doc('storage').collection(route.params.location);
+  
+      tasksRef
         .doc(id)
         .set(data)
         .then(() => {
@@ -57,6 +63,7 @@ function CreateTask({ navigation, route }) {
         });
     }
   }
+  
 
   return (
     <Screen>

@@ -7,30 +7,63 @@ import * as firebase from "../firebase";
 import AppButton from "../components/AppButton";
 import CreateRoutine from "./CreateRoutine";
 import LottieView from "lottie-react-native";
+import { MaterialIcons } from '@expo/vector-icons'; 
+import TimeProgressBar from "../components/TimeProgressBar";
 
 function RoutineViewScreen({ navigation, route }) {
   const [routines, setRoutines] = useState([]);
+  const [showBar, setShowBar] = useState(false);
+  const [iconName, setIconName] = useState('alarm-off');
+
   useEffect(() => {
     return () => {
       setRoutines([]); // This worked for me
     };
   }, []);
-    firebase.RoutinesCollections(
-      routines,
-      setRoutines,
-      route.params.title,
-      route.params.id,
-    );
-  
-      let x = routines.length
-    function nav() {
-      navigation.navigate("HomeFile")
+
+  useEffect(() => {
+    updateRoutineBar();
+    const interval = setInterval(updateRoutineBar, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  const updateRoutineBar = () => {
+    const currentTime = new Date();
+    const start = new Date(currentTime.toDateString() + ' ' + route.params.st);
+    const end = new Date(currentTime.toDateString() + ' ' + route.params.et);
+
+    if (currentTime >= start && currentTime <= end) {
+      setShowBar(true);
+      setIconName('alarm');
+    } else {
+      setShowBar(false);
+      setIconName('alarm-off');
     }
+  };
+
+  firebase.RoutinesCollections(
+    routines,
+    setRoutines,
+    route.params.title,
+    route.params.id,
+  );
+
+  function nav() {
+    navigation.navigate("HomeFile")
+  }
+
   return (
     <Screen style={styles.container}>
       <View style={[styles.title, { backgroundColor: colors["secondary"] }]}>
-        <AppButton title="Back" color = "secondary" onPress = { ( ) => nav()}/>
+        <AppButton title="Back" color = "secondary" onPress = { nav }/>
         <Text style={styles.text}>{route.params.title}</Text>
+        <View style = {{flexDirection: 'row', paddingVertical: 5}}>
+          <View style = {{paddingHorizontal: 5}}>
+            <MaterialIcons name={iconName} size={24} color="black" />
+          </View>
+          <Text style={styles.text2}>{route.params.st} - {route.params.et}</Text>
+        </View>
+        {showBar && <TimeProgressBar startTime={route.params.st} endTime={route.params.et} />}
       </View>
       <View style={styles.screen}>
         {routines.length > 0 ? (
@@ -43,6 +76,7 @@ function RoutineViewScreen({ navigation, route }) {
               graphic={item.graphic}
               time={item.time}
               id={item.id}
+              im = {item.indx}  
               colTitle={route.params.title}
               colId={route.params.id}
             />
@@ -74,7 +108,9 @@ function RoutineViewScreen({ navigation, route }) {
         />
         <AppButton title = "Complete" onPress={() =>
             navigation.navigate("FinishedRoutineScreen", {
-              obj: routines[x-1]
+              obj: route.params.et,
+              st: route.params.st,
+              name: route.params.title
             })
             }
           />
@@ -87,6 +123,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.secondary },
   text: {
     fontSize: 30,
+  },
+  text2: {
+    fontSize: 15,
+
   },
   title: {
     alignItems: "center",

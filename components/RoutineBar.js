@@ -11,8 +11,9 @@ import { doc, deleteDoc, getFirestore } from "firebase/firestore";
 
 import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons";
 import colors from "../config/colors";
-import { updateTimes } from "../firebase";
+import { getRoutineLength, rearrangeRoutine, updateTimes } from "../firebase";
 import AppButton from "./AppButton";
+import * as firebase from "../firebase";
 
 function RoutineBar({
   title,
@@ -22,6 +23,8 @@ function RoutineBar({
   color = "primary",
   colTitle,
   colId,
+  im
+  
 }) {
   const handlePress = () => {
     Alert.alert("Delete", "Are you sure you want to delete this step?", [
@@ -34,18 +37,26 @@ function RoutineBar({
     const db = getFirestore();
 
     let path = colId + "/" + colTitle + "/" + id;
-    const colRef = (getFirestore(), "routines");
+    const userId = firebase.auth.currentUser.uid;
+
+    const colRef = collection(getFirestore(), userId, "storage", "routines");
 
     const docRef = doc(db, colRef, path);
     await deleteDoc(docRef);
   };
-
   const rearrangeUp = () => {
-    console.log("Rearrange up");
+    if (im != 1) {
+      rearrangeRoutine(colTitle, title, colId, id, im, true)
+      console.log("Rearrange up");
+    }
   };
-
+  let x = getRoutineLength(colTitle, colId);
   const rearrangeDown = () => {
+    if (x != im) {
+    rearrangeRoutine(colTitle, title, colId, id, im, false)
+
     console.log("Rearrange down");
+    } 
   };
 
   return (

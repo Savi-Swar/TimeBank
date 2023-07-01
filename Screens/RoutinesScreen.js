@@ -28,7 +28,7 @@ function RoutinesScreen({ navigation }) {
             data={routines}
             keyExtractor={(routines) => routines.id}
             renderItem={({ item }) => (
-              <Routine_Header title={item.title} id={item.id} />
+              <Routine_Header title={item.title} id={item.id} st = {item.startTime} et = {item.endTime}/>
             )}
           />
         ) : (

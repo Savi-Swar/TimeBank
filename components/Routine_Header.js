@@ -6,13 +6,12 @@ import { retrieveDays } from "../firebase";
 import AppButton from "./AppButton";
 import Screen from "./Screen";
 import { Entypo } from "@expo/vector-icons";
-import { getFirestore, doc, deleteDoc } from "firebase/firestore";
-
-function Routine_Header({ title, id }) {
+import { getFirestore, doc, deleteDoc, collection } from "firebase/firestore";
+import * as firebase from "../firebase";
+function Routine_Header({ title, id, st, et }) {
   const [days, setDays] = useState([]);
   const [months, setMonths] = useState([]);
   const navigation = useNavigation();
-
   retrieveDays(setDays, id, setMonths);
   var week = [
     "Sunday",
@@ -45,12 +44,21 @@ function Routine_Header({ title, id }) {
   }
   const deleteTask = async () => {
     const db = getFirestore();
-    const colRef = (getFirestore(), "routines");
-
-    const docRef = doc(db, colRef, id);
-    await deleteDoc(docRef);
-
+    const userId = firebase.auth.currentUser.uid;
+  
+    // This is how you reference a document in a collection
+    const docRef = doc(db, `${userId}/storage`);
+    
+    // And this is how you reference a subcollection in a document
+    const colRef = collection(docRef, 'routines');
+  
+    // This is how you reference a specific document in a subcollection
+    const specificDocRef = doc(colRef, id);
+    firebase.deleteKidsRoutine(title)
+    // Now, you can delete the specific document
+    await deleteDoc(specificDocRef);
   };
+  
   const handlePress = () => {
     Alert.alert("Delete", "Are you sure you want to delete this", [
       { text: "Yes", onPress: () => deleteTask() },
@@ -73,6 +81,8 @@ function Routine_Header({ title, id }) {
             navigation.navigate("RoutineViewScreen", {
               title: title,
               id: id,
+              st: st,
+              et: et,
             })
           }
         />

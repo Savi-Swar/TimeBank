@@ -90,7 +90,6 @@ function SignUpScreen({ navigation }) {
           ) : null}
         </View>
         <Text style={[styles.text_footer, { marginTop: 35 }]}>Password</Text>
-
         <View style={styles.action}>
           <Feather name="lock" size={20} />
           <TextInput

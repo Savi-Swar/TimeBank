@@ -27,7 +27,6 @@ function AccountScreen({ navigation }) {
 
   const [name, setName] = useState("def");
   firebase.retrieveUser(name, setName);
-  const resetUser = () => { };
 
   const [minutes, setMinutes] = useState(0);
   firebase.Mins(minutes, setMinutes, name);

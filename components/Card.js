@@ -13,7 +13,7 @@ import {
 import colors from "../config/colors";
 import * as firebase from "../firebase";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
-import { doc, deleteDoc, getFirestore } from "firebase/firestore";
+import { doc, deleteDoc, getFirestore, collection } from "firebase/firestore";
 // import { Grayscale} from 'react-native-color-matrix-image-filters'
 function Card({ title, subTitle, image, id, location }) {
   // for deleting tasks
@@ -38,9 +38,10 @@ function Card({ title, subTitle, image, id, location }) {
   }, []);
   const deleteTask = async () => {
     const db = getFirestore();
-    const colRef = (getFirestore(), location);
+    const userId = firebase.auth.currentUser.uid;
 
-    const docRef = doc(db, colRef, id);
+    const docRef = doc(db, userId, "storage", location, id);
+
     await deleteDoc(docRef);
 
   };

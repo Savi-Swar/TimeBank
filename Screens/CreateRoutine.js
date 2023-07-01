@@ -19,13 +19,16 @@ import * as firebase from "../firebase";
 import { uploadBytes } from "firebase/storage";
 import LottieView from "lottie-react-native";
 import RoutineViewScreen from "./RoutineViewScreen";
+
 function CreateRoutine({ navigation, route }) {
   // This screen is actualy for creating steps in a ROUTINE 
   // I had to make two useState variables so I could use both of them on this screen
   const [nameInputValue, setNameInputValue] = useState("");
   // console.log(route.params.name);
   // console.log(route.params.identification);
-  let path = "routines/" + route.params.id + "/" + route.params.name;
+  const userId = firebase.auth.currentUser.uid;
+
+  let path = userId +  "/storage/routines/" + route.params.id + "/" + route.params.name;
   const todoRef = firebase.firebase.firestore().collection(path);
   let id = firebase.makeid(20);
   let x = firebase.getRoutineLength(route.params.name, route.params.id);

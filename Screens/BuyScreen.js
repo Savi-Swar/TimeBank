@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, Image, TouchableOpacity } from "react-native";
-import AppButton from "./AppButton";
-import Card from "./Card";
+import AppButton from "../components/AppButton";
+import Card from "../components/Card";
 import { AntDesign } from "@expo/vector-icons";
-import Minutes from "./Minutes";
+import Minutes from "../components/Minutes";
 import colors from "../config/colors";
 import * as firebase from "../firebase";
 import { getDownloadURL, ref, getStorage } from "firebase/storage";
