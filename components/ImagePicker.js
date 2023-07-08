@@ -25,7 +25,6 @@ export default function ImagePickerExample({
   const [pickedImagePath, setPickedImagePath] = useState("");
 
   const takePhoto = async () => {
-    // Ask the user for the permission to access the camera
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
     if (permissionResult.granted === false) {
@@ -35,29 +34,28 @@ export default function ImagePickerExample({
 
     const result = await ImagePicker.launchCameraAsync();
 
-    // Explore the result
-    console.log(result);
-
-    if (!result.canceled) {
-      setPickedImagePath(result.uri); // may have to fix
-      console.log(result.uri);
+    if (!result.cancelled) {
+      const [{ uri }] = result.assets;
+      setPickedImagePath(uri); // use assets array now
       const storage = getStorage();
       const refer = ref(storage, link);
-      const img = await fetch(result.uri);
+      const img = await fetch(uri);
       const bytes = await img.blob();
       await uploadBytes(refer, bytes);
     }
   };
+  
   const requestPermission = async () => {
     const option = await ImagePicker.requestCameraPermissionsAsync();
     if (!option.granted)
       alert("You need to enable permisson to access this library");
   };
+  
   useEffect(() => {
     requestPermission();
-  });
+  }, []);
+  
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -68,15 +66,17 @@ export default function ImagePickerExample({
     setUrl(link);
 
     if (!result.canceled) {
-      setImage(result.uri);
+      const [{ uri }] = result.assets;
+      setImage(uri); // use assets array now
 
       const storage = getStorage();
       const refer = ref(storage, link);
-      const img = await fetch(result.uri);
+      const img = await fetch(uri);
       const bytes = await img.blob();
       await uploadBytes(refer, bytes);
     }
   };
+  
   // for photos from library
   const handlePress = () => {
     Alert.alert("Delete", "Are you sure you want to delete this image?", [

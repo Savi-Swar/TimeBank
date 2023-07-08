@@ -62,7 +62,6 @@ export const retrieveUserId = (user, setUser) => {
 export function Tasks(tasks, setTasks) {
   const [loading, setLoading] = useState(true); // Set loading to true on component mount
   const userId = firebase.auth().currentUser.uid;
-
   const colRef = firebase.firestore().collection(userId).doc('storage').collection('tasks');
 
   useEffect(() => {
@@ -85,6 +84,59 @@ export function Tasks(tasks, setTasks) {
 
   // ...
 }
+
+export async function updateRequest(kidName, reqMinutes, taskName) {
+  // Current userId
+  const userId = firebase.auth().currentUser.uid;
+
+  // Point to the correct document
+  const docRef = doc(firestores,  userId, "storage", "kids", kidName);
+
+  // Get the current state of the 'requests' field
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+      // If the document exists, get the current 'names', 'reqMinutes', and 'signs' arrays
+      let currentNames = Array.isArray(docSnap.data().names) ? docSnap.data().names : [];
+      let currentReqMinutes = Array.isArray(docSnap.data().reqMinutes) ? docSnap.data().reqMinutes : [];
+
+      // Prepend the new values to each array
+      let updatedNames = [taskName, ...currentNames];
+      let updatedReqMinutes = [reqMinutes, ...currentReqMinutes];
+
+      // Update the fields in the document
+      await updateDoc(docRef, { names: updatedNames, reqMinutes: updatedReqMinutes});
+
+  } else {
+      // If the document does not exist, set each field to an array containing the new value
+      await updateDoc(docRef, { names: [taskName], reqMinutes: [reqMinutes]});
+  }
+}
+export async function getRequests(setNames, setMins, kidName) {
+  // Current userId
+  const userId = firebase.auth().currentUser.uid;
+
+  // Point to the correct document
+  const docRef = doc(firestores, userId, "storage", "kids", kidName);
+
+  // Get the document
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    // If the document exists, get the current 'names' and 'reqMinutes' arrays
+    let currentNames = Array.isArray(docSnap.data().names) ? docSnap.data().names : [];
+    let currentReqMinutes = Array.isArray(docSnap.data().reqMinutes) ? docSnap.data().reqMinutes : [];
+
+    // Update the state variables with these values
+    setNames(currentNames);
+    setMins(currentReqMinutes);
+  } else {
+    // If the document does not exist, clear the state variables
+    setNames([]);
+    setMins([]);
+  }
+}
+
 export async function createCollectionWithUserId(userId) {
   // Get a reference to the Firestore service
 
@@ -109,10 +161,8 @@ export async function createCollectionWithUserId(userId) {
 
      // Within that document, create (or update) 5 sub-collections each with a single document
      storageDoc.collection('Active').doc('i6e8NvXh9xgoseQ5zZBh').set({});
-     storageDoc.collection('kids').doc('initial').set({});
-     storageDoc.collection('routines').doc('initial').set({});
-     storageDoc.collection('store').doc('initial').set({});
-     storageDoc.collection('tasks').doc('initial').set({});
+     storageDoc.collection('kids').doc('def').set({});
+     storageDoc.collection('routines')
    }
 }
 
@@ -142,7 +192,6 @@ export function Store(store, setStore) {
   // ...
 }
 export function updateActiveUser(name) {
-  console.log("in use")
   const data = {
     Name: name,
   };
@@ -216,9 +265,7 @@ export function retrieveUser(store, setStore) {
 export function Mins(minutes, setMinutes, name) {
   // const minRef = doc(firestores, "kids", name);
   const userId = firebase.auth().currentUser.uid;
-
   const minRef = doc(firestores, userId, "storage", "kids", name);
-
   async function cap() {
     try {
       const docSnap = await getDoc(minRef);
@@ -231,7 +278,7 @@ export function Mins(minutes, setMinutes, name) {
     } catch (error) {
       console.log(error);
     }
-  }
+  } 
   cap();
 
   
@@ -267,44 +314,53 @@ export function Kids(kids, setKids) {
   // ...
 }
 
-export function addKids(kid) {
+export async function addKids(kid) {
   console.log(kid)
   const data = {
     name: kid,
     minutes: 0,
-    MinutesAccumalated: 0,
+    MinutesAccumulated: 0,
     WeeklyMinutesEarned: 0,
-    MinutesSpent: 0
+    MinutesSpent: 0,
+    WeeklyArray: [], 
   };
-  const statsData = {
-    // Include any fields you need in the 'stats' document
-  };
+
   const userId = firebase.auth().currentUser.uid;
   
   const kidDocRef = doc(firestores, userId, "storage","kids", kid);
-  const weeklyStatsDocRef = doc(firestores, userId, "storage", "kids", kid, "weekly", "stats");
   
   async function setKidDoc() {
     await setDoc(kidDocRef, data);
   }
-  
-  async function setStatsDoc() {
-    await setDoc(weeklyStatsDocRef, statsData);
-  }
-  
-  async function noCap() {
-    const kidDocSnap = await getDoc(kidDocRef);
 
-    if (kidDocSnap.exists()) {
-      console.log("Document data:", kidDocSnap.data());
-    } else {
-      // If the kid document does not exist, create it and also the 'stats' document in the 'weekly' collection
-      setKidDoc();
-      setStatsDoc();
-    }
+  const kidDocSnap = await getDoc(kidDocRef);
+
+  if (kidDocSnap.exists()) {
+    console.log("Document data:", kidDocSnap.data());
+  } else {
+    // If the kid document does not exist, create it with an empty WeeklyArray field
+    setKidDoc();
   }
-  noCap();
+
+  const routineRefs = firebase.firestore().collection(userId).doc('storage').collection('routines');
+  const snapshot = await getDocs(routineRefs);
+  const routines = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+
+  routines.forEach(routine => {
+    const routineData = {
+      timesCompleted: 0,
+      averageTime: 0,
+      streak: 0,
+      lastCompleted: "",
+      times: [],
+    };
+
+    const routineDocRef = doc(firestores, userId, "storage", "kids", kid, routine.name, "stats");
+    setDoc(routineDocRef, routineData);
+  });
 }
+
+
 export function addMins(minutes, total, name) {
   const userId = firebase.auth().currentUser.uid;
   const minsRef = doc(firestores, userId, "storage","kids", name);
@@ -375,18 +431,80 @@ export function addMins(minutes, total, name) {
       
   noCap();
 }
-export function getWeekly(name, setDataset) {
-  const userId = firebase.auth().currentUser.uid;
-  const weeklyRef = doc(firestores, userId, "storage", "kids", name);
-  async function snap() {
-    const docSnap = await getDoc(weeklyRef);
+export function getWeekly(name) {
+  const [loading, setLoading] = useState(true);
+  const [dataset, setDataset] = useState([]);
 
-    if (docSnap.exists()) {
-      setDataset(docSnap.data().WeeklyArray)
-      // console.log(docSnap.data())
+  const userId = firebase.auth().currentUser.uid;
+  const weeklyPath = `${userId}/storage/kids/${name}`;
+
+  useEffect(() => {
+    console.log('Running getWeekly useEffect');
+    const weeklyRef = doc(firestores, userId, "storage", "kids", name);
+    async function snap() {
+      const docSnap = await getDoc(weeklyRef);
+
+      if (docSnap.exists()) {
+        setDataset(docSnap.data().WeeklyArray)
+        setLoading(false);
+      }
     }
+
+    snap();
+  }, [weeklyPath]);
+
+  return { dataset, loading };
+}
+
+
+export async function getRoutineStats(kidName, routineName) {
+  const userId = firebase.auth().currentUser.uid;
+  const db = firebase.firestore();
+
+  try {
+      const doc = await db
+          .collection(userId)
+          .doc('storage')
+          .collection('kids')
+          .doc(kidName)
+          .collection(routineName)
+          .doc('Stats')
+          .get();
+          
+      if (doc.exists) {
+          console.log("Document data:", doc.data());
+      } else {
+          console.log("No such document!");
+      }
+      
+      return doc.data();
+  } catch (error) {
+      console.log("Error getting documents: ", error);
   }
-  snap()
+}
+
+export function useRoutines() {
+  const [loading, setLoading] = useState(true);
+  const [store, setStore] = useState([]);
+  const userId = firebase.auth().currentUser.uid;
+
+  const routinePath = `${userId}/storage/routines`;
+
+  useEffect(() => {
+    console.log('Running useRoutines useEffect');
+    const routineRefs = firebase.firestore().collection(userId).doc('storage').collection('routines');
+    getDocs(routineRefs).then(snapshot => {
+      const routines = [];
+      snapshot.docs.forEach(doc => {
+        routines.push({ ...doc.data(), id: doc.id });
+      });
+
+      setStore(routines);
+      setLoading(false);
+    });
+  }, [routinePath]);
+
+  return { store, loading };
 }
 export function finishRoutine(minutesEarly, childName, routineName, et) {
   const userId = firebase.auth().currentUser.uid;
@@ -458,7 +576,6 @@ function isSameDay(d1, d2) {
 export function Routines(store, setStore) {
   const [loading, setLoading] = useState(true); // Set loading to true on component mount
   const userId = firebase.auth().currentUser.uid;
-
   const routineRefs = firebase.firestore().collection(userId).doc('storage').collection('routines');
   useEffect(() => {
     const item = getDocs(routineRefs).then(snapshot => {
@@ -542,25 +659,19 @@ export function rearrangeRoutine(collections, title, colID, id, im, up) {
   });
 }
 
-
-export function RoutinesCollections(routines, setRoutines, collections, id) {
+export async function RoutinesCollections(routines, setRoutines, collections, id) {
   const userId = firebase.auth().currentUser.uid;
-
   const routineRef = collection(firestores, userId, "storage", "routines", id, collections);
   const order = query(routineRef, orderBy("indx"));
-  useEffect(() => {
-    const item = getDocs(order).then(snapshot => {
-      routines = [];
-      snapshot.docs.forEach(doc => {
-        routines.push({ ...doc.data(), id: doc.id });
-
-      });
-      setRoutines(routines);
-
-    });
-    // Unsubscribe from events when no longer in use
+  
+  const snapshot = await getDocs(order);
+  routines = [];
+  snapshot.docs.forEach(doc => {
+    routines.push({ ...doc.data(), id: doc.id });
   });
+  setRoutines(routines);
 }
+
 export function updateTimes(textVal, title, graphic, id, collections) {
   x = textVal
   const userId = firebase.auth().currentUser.uid;
@@ -657,15 +768,38 @@ export async function deleteKidsRoutine(routineName) {
     }
   }
 }
+export async function removeRequest(kidName, index) {
+  // Current userId
+  const userId = firebase.auth().currentUser.uid;
 
-export { firebase, db, colRef, auth, firestores };
+  // Point to the correct document
+  const docRef = doc(firestores, userId, "storage", "kids", kidName);
+  // Get the current state of the 'names' and 'minutes' arrays
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+      // If the document exists, get the current 'names' and 'minutes' arrays
+      let currentNames = docSnap.data().names || [];
+      let currentMinutes = docSnap.data().reqMinutes || [];
+
+      // Check if index is valid
+      if (index < currentNames.length && index < currentMinutes.length && index >= 0) {
+          // Remove the item at the specified index from both arrays
+          currentNames.splice(index, 1);
+          currentMinutes.splice(index, 1);
+
+          // Update the fields in the document
+          await updateDoc(docRef, { names: currentNames, reqMinutes: currentMinutes });
+      }
+  }
+}
+export { firebase, db, colRef, auth, firestores, storage };
 export default {
   Tasks,
   Mins,
   addMins,
   makeid,
   Store,
-  storage,
   Routines,
   RoutinesCollections,
   addKids,
@@ -680,5 +814,10 @@ export default {
   finishRoutine,
   kidsRoutine, 
   deleteKidsRoutine,
-  getWeekly
+  getWeekly,
+  useRoutines,
+  getRoutineStats,
+  updateRequest,
+  getRequests,
+  removeRequest
 };

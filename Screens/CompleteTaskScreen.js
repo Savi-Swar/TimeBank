@@ -8,6 +8,7 @@ import colors from "../config/colors";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import * as firebase from "../firebase";
 import { getDownloadURL, ref, getStorage } from "firebase/storage";
+import RNPickerSelect from 'react-native-picker-select';
 
 function CompleteTaskScreen({ navigation, route }) {
   //count for addition
@@ -31,11 +32,24 @@ function CompleteTaskScreen({ navigation, route }) {
   const [named, setName] = useState("def");
   firebase.retrieveUser(named, setName);
   const [minutes, setMinutes] = useState(0);
+  const isAdult = route.params?.isAdult || false;
+  const [selectedKid, setSelectedKid] = useState(null);
+  const [kids, setKids] = useState([])
+  firebase.Kids(kids, setKids)
   return (
     <View style={styles.container}>
       <Image style={styles.image} source={{ uri: url }} />
       <Text style={styles.text}>{route.params.item.title}</Text>
       <Text style={styles.subtitle}>time taken: {total} minutes</Text>
+      
+      {isAdult && (
+        <RNPickerSelect
+          onValueChange={(value) => setSelectedKid(value)}
+          items={kids.map((kid) => ({ label: kid.name, value: kid.name }))}
+          placeholder={{ label: "Select a kid...", value: null }}
+        />
+      )}
+
       <View style={styles.icons}>
         <TouchableOpacity onPress={() => setCount(count + 1)}>
           <AntDesign
@@ -54,19 +68,31 @@ function CompleteTaskScreen({ navigation, route }) {
           <AppButton
             color="secondary"
             title="Complete"
-            onPress={() => firebase.addMins(minutes, total, named)}
+            onPress={() => {
+              if (isAdult) {
+                firebase.addMins(minutes, total, selectedKid);
+              } else {
+                firebase.updateRequest(named, total, route.params.item.title);
+              }
+            }}
           />
         </View>
       </View>
       <View style={styles.button}>
         <AppButton
           title="Back to Tasks"
-          onPress={() => navigation.navigate("HomeFile")}
+          onPress={() => {{ if (isAdult) {
+            navigation.navigate("TasksScreen", { isAdult: true })
+          } else {
+            navigation.navigate("HomeFile")
+          }}}}
         />
       </View>
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

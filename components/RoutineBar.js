@@ -7,7 +7,7 @@ import {
   Alert,
 } from "react-native";
 import Screen from "./Screen";
-import { doc, deleteDoc, getFirestore } from "firebase/firestore";
+import { doc, deleteDoc, getFirestore, collection } from "firebase/firestore";
 
 import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons";
 import colors from "../config/colors";
@@ -29,20 +29,18 @@ function RoutineBar({
   const handlePress = () => {
     Alert.alert("Delete", "Are you sure you want to delete this step?", [
       { text: "Yes", onPress: () => deleteTask() },
-      { text: "No" },
+      { text: "No", onPress: () => console.log("Sch") },
     ]);
   };
-
   const deleteTask = async () => {
-    const db = getFirestore();
-
-    let path = colId + "/" + colTitle + "/" + id;
-    const userId = firebase.auth.currentUser.uid;
-
-    const colRef = collection(getFirestore(), userId, "storage", "routines");
-
-    const docRef = doc(db, colRef, path);
-    await deleteDoc(docRef);
+    try {
+      const db = getFirestore();
+      const userId = firebase.auth.currentUser.uid;
+      const docRef = doc(db, userId, "storage", "routines", colId, colTitle, id);
+      await deleteDoc(docRef);
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+    }
   };
   const rearrangeUp = () => {
     if (im != 1) {
@@ -75,7 +73,8 @@ function RoutineBar({
           <Text style={styles.text}>{title}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => handlePress()}
+          onPress={() => 
+            handlePress()}
           style={styles.deleteButton}
         >
           <Entypo name="circle-with-cross" size={35} color="red" />

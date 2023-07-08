@@ -8,15 +8,15 @@ import Routine_Header from "../components/Routine_Header";
 import * as firebase from "../firebase";
 import LottieView from "lottie-react-native";
 
-function RoutinesScreen({ navigation }) {
+function RoutinesScreen({ navigation, route}) {  // Set default value here
   const [routines, setRoutines] = useState([]);
+  const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
 
   firebase.Routines(routines, setRoutines);
-
   return (
     <Screen style = {styles.fullScreen}>
       <View style={styles.MinBar}>
-        <Minutes />
+      {isAdult ? <AppButton title="Back to Kids View" onPress={() => navigation.navigate("KidsScreen")} /> : <Minutes />}
       </View>
 
       <View style={styles.titleContainer}>
@@ -28,7 +28,7 @@ function RoutinesScreen({ navigation }) {
             data={routines}
             keyExtractor={(routines) => routines.id}
             renderItem={({ item }) => (
-              <Routine_Header title={item.title} id={item.id} st = {item.startTime} et = {item.endTime}/>
+              <Routine_Header isAdult = {isAdult} title={item.title} id={item.id} st = {item.startTime} et = {item.endTime}/>
             )}
           />
         ) : (
@@ -48,7 +48,7 @@ function RoutinesScreen({ navigation }) {
       <View style={styles.addButton}>
         <AppButton
           title="Add+"
-          onPress={() => navigation.navigate("CreateRoutineSet")}
+          onPress={() => navigation.navigate("CreateRoutineSet", {isAdult: true})}
         />
       </View>
     </Screen>

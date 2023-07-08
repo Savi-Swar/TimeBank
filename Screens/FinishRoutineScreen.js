@@ -1,60 +1,79 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, Image, TouchableOpacity, TextInput } from "react-native";
+import { View, StyleSheet, Text, Image, TouchableOpacity, TextInput, Alert } from "react-native";
 import AppButton from "../components/AppButton";
 import Card from "../components/Card";
 import { AntDesign } from "@expo/vector-icons";
 import Minutes from "../components/Minutes";
 import colors from "../config/colors";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import * as firebase from "../firebase";
 import { getDownloadURL, ref, getStorage } from "firebase/storage";
 import Logo from "../components/Logo";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import RNPickerSelect from 'react-native-picker-select'; // Import the Picker component
 
 function FinishRoutineScreen({ navigation, route }) {
-  const [st, setST] = useState(new Date());
+  const [finishedTime, setFinishedTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [selectedKid, setSelectedKid] = useState(""); // Store the selected kid
+  const [holder, setHolder] = useState(""); // New holder state
 
   const [named, setName] = useState("");
-  const [cur, setCur] = useState("")
   firebase.retrieveUser(named, setName);
   const [minutes, setMinutes] = useState(0);
-  const [tot, setTot] = useState(new Date());
 
-  const onEndChange = (event, selectedDate) => {
-    const currentDate = selectedDate || st;
-    setST(currentDate);
-    console.log(route.params.obj)
-    // Parse the HH:MM time from route.params.obj
-    const [routineHours, routineMinutes] = route.params.obj.split(':').map(Number);
+  const handleEndChange = (event, selectedDate) => {
+    const currentDate = selectedDate || finishedTime;
+    setFinishedTime(currentDate);
+   
+    // Parse the HH:MM time from route.params.st and route.params.obj
+    const [startHours, startMinutes] = route.params.st.split(':').map(Number);
+    const [endHours, endMinutes] = route.params.obj.split(':').map(Number);
 
     // Create Date objects for both times
-    const routineTime = new Date();
-    routineTime.setHours(routineHours);
-    routineTime.setMinutes(routineMinutes);
+    const startTime = new Date();
+    startTime.setHours(startHours);
+    startTime.setMinutes(startMinutes);
 
-    const currentTime = new Date(currentDate);
+    const endTime = new Date();
+    endTime.setHours(endHours);
+    endTime.setMinutes(endMinutes);
+
+    // Ensure that the chosen time is between the start time and end time
+    if (currentDate < startTime || currentDate > endTime) {
+      Alert.alert('Invalid Time', `Finish time must be between ${route.params.st} and ${route.params.obj}`);
+      return;
+    }
 
     // Calculate the difference in minutes
-    let mins = Math.floor((routineTime - currentTime) / (1000 * 60));
-    setCur(currentTime)
-    setMinutes(mins);  // assuming you want to update the minutes state
+    const mins = Math.floor((endTime - currentDate) / (1000 * 60));
+    setMinutes(mins);
   };
+  const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
+  const [kids, setKids] = useState([])
+  firebase.Kids(kids, setKids)
   return (
     <View style={styles.container}>
       <View style={styles.container}>
         <Logo />
       </View>
 
+      {isAdult && (
+        <RNPickerSelect
+          onValueChange={(value) => setSelectedKid(value)}
+          items={kids.map((kid) => ({ label: kid.name, value: kid.name }))}
+          placeholder={{ label: "Select a kid...", value: null }}
+        />
+      )}
+
       <View style={styles.minutes}>
         <AppButton style={styles.button2} onPress={() => setShowTimePicker(true)} title="Completed At: " />
         {showTimePicker && (
           <DateTimePicker
             testID="dateTimePicker"
-            value={st}
+            value={finishedTime}
             mode={'time'}
             display="default"
-            onChange={onEndChange}
+            onChange={handleEndChange}
           />
         )}
       </View>
@@ -64,21 +83,31 @@ function FinishRoutineScreen({ navigation, route }) {
           color="secondary"
           title="Complete"
           onPress={() => {
-            firebase.addMins(tot, minutes, named);
-            firebase.finishRoutine(minutes, named, route.params.name, route.params.obj);
-          }
+            if (isAdult) {
+              firebase.addMins(holder, minutes, selectedKid);
+            } else {
+              firebase.updateRequest(named, minutes, route.params.name);
             }
+            firebase.finishRoutine(minutes, named, route.params.name, route.params.obj);
+          }}
         />
       </View>
+
       <View style={styles.button}>
         <AppButton
           title="Back to Routines"
-          onPress={() => navigation.navigate("HomeFile")}
+
+          onPress={() => { if (isAdult) {
+            navigation.navigate("RoutinesScreen", { isAdult: true })
+          } else {
+            navigation.navigate("HomeFile")
+          }}}
         />
       </View>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

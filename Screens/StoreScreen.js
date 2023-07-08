@@ -8,24 +8,16 @@ import * as firebase from "../firebase";
 import AppButton from "../components/AppButton";
 // import {Picker} from '@react-native-picker/picker';
 
-function StoreScreen({ navigation, minutes }) {
+function StoreScreen({ navigation, minutes, route }) {
   const [store, setStore] = useState([]);
   firebase.Store(store, setStore);
-
-  // const [selected, setSelected] = useState(undefined);
-  // const data = [
-  //   { label: 'One', value: '1' },
-  //   { label: 'Two', value: '2' },
-  //   { label: 'Three', value: '3' },
-  //   { label: 'Four', value: '4' },
-  //   { label: 'Five', value: '5' },
-  // ];
+  const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
 
   return (
  
     <Screen style = {{backgroundColor: colors.light}}>
       <View style={styles.minutes}>
-        <Minutes />
+      {isAdult ? <AppButton title="Back to Kids View" onPress={() => navigation.navigate("KidsScreen")} /> : <Minutes />}
       </View>
       {/* <View style={styles.container}>
       {!!selected && (
@@ -42,11 +34,14 @@ function StoreScreen({ navigation, minutes }) {
           keyExtractor={tasks => tasks.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() => {
+            onPress={() => {
+              if (route.params?.isAdult === true) {
+              } else {
                 navigation.navigate("BuyScreen", {
                   item: item,
-                });
-              }}
+                });                }
+              
+            }}
             >
               <Card
                 title={item.title}
@@ -63,12 +58,21 @@ function StoreScreen({ navigation, minutes }) {
         <AppButton
           color="secondary"
           title="Add More +"
-          onPress={() =>
-            navigation.navigate("CreateTask", {
-              location: "store",
-              loconame: "StoreScreen",
-            })
-          }
+          onPress={() => {
+            if (route.params?.isAdult === true) {
+              navigation.navigate("CreateTask", {
+                location: "store",
+                loconame: "StoreScreen",
+                isAdult: true
+              })             
+            } else {
+              navigation.navigate("CreateTask", {
+                location: "store",
+                loconame: "StoreScreen",
+              })              
+             }
+            
+          }}
         />
       </View>
     </Screen>

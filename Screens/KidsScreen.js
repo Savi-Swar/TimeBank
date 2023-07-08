@@ -1,37 +1,72 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList, Modal, Button } from "react-native";
 import { Kids } from "../firebase";
 import colors from "../config/colors";
 import KidsView from "../components/KidsView";
 import Screen from "../components/Screen";
 import Card from "../components/Card";
 import { TouchableOpacity } from "react-native-gesture-handler";
- 
-function KidsScreen({navigation}) {
-  function nav() {
-    navigation.navigate("Stats")
-  }
-  const [kids, setKids] = useState([]);
+import AppButton from "../components/AppButton";
 
-  Kids(kids, setKids);  // call Kids inside useEffect
+function KidsScreen({ navigation }) {
+  function nav() {
+    navigation.navigate("Stats");
+  }
+
+  const [kids, setKids] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  Kids(kids, setKids); // call Kids inside useEffect
+
+  const handleEditContents = () => {
+    setModalVisible(true);
+  };
+
+  const handleButtonPress = (screen) => {
+    setModalVisible(false);
+    navigation.navigate(screen , {isAdult: true});
+  };
+
   return (
-    <Screen  style = {{backgroundColor: colors.light}}>
+    <Screen style={{ backgroundColor: colors.light }}>
       <View style={styles.screen}>
-          <FlatList
-            data={kids}
-            keyExtractor={(kids) => kids.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress = {() => navigation.navigate("Stats", 
-              {minutes: item.minutes, 
-              name: item.name, 
-              weekly: item.WeeklyMinutesEarned,
-              spent: item.MinutesSpent,
-              earned: item.MinutesAccumalated,
-              })}>
-                <KidsView title={item.name} subtitle={item.minutes} />
-              </TouchableOpacity>
-            )}
+        <Button title="Edit Contents" onPress={handleEditContents} />
+        <Modal animationType="slide" visible={modalVisible}>
+          <View style={{width:'80%', alignItems: "center", justifyContent:"center", flex:1, left: 40, marginVertical: 100}}>
+          <AppButton
+            title="Routines"
+            onPress={() => handleButtonPress("RoutinesScreen")}
           />
+          <AppButton
+            title="Store"
+            onPress={() => handleButtonPress("StoreScreen")}
+          />
+          <AppButton
+            title="Task"
+            onPress={() => handleButtonPress("TasksScreen")}
+          />
+          <AppButton title="Close" onPress={() => setModalVisible(false)} />
+          </View>
+        </Modal>
+        <FlatList
+          data={kids}
+          keyExtractor={(kids) => kids.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Stats", {
+                  minutes: item.minutes,
+                  name: item.name,
+                  weekly: item.WeeklyMinutesEarned,
+                  spent: item.MinutesSpent,
+                  earned: item.MinutesAccumalated,
+                })
+              }
+            >
+              <KidsView title={item.name} subtitle={item.minutes} />
+            </TouchableOpacity>
+          )}
+        />
       </View>
     </Screen>
   );

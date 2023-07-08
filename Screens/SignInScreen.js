@@ -18,7 +18,7 @@ import * as Animatable from "react-native-animatable";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import ErrorMessage from "../components/ErrorMessage";
-import { auth } from "../firebase";
+import { auth, updateActiveUser } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 
 const validationSchema = Yup.object().shape({
@@ -57,6 +57,7 @@ function SignInScreen({ navigation }) {
         console.log(user.stsTokenManager.accessToken);
         if (user.stsTokenManager.accessToken) {
           navigation.navigate("KidsScreen");
+          updateActiveUser("def")
         }
         // ...
       })
@@ -101,7 +102,7 @@ function SignInScreen({ navigation }) {
                   </Animatable.View>
                 ) : null}
               </View>
-              {touched.email && (
+              {touched.email && errors.email && email === "" && (
                 <Text style={{ color: "red", top: 5 }}>{errors.email}</Text>
               )}
 
@@ -129,7 +130,7 @@ function SignInScreen({ navigation }) {
                   )}
                 </TouchableOpacity>
               </View>
-              {touched.password && (
+              {touched.password && errors.password && password === "" && (
                 <Text style={{ color: "red", top: 5 }}>{errors.password}</Text>
               )}
               <AppButton

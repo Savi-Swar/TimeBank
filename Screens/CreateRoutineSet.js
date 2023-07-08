@@ -153,18 +153,26 @@ function CreateRoutineSet({ navigation, route }) {
         </View>
 
         <View style={styles.buttons}>
-          <AppButton
+         <AppButton
             title="Create"
             onPress={() => {
               addField();
               setTriggerEffect(true); // setting triggerEffect to true when the button is pressed
-              navigation.navigate("HomeFile");
+              // if (route.params?.isAdult === true) {
+              //   navigation.navigate("RoutinesScreen", { isAdult: true });
+              // } else {
+                navigation.navigate("HomeFile");
+           
             }}
           />
           <AppButton
             title="Back"
             onPress={() => {
-              navigation.navigate("HomeFile");
+              if (route.params?.isAdult === true) {
+                navigation.navigate("RoutinesScreen", { isAdult: true });
+              } else {
+                navigation.navigate("HomeFile");
+              }
             }}
           />
         </View>

@@ -1,15 +1,21 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import colors from "../config/colors";
 import Screen from "./Screen";
 import { View, StyleSheet, Text } from "react-native";
 import AppButton from "../components/AppButton";
 import { useNavigation } from "@react-navigation/native";
+import * as firebase from "../firebase"
 function KidsView({ title, subtitle }) {
+  const [names, setNames] = useState([]);
+    const [mins, setMins] = useState([])
+    useEffect(() => {
+        firebase.getRequests(setNames, setMins, title);
+    }, []);
   return (
     <Screen style={styles.card}>
       <View style={styles.detailsContainer}>
         <Text style={styles.title} numberOfLines={1}>
-          {title}
+          {title} - {names.length} Requests
         </Text>
       </View>
           <View

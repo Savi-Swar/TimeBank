@@ -12,11 +12,13 @@ import { TabRouter } from "@react-navigation/native";
 function TasksScreen({ navigation, route }) {
   const [tasks, setTasks] = useState([]); // Initial empty array of users
   firebase.Tasks(tasks, setTasks);
+  const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
+
   return (
     // <View></View>
     <Screen style = {{backgroundColor: colors.light}}>
       <View style={styles.minutes}>
-        <Minutes />
+      {isAdult ? <AppButton title="Back to Kids View" onPress={() => navigation.navigate("KidsScreen")} /> : <Minutes />}
       </View>
       <View style={styles.screen}>
         <FlatList
@@ -24,11 +26,18 @@ function TasksScreen({ navigation, route }) {
           keyExtractor={tasks => tasks.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() => {
+            onPress={() => {
+              if (route.params?.isAdult === true) {
                 navigation.navigate("CompleteTaskScreen", {
                   item: item,
-                });
-              }}
+                  isAdult: true
+                });    
+              } else {
+                navigation.navigate("CompleteTaskScreen", {
+                  item: item,
+                });                }
+              
+            }}
             >
               <Card
                 title={item.title}
@@ -45,12 +54,21 @@ function TasksScreen({ navigation, route }) {
         <AppButton
           color="secondary"
           title="Add More +"
-          onPress={() =>
-            navigation.navigate("CreateTask", {
-              location: "tasks",
-              loconame: "TasksScreen",
-            })
-          }
+          onPress={() => {
+            if (route.params?.isAdult === true) {
+              navigation.navigate("CreateTask", {
+                location: "tasks",
+                loconame: "TasksScreen",
+                isAdult: true
+              })             
+            } else {
+              navigation.navigate("CreateTask", {
+                location: "tasks",
+                loconame: "TasksScreen",
+              })              
+             }
+            
+          }}
         />
       </View>
     </Screen>

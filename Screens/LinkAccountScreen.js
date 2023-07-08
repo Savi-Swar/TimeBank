@@ -40,12 +40,7 @@ function LinkAccountScreen({ navigation }) {
       secureTextEntry: !data.secureTextEntry,
     });
   };
-  // const handleSubmit = async ({ email, password }) => {
-  //   const result = await authApi.login(email, password);
-  //   if (!result.ok) return setLoginFailed(true);
-  //   setLoginFailed(false);
-  //   console.log(result.data);
-  // };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -102,14 +97,13 @@ function LinkAccountScreen({ navigation }) {
                   </Animatable.View>
                 ) : null}
               </View>
-              {touched.email && (
+              {touched.email && errors.email && email === "" && (
                 <Text style={{ color: "red", top: 5 }}>{errors.email}</Text>
               )}
-
+              
               <Text style={[styles.text_footer, { marginTop: 35 }]}>
                 Password
               </Text>
-
               <View style={styles.action}>
                 <Feather name="lock" size={20} />
                 <TextInput
@@ -130,7 +124,7 @@ function LinkAccountScreen({ navigation }) {
                   )}
                 </TouchableOpacity>
               </View>
-              {touched.password && (
+              {touched.password && errors.password && password === "" && (
                 <Text style={{ color: "red", top: 5 }}>{errors.password}</Text>
               )}
               <Text style={[styles.text_footer, { marginTop: 35 }]}>Name</Text>

@@ -4,20 +4,25 @@ import AppButton from '../components/AppButton';
 import { Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import * as firebase from '../firebase'
+import RoutineStats from './RoutineStats';
+import { ActivityIndicator } from 'react-native';
+import RoutinePopup from '../components/RoutinePopup';
+
 const screenWidth = Dimensions.get("window").width;
 
 function KidsStats({navigation, route}) {
+    const [routinePopupVisible, setRoutinePopupVisible] = useState(false);
+    const [selectedRoutine, setSelectedRoutine] = useState(null);
+
     const times = route.params.times || []; // assuming `times` is passed as a prop in route.params
     const timesInMinutes = times.map(time => {
         const [hour, minute] = time.split(':');
         return parseInt(hour) * 60 + parseInt(minute);
     });
-    const [dataset, setDataset] = useState([])
-    const [routines, setRoutines] = useState([]);
 
-    firebase.getWeekly(route.params.name, setDataset);
-    firebase.Routines(routines, setRoutines);
-    // firebase.getWeekly(route.params.name, setDataset)
+    const { store: routines, loading: routinesLoading } = firebase.useRoutines();
+    const { dataset, loading: weeklyLoading } = firebase.getWeekly(route.params.name);
+
     const data = {
         labels: ["1", "2", "3", "4", "5"],
         datasets: [
@@ -26,15 +31,20 @@ function KidsStats({navigation, route}) {
           }
         ]
     };
+
     const isValidData = (data) => {
         return data.every((item) => {
             return typeof item === 'number' && !isNaN(item) && item !== Infinity && item !== -Infinity;
         });
     }
     
+    if (weeklyLoading || routinesLoading) {
+        return <ActivityIndicator />;
+    }
     // firebase.Routines(routines, setRoutines)
     return (
         <View style={styles.container}>
+            <AppButton title = "Activity" onPress = {() => navigation.navigate("ActivityScreen", {name: route.params.name})}/>
             <Text style={styles.title}>{route.params.name}'s Stats</Text>
             
             <Text style={styles.statsText}>Minutes: {route.params.minutes}</Text>
@@ -42,7 +52,8 @@ function KidsStats({navigation, route}) {
             <Text style={styles.statsText}>Total Minutes Earned: {route.params.earned}</Text>
             <Text style={styles.statsText}>Total Minutes Spent: {route.params.spent}</Text>
 
-           
+            <Text style={styles.title}>Last Ten Weeks</Text>
+
             {
             isValidData(dataset) && (
                 <LineChart
@@ -67,14 +78,31 @@ function KidsStats({navigation, route}) {
                 />
             )}   
         <Text style={styles.title}>Routine Stats</Text>
+        <RoutinePopup
+            visible={routinePopupVisible}
+            onClose={() => setRoutinePopupVisible(false)}
+            routine={selectedRoutine}
+        />
+
         {routines.length > 0 ? (
                 <FlatList
                     data={routines}
                     keyExtractor={(routines) => routines.id}
                     renderItem={({ item }) => (
                     <View style={{width: '100%', width: 350}}>
-                        <AppButton title={item.title} style={styles.routineButton} />
-
+                        <AppButton
+                            title={item.title}
+                            style={styles.routineButton}
+                            onPress={() => {
+                                setSelectedRoutine({
+                                    name: item.title,
+                                    st: item.startTime,
+                                    et: item.endTime,
+                                    kid: route.params.name
+                                });
+                                setRoutinePopupVisible(true);
+                            }}
+                        />
                     </View>
                     )}
                 />
@@ -83,7 +111,7 @@ function KidsStats({navigation, route}) {
                     No routines found. Add one on a kids account!
                 </Text>
             )}
-            <View style = {{bottom: 100, width: "100%"}}>
+            <View style = {{width: "100%", bottom: 140}}>
                 <AppButton title="Back" onPress={() => navigation.navigate("KidsScreen")} style={styles.backButton}/>
             </View> 
         </View>

@@ -64,7 +64,7 @@ function CreateTask({ navigation, route }) {
     }
   }
   
-
+  const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
   return (
     <Screen>
       <View style={styles.container}>
@@ -97,11 +97,25 @@ function CreateTask({ navigation, route }) {
         <AppButton
           title="Create"
           onPress={() => {
-            addField(),
-              navigation.navigate("HomeFile"),
+            addField()
+            if (isAdult === true) {
+              if (route.params.location == "store") {
+                navigation.navigate("StoreScreen",
               {
                 url: url,
-              };
+                isAdult: true
+              });    
+            } else {
+              navigation.navigate("TasksScreen",
+              {
+                url: url,
+                isAdult: true
+              });   
+            }        
+            } else {
+              navigation.navigate("HomeFile")            
+             }
+            
           }}
         />
       </View>

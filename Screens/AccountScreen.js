@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, Animated } from 'react-native';
 import Screen from '../components/Screen';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -29,7 +29,10 @@ function AccountScreen({ navigation }) {
   firebase.retrieveUser(name, setName);
 
   const [minutes, setMinutes] = useState(0);
-  firebase.Mins(minutes, setMinutes, name);
+  useEffect(() => {  
+    console.log(name)
+    firebase.Mins(minutes, setMinutes, name);
+  }, [name]);
   let state = " Minutes: " + minutes;
 
  

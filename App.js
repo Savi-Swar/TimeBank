@@ -23,6 +23,8 @@ import FinishRoutineScreen from "./Screens/FinishRoutineScreen";
 import KidsScreen from "./Screens/KidsScreen";
 import { getAdditionalUserInfo } from "firebase/auth";
 import KidsStats from "./Screens/KidsStats";
+import RoutineStats from "./Screens/RoutineStats";
+import ActivityScreen from "./Screens/ActivityScreen";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -72,6 +74,8 @@ export default function App() {
             <Stack.Screen name="CreateTask" component={CreateTask} />
             <Stack.Screen name="KidsScreen" component={KidsScreen} />
             <Stack.Screen name="Stats" component={KidsStats} />
+            <Stack.Screen name="RoutineStats" component={RoutineStats} />
+
             <Stack.Screen name="RoutinesScreen" component={RoutinesScreen} />
             <Stack.Screen name = "FinishedRoutineScreen" component={FinishRoutineScreen}/>
             <Stack.Screen name = "Home" component = {AccountScreen}/>
@@ -82,6 +86,7 @@ export default function App() {
             <Stack.Screen name="CreateRoutineSet" component={CreateRoutineSet} />
             <Stack.Screen name = "BuyScreen" component = {BuyScreen} />
             <Stack.Screen name= "WelcomeScreen" component={WelcomeScreen} />
+            <Stack.Screen name = "ActivityScreen" component={ActivityScreen}/>
 
           </>
           ) : (
@@ -92,8 +97,10 @@ export default function App() {
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} /> 
             <Stack.Screen name="LinkAccountScreen" component={LinkAccountScreen} />
             <Stack.Screen name="HomeFile" component={Tabs} />
+            <Stack.Screen name="RoutineStats" component={RoutineStats} />
             <Stack.Screen name="KidsScreen" component={KidsScreen} />
 
+            <Stack.Screen name = "ActivityScreen" component={ActivityScreen}/>
 
             <Stack.Screen name="IDS" component={IdentificationScreen} />
             <Stack.Screen name="SplashScreen" component={SplashScreen} />

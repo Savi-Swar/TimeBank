@@ -47,15 +47,27 @@ function RoutineViewScreen({ navigation, route }) {
     route.params.title,
     route.params.id,
   );
+  const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
+
+  const navigateWithIsAdult = (screen, params = {}) => {
+    if (isAdult) {
+      navigation.navigate(screen, { ...params, isAdult: true });
+    } else {
+      navigation.navigate(screen, params);
+    }
+  }
 
   function nav() {
     navigation.navigate("HomeFile")
   }
-
   return (
     <Screen style={styles.container}>
       <View style={[styles.title, { backgroundColor: colors["secondary"] }]}>
-        <AppButton title="Back" color = "secondary" onPress = { nav }/>
+        <AppButton title="Back" color = "secondary" onPress = {() =>  {if (isAdult) {
+          navigation.navigate("RoutinesScreen", {isAdult: true})
+         } else {
+          navigation.navigate("HomeFile")
+         }}}/>
         <Text style={styles.text}>{route.params.title}</Text>
         <View style = {{flexDirection: 'row', paddingVertical: 5}}>
           <View style = {{paddingHorizontal: 5}}>
@@ -100,20 +112,40 @@ function RoutineViewScreen({ navigation, route }) {
         <AppButton
           title="Add+"
           onPress={() =>
-            navigation.navigate("CreateRoutine", {
+            navigateWithIsAdult("CreateRoutine", {
               name: route.params.title,
               id: route.params.id,
+              et: route.params.et,
+              st: route.params.st,
             })
           }
         />
-        <AppButton title = "Complete" onPress={() =>
-            navigation.navigate("FinishedRoutineScreen", {
-              obj: route.params.et,
-              st: route.params.st,
-              name: route.params.title
-            })
+           {!isAdult && (
+          <AppButton 
+            title="Complete"
+            onPress={() =>
+              navigateWithIsAdult("FinishedRoutineScreen", {
+                obj: route.params.et,
+                st: route.params.st,
+                name: route.params.title
+              })
             }
           />
+        )}
+        {isAdult && (
+           <AppButton 
+           title="Complete"
+           onPress={() =>
+             navigateWithIsAdult("FinishedRoutineScreen", {
+               obj: route.params.et,
+               st: route.params.st,
+               name: route.params.title,
+               isAdult: true
+             })
+           }
+         />
+        )
+        }
       </View>
     </Screen>
   );

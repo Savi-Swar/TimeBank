@@ -8,10 +8,11 @@ import Screen from "./Screen";
 import { Entypo } from "@expo/vector-icons";
 import { getFirestore, doc, deleteDoc, collection } from "firebase/firestore";
 import * as firebase from "../firebase";
-function Routine_Header({ title, id, st, et }) {
+function Routine_Header({ title, id, st, et, isAdult = "false" }) {
   const [days, setDays] = useState([]);
   const [months, setMonths] = useState([]);
   const navigation = useNavigation();
+
   retrieveDays(setDays, id, setMonths);
   var week = [
     "Sunday",
@@ -58,7 +59,6 @@ function Routine_Header({ title, id, st, et }) {
     // Now, you can delete the specific document
     await deleteDoc(specificDocRef);
   };
-  
   const handlePress = () => {
     Alert.alert("Delete", "Are you sure you want to delete this", [
       { text: "Yes", onPress: () => deleteTask() },
@@ -83,6 +83,7 @@ function Routine_Header({ title, id, st, et }) {
               id: id,
               st: st,
               et: et,
+              isAdult: isAdult
             })
           }
         />

@@ -39,7 +39,7 @@ function BuyScreen({ navigation, route }) {
           <AppButton
             color="secondary"
             title="Buy"
-            onPress={() => firebase.addMins(minutes, mins, named)}
+            onPress={() => firebase.updateRequest(named, mins, route.params.item.title)}
           />
         </View>
       </View>
