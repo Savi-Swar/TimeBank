@@ -25,43 +25,62 @@ import { getAdditionalUserInfo } from "firebase/auth";
 import KidsStats from "./Screens/KidsStats";
 import RoutineStats from "./Screens/RoutineStats";
 import ActivityScreen from "./Screens/ActivityScreen";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator } from "react-native";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
 const Stack = createNativeStackNavigator();
 
+
 export default function App() {
-  const [user, setUser] = useState("");
-  const [isUserLoaded, setIsUserLoaded] = useState(false); // Add this line
-    useEffect(() => {
-      const unsubscribe = retrieveUserId(user, setUser);
-      return () => {
-        unsubscribe && unsubscribe();
-      };
-    }, []);
+  const [user, setUser] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user == null) {
-      setIsUserLoaded(false);
-    } else if (user.uid && user.uid.length > 0) {
-      setIsUserLoaded(true);
+    const bootstrapAsync = async () => {
+      const auth = getAuth();
+      console.log(auth)
+      onAuthStateChanged(auth, (firebaseUser) => {
+        console.log("firebaseUser=>", firebaseUser);
+        setUser(firebaseUser);
+
+        if (firebaseUser) {
+          // Firebase User is signed in
+          getUserType();
+        } else {
+          // Firebase User is signed out
+          setUserType(null);
+          setIsLoading(false);
+        }
+      });
+    };
+    bootstrapAsync();
+  }, []);
+
+  const getUserType = async () => {
+    try {
+      const storedUserType = await AsyncStorage.getItem('@user_type');
+      setUserType(storedUserType);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-  }, [user]);
+  };
 
-  if (isUserLoaded) {
-    createCollectionWithUserId(user.uid);
-  }
-  useEffect(() => {
-    // if (isUserLoaded) {
-    //   navigation.navigate('HomeFile');
-    // }
-    // console.log(user)
-  }, [isUserLoaded]);
-  //Fix the is loaded issue 
-
-  return (
+  if (isLoading) {
+    return (
+      // Render some sort of loading component
+      <ActivityIndicator />
+    );
+  } else {
+    return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{
         headerShown: false
       }}>
-         {isUserLoaded ? (
+         {user !== null && userType !== null ? (
           <>
             <Stack.Screen name="HomeFile" component={Tabs} />
             <Stack.Screen name="LinkAccountScreen" component={LinkAccountScreen} />
@@ -96,9 +115,9 @@ export default function App() {
             <Stack.Screen name="SignInScreen" component={SignInScreen} />
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} /> 
             <Stack.Screen name="LinkAccountScreen" component={LinkAccountScreen} />
-            <Stack.Screen name="HomeFile" component={Tabs} />
             <Stack.Screen name="RoutineStats" component={RoutineStats} />
             <Stack.Screen name="KidsScreen" component={KidsScreen} />
+            <Stack.Screen name="HomeFile" component={Tabs} />
 
             <Stack.Screen name = "ActivityScreen" component={ActivityScreen}/>
 
@@ -124,5 +143,6 @@ export default function App() {
         </Stack.Navigator>
     </NavigationContainer>
   );
+}
 }
 

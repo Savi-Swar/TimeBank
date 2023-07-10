@@ -15,6 +15,9 @@ import "firebase/compat/database";
 import "firebase/compat/storage";
 import { useState, useEffect } from "react";
 import { ActivityIndicator } from "react-native";
+import { initializeAuth } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getReactNativePersistence } from "firebase/auth/react-native"
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -27,12 +30,16 @@ const firebaseConfig = {
   appId: "1:1057985279971:web:064ac7201d33f936c452d6",
   measurementId: "G-1XMB0MDWKC",
 };
-
+let firebaseApp = null;
 if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+  firebaseApp = firebase.initializeApp(firebaseConfig);
+  initializeAuth(firebaseApp, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
 } else {
-  firebase.app();
+  firebaseApp = firebase.app();
 }
+
 const storage = firebase.storage();
 const db = firebase.database();
 const auth = firebase.auth();
@@ -44,7 +51,9 @@ const kidsRef = firestores.collection("kids");
 const activeRef = firestores.collection("Active");
 
 // ... (rest of your code)
-
+export const signoutUser = () => {
+  auth.signOut().then(()=>console.log("Signed Out"))
+};
 export const retrieveUserId = (user, setUser) => {
   const unsubscribe = firebase.auth().onAuthStateChanged((firebaseUser) => {
       if (firebaseUser) {
@@ -191,6 +200,7 @@ export function Store(store, setStore) {
 
   // ...
 }
+// I think this no longer needs to be used
 export function updateActiveUser(name) {
   const data = {
     Name: name,
@@ -247,6 +257,7 @@ export function retrieveMonths(setDays, id) {
   }
   cap();
 }
+// I think this no longer needs to be used
 export function retrieveUser(store, setStore) {
   const userId = firebase.auth().currentUser.uid;
 
@@ -315,7 +326,6 @@ export function Kids(kids, setKids) {
 }
 
 export async function addKids(kid) {
-  console.log(kid)
   const data = {
     name: kid,
     minutes: 0,
@@ -326,27 +336,19 @@ export async function addKids(kid) {
   };
 
   const userId = firebase.auth().currentUser.uid;
-  
-  const kidDocRef = doc(firestores, userId, "storage","kids", kid);
-  
-  async function setKidDoc() {
-    await setDoc(kidDocRef, data);
-  }
+  const kidDocRef = doc(firestores, `${userId}/storage/kids/${kid}`);
 
   const kidDocSnap = await getDoc(kidDocRef);
 
-  if (kidDocSnap.exists()) {
-    console.log("Document data:", kidDocSnap.data());
-  } else {
-    // If the kid document does not exist, create it with an empty WeeklyArray field
-    setKidDoc();
+  if (!kidDocSnap.exists()) {
+    await setDoc(kidDocRef, data);
   }
 
-  const routineRefs = firebase.firestore().collection(userId).doc('storage').collection('routines');
+  const routineRefs = collection(firestores, `${userId}/storage/routines`);
   const snapshot = await getDocs(routineRefs);
   const routines = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
 
-  routines.forEach(routine => {
+  routines.forEach(async (routine) => {
     const routineData = {
       timesCompleted: 0,
       averageTime: 0,
@@ -355,8 +357,8 @@ export async function addKids(kid) {
       times: [],
     };
 
-    const routineDocRef = doc(firestores, userId, "storage", "kids", kid, routine.name, "stats");
-    setDoc(routineDocRef, routineData);
+    const routineDocRef = doc(firestores, `${userId}/storage/kids/${kid}/${routine.name}/stats`);
+    await setDoc(routineDocRef, routineData);
   });
 }
 
@@ -768,7 +770,7 @@ export async function deleteKidsRoutine(routineName) {
     }
   }
 }
-export async function removeRequest(kidName, index) {
+export async function removeRequest(kidName, index, setLen) {
   // Current userId
   const userId = firebase.auth().currentUser.uid;
 
@@ -781,12 +783,12 @@ export async function removeRequest(kidName, index) {
       // If the document exists, get the current 'names' and 'minutes' arrays
       let currentNames = docSnap.data().names || [];
       let currentMinutes = docSnap.data().reqMinutes || [];
-
       // Check if index is valid
       if (index < currentNames.length && index < currentMinutes.length && index >= 0) {
           // Remove the item at the specified index from both arrays
           currentNames.splice(index, 1);
           currentMinutes.splice(index, 1);
+          setLen(currentNames.length)
 
           // Update the fields in the document
           await updateDoc(docRef, { names: currentNames, reqMinutes: currentMinutes });
@@ -819,5 +821,6 @@ export default {
   getRoutineStats,
   updateRequest,
   getRequests,
-  removeRequest
+  removeRequest,
+  signoutUser
 };

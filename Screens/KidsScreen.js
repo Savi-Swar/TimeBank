@@ -67,6 +67,7 @@ function KidsScreen({ navigation }) {
             </TouchableOpacity>
           )}
         />
+        <AppButton title="Back" onPress={()=> navigation.navigate("WelcomeScreen")}/>
       </View>
     </Screen>
   );

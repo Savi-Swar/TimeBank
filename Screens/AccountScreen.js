@@ -19,20 +19,43 @@ function AccountScreen({ navigation }) {
         onPress: () => {
           navigation.navigate("WelcomeScreen");
           firebase.updateActiveUser("");
+          firebase.signoutUser();
         },
       },
       { text: "No" },
     ]);
   };
 
-  const [name, setName] = useState("def");
-  firebase.retrieveUser(name, setName);
-
   const [minutes, setMinutes] = useState(0);
+  const [name, setName] = useState("def");
+
+  // const storeUserDetails = async (userId, userType) => {
+  //   try {
+  //     await AsyncStorage.setItem('@user_id', userId);
+  //     await AsyncStorage.setItem('@user_type', userType);
+  //   } catch (e) {
+  //     // saving error
+  //   }
+  // }
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@active_kid')
+        if(value !== null) {
+            // value previously stored
+            console.log(value)
+            firebase.Mins(minutes, setMinutes, value);
+            setName(value)
+        }
+    } catch(e) {
+        // error reading value
+    }
+}
+
+
   useEffect(() => {  
-    console.log(name)
-    firebase.Mins(minutes, setMinutes, name);
-  }, [name]);
+    getData()
+    // console.log(name)
+  }, []);
   let state = " Minutes: " + minutes;
 
  

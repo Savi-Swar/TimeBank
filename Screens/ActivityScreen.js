@@ -54,6 +54,7 @@ function ActivityScreen({navigation, route}) {
           ]
         );
       };
+    const [len, setLen] = useState(0)
     useEffect(() => {
     if (names.length && mins.length) {
         const requests = names.map((name, index) => {
@@ -61,7 +62,8 @@ function ActivityScreen({navigation, route}) {
         });
         setRequests(requests);
     }
-    }, [names, mins]);
+    }, [names, mins, len]);
+    // console.log(len)
       return (
         <View style={styles.container}>
           <Text style={styles.titleText}>{route.params.name}'s Activity</Text>
@@ -74,6 +76,7 @@ function ActivityScreen({navigation, route}) {
                 kid={route.params.name} 
                 minutes={item.minutes} 
                 index={item.index}
+                setLen = {setLen}
                 onRemoveRequest={() => setRefresh(prevRefresh => !prevRefresh)}
                 />
             }

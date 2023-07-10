@@ -4,7 +4,7 @@ import * as firebase from '../firebase';
 import AppButton from '../components/AppButton';
 import colors from '../config/colors';
 
-function Requester({ name, kid, minutes, index }) {
+function Requester({ name, kid, minutes, index, setLen }) {
   const [mins, setMins] = useState(minutes);
 
   const handleApprove = () => {
@@ -22,7 +22,7 @@ function Requester({ name, kid, minutes, index }) {
             // Approve request: call firebase.minutes and pass the current state of 'mins', the 'minutes' prop, and the 'kid' prop
             firebase.addMins(mins, minutes, kid);
             // TODO: Remove the request from the array
-            firebase.removeRequest(kid, index);
+            firebase.removeRequest(kid, index, setLen);
           }
         }
       ]
@@ -42,7 +42,8 @@ function Requester({ name, kid, minutes, index }) {
           text: "OK",
           onPress: () => {
             // TODO: Remove the request from the array
-            firebase.removeRequest(kid, index);
+            console.log(index)
+            firebase.removeRequest(kid, index, setLen);
           }
         }
       ]

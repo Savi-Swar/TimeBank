@@ -10,6 +10,7 @@ import { getDownloadURL, ref, getStorage } from "firebase/storage";
 import Logo from "../components/Logo";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select'; // Import the Picker component
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function FinishRoutineScreen({ navigation, route }) {
   const [finishedTime, setFinishedTime] = useState(new Date());
@@ -17,8 +18,22 @@ function FinishRoutineScreen({ navigation, route }) {
   const [selectedKid, setSelectedKid] = useState(""); // Store the selected kid
   const [holder, setHolder] = useState(""); // New holder state
 
-  const [named, setName] = useState("");
-  firebase.retrieveUser(named, setName);
+  const [named, setName] = useState("def");
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@active_kid')
+        if(value !== null) {
+            // value previously stored
+            setName(value)
+        }
+    } catch(e) {
+        // error reading value
+    }
+}
+  useEffect(() => {  
+    getData()
+    // console.log(name)
+  }, []);
   const [minutes, setMinutes] = useState(0);
 
   const handleEndChange = (event, selectedDate) => {

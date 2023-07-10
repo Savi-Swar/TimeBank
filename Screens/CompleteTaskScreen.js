@@ -9,6 +9,7 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 import * as firebase from "../firebase";
 import { getDownloadURL, ref, getStorage } from "firebase/storage";
 import RNPickerSelect from 'react-native-picker-select';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function CompleteTaskScreen({ navigation, route }) {
   //count for addition
@@ -30,7 +31,22 @@ function CompleteTaskScreen({ navigation, route }) {
     func();
   }, []);
   const [named, setName] = useState("def");
-  firebase.retrieveUser(named, setName);
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@active_kid')
+        if(value !== null) {
+            // value previously stored
+            console.log(value)
+            setName(value)
+        }
+    } catch(e) {
+        // error reading value
+    }
+}
+  useEffect(() => {  
+    getData()
+    // console.log(name)
+  }, []);  
   const [minutes, setMinutes] = useState(0);
   const isAdult = route.params?.isAdult || false;
   const [selectedKid, setSelectedKid] = useState(null);

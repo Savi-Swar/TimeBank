@@ -8,13 +8,16 @@ import {
   Alert,
   TouchableOpacity,
   StyleSheet,
+  Text
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import AppButton from "./AppButton";
 import initalizeApp from "firebase/app";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { firebaseConfig } from "../firebase";
 import { makeid } from "../firebase";
+import mime from 'mime';
+
 export default function ImagePickerExample({
   setImage,
   image,
@@ -23,6 +26,7 @@ export default function ImagePickerExample({
   setUrl,
 }) {
   const [pickedImagePath, setPickedImagePath] = useState("");
+
 
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -34,16 +38,25 @@ export default function ImagePickerExample({
 
     const result = await ImagePicker.launchCameraAsync();
 
-    if (!result.cancelled) {
-      const [{ uri }] = result.assets;
-      setPickedImagePath(uri); // use assets array now
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      const type = result.assets[0].type;
+      setPickedImagePath(uri);
+
+      const extension = mime.getExtension(type) || 'jpg';
+      const link = makeid(15) + "." + extension;
+
       const storage = getStorage();
       const refer = ref(storage, link);
       const img = await fetch(uri);
       const bytes = await img.blob();
       await uploadBytes(refer, bytes);
+
+      const uploadedFileURL = await getDownloadURL(refer);
+      setPickedImagePath(uploadedFileURL);
     }
-  };
+};
+
   
   const requestPermission = async () => {
     const option = await ImagePicker.requestCameraPermissionsAsync();
@@ -54,28 +67,44 @@ export default function ImagePickerExample({
   useEffect(() => {
     requestPermission();
   }, []);
-  
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.5,
-    });
-    let link = makeid(15) + ".jpg";
-    setUrl(link);
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.5,
+      });
+  
+      if (!result.canceled) {
+        const uri = result.assets[0].uri;
+        const type = result.assets[0].type;
+        console.log("Picked image URI: ", uri);
+  
+        const extension = mime.getExtension(type) || 'jpg';
+        let link = makeid(15) + "." + extension;
+        console.log("Generated link: ", link);
+    
+        const storage = getStorage();
+        const refer = ref(storage, link);
+        const img = await fetch(uri);
+        const bytes = await img.blob();
+        console.log("Got image blob, starting upload...");
+        await uploadBytes(refer, bytes);
+        console.log("Upload finished");
 
-    if (!result.canceled) {
-      const [{ uri }] = result.assets;
-      setImage(uri); // use assets array now
-
-      const storage = getStorage();
-      const refer = ref(storage, link);
-      const img = await fetch(uri);
-      const bytes = await img.blob();
-      await uploadBytes(refer, bytes);
+        const uploadedFileURL = await getDownloadURL(refer);
+        console.log("Uploaded file URL: ", uploadedFileURL);
+        setImage(uploadedFileURL);
+        setUrl(link)
+      }
+    } catch (error) {
+      console.error("Error picking and uploading image: ", error);
     }
-  };
+};
+
+
+  
   
   // for photos from library
   const handlePress = () => {
@@ -95,29 +124,50 @@ export default function ImagePickerExample({
   return (
     <>
       <AppButton title="Take Photo" onPress={takePhoto} />
-      <TouchableWithoutFeedback onPress={handlePress2}>
-        <View>
-          {pickedImagePath !== "" && (
-            <Image
-              source={{ uri: pickedImagePath }}
-              style={{ width: 180, height: 100 }}
-            />
-          )}
-        </View>
-      </TouchableWithoutFeedback>
+
+      <View style={{position: 'relative'}}>
+        <TouchableWithoutFeedback onPress={handlePress2}>
+          <View>
+            {pickedImagePath !== "" && (
+              <Image
+                source={{ uri: pickedImagePath }}
+                style={{ width: 180, height: 100 }}
+              />
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+        {pickedImagePath !== "" && (
+          <TouchableOpacity 
+            style={{position: 'absolute', right: 0, top: 0}} 
+            onPress={handlePress2}
+          >
+            <Text style={{fontSize: 20}}>X</Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
       <AppButton title="Add Image from library" onPress={pickImage} />
 
-      <TouchableWithoutFeedback onPress={handlePress}>
-        <View>
-          {image && (
-            <Image
-              source={{ uri: image }}
-              style={{ width: 180, height: 100 }}
-            />
-          )}
-        </View>
-      </TouchableWithoutFeedback>
+      <View style={{position: 'relative'}}>
+        <TouchableWithoutFeedback onPress={handlePress}>
+          <View>
+            {image && (
+              <Image
+                source={{ uri: image }}
+                style={{ width: 180, height: 100 }}
+              />
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+        {image && (
+          <TouchableOpacity 
+            style={{position: 'absolute', right: 0, top: 0}} 
+            onPress={handlePress}
+          >
+            <Text style={{fontSize: 20}}>X</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </>
   );
 }

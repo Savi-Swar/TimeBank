@@ -1,4 +1,4 @@
-import { getDownloadURL, ref, getStorage } from "firebase/storage";
+import { getDownloadURL, ref, getStorage, deleteObject } from "firebase/storage";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -13,7 +13,11 @@ import {
 import colors from "../config/colors";
 import * as firebase from "../firebase";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
-import { doc, deleteDoc, getFirestore, collection } from "firebase/firestore";
+import { doc, deleteDoc, getFirestore, collection, getDoc } from "firebase/firestore";
+// import { } from "firebase/storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 // import { Grayscale} from 'react-native-color-matrix-image-filters'
 function Card({ title, subTitle, image, id, location }) {
   // for deleting tasks
@@ -41,18 +45,46 @@ function Card({ title, subTitle, image, id, location }) {
     const userId = firebase.auth.currentUser.uid;
 
     const docRef = doc(db, userId, "storage", location, id);
+    const docSnap = await getDoc(docRef);
 
+    const img = docSnap.data().image
+    const storage = getStorage();
+
+    // Create a reference to the file to delete
+    const desertRef = ref(storage, img);
+    
+    // Delete the file
+    deleteObject(desertRef).then(() => {
+      // File deleted successfully
+      console.log("DELETED IMAGE")
+    }).catch((error) => {
+      // Uh-oh, an error occurred!
+      console.log(error)
+    });
     await deleteDoc(docRef);
 
   };
   const [minutes, setMinutes] = useState(0);
   const [named, setName] = useState("def");
   // let minutes;
-  firebase.retrieveUser(named, setName);
-
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@active_kid')
+        if(value !== null) {
+            // value previously stored
+            console.log(value)
+            setName(value)
+        }
+    } catch(e) {
+        // error reading value
+    }
+}
+  useEffect(() => {  
+    getData()
+    // console.log(name)
+  }, []);
   firebase.Mins(minutes, setMinutes, named);
   let black = (minutes < parseInt(subTitle) && location == "store")
-
   return (
     <View style={styles.card}>
         { black == true ?

@@ -20,6 +20,7 @@ import * as Yup from "yup";
 import ErrorMessage from "../components/ErrorMessage";
 import { addKids, auth, updateActiveUser } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -40,28 +41,43 @@ function LinkAccountScreen({ navigation }) {
       secureTextEntry: !data.secureTextEntry,
     });
   };
-
+  const storeData = async (value) => {
+    try {
+        await AsyncStorage.setItem('@active_kid', value)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  const storeUserDetails = async (userId, userType) => {
+    try {
+      await AsyncStorage.setItem('@user_id', userId);
+      await AsyncStorage.setItem('@user_type', userType);
+    } catch (e) {
+      // saving error
+    }
+  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  function handleSignIn() {
-    signInWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        // Signed in
-        const user = userCredential.user;
-        if (user.stsTokenManager.accessToken) {
-          navigation.navigate("HomeFile");
+  async function handleSignIn() {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      if (user.stsTokenManager.accessToken) {
+        await storeData(name)
+        // await storeUserDetails(firebase.auth.currentUser.uid, "kid")
 
-          updateActiveUser(name);
-          addKids(name);
-        }
-        // ...
-      })
-      .catch(error => {
-        console.log(error);
-        alert("Invalid LogIn");
-      });
+        // await updateActiveUser(name);
+        console.log(auth.currentUser.uid)
+        await addKids(name);
+        navigation.navigate("HomeFile");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Invalid LogIn");
+    }
   }
+  
 
   return (
     <View style={styles.container}>

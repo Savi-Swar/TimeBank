@@ -5,7 +5,6 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import * as firebase from "../firebase";
 import AppButton from "../components/AppButton";
-import CreateRoutine from "./CreateRoutine";
 import LottieView from "lottie-react-native";
 import { MaterialIcons } from '@expo/vector-icons'; 
 import TimeProgressBar from "../components/TimeProgressBar";

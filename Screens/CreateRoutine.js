@@ -11,7 +11,6 @@ import ImagePickerExample from "../components/ImagePicker";
 import * as firebase from "../firebase";
 import { uploadBytes } from "firebase/storage";
 import LottieView from "lottie-react-native";
-import RoutineViewScreen from "./RoutineViewScreen";
 
 function CreateRoutine({ navigation, route }) {
   const [nameInputValue, setNameInputValue] = useState("");

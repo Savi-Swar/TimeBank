@@ -25,9 +25,23 @@ function BuyScreen({ navigation, route }) {
     func();
   }, []);
   const [named, setName] = useState("def");
-  firebase.retrieveUser(named, setName);
   const [minutes, setMinutes] = useState(0);
-
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@active_kid')
+        if(value !== null) {
+            // value previously stored
+            console.log(value)
+            setName(value)
+        }
+    } catch(e) {
+        // error reading value
+    }
+}
+  useEffect(() => {  
+    getData()
+    // console.log(name)
+  }, []);
   return (
     <View style={styles.container}>
       <Image style={styles.image} source={{ uri: url }} />
