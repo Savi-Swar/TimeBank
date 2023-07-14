@@ -28,7 +28,8 @@ function RoutinesScreen({ navigation, route}) {  // Set default value here
             data={routines}
             keyExtractor={(routines) => routines.id}
             renderItem={({ item }) => (
-              <Routine_Header isAdult = {isAdult} title={item.title} id={item.id} st = {item.startTime} et = {item.endTime}/>
+              <Routine_Header isAdult = {isAdult} title={item.title} id={item.id}
+               st = {item.startTime} et = {item.endTime} days = {item.days} months = {item.months}/>
             )}
           />
         ) : (

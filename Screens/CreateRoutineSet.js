@@ -11,6 +11,7 @@ import {
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 import Logo from "../components/Logo";
+import { getDatabase, ref, set } from "firebase/database";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
 import TasksScreen from "./TasksScreen";
@@ -82,7 +83,7 @@ function CreateRoutineSet({ navigation, route }) {
       startTime: st.toString().substring(16,21),
       endTime: et.toString().substring(16,21),
     };
-
+    addField2();
     todoRef
       .doc(id)
       .set(data)
@@ -97,7 +98,29 @@ function CreateRoutineSet({ navigation, route }) {
         alert(error);
       });
   }
+  function addField2() {
+    const data = {
+      title: nameInputValue,
+      days: daysOfWeek,
+      months: monthsOfYear,
+      startTime: st.toString().substring(16,21),
+      endTime: et.toString().substring(16,21),
+    };
+    const db = getDatabase();
+      const tasksRef = ref(db, `Users/${userId}/routines/${id}`);
+  
+      set(tasksRef, data)
+      .then(() => {
+        Keyboard.dismiss();
+        firebase.kidsRoutine(nameInputValue);
 
+        setDaysOfWeek([]);
+        setMonthsOfYear([]);
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
   return (
     <Screen style={styles.screen}>
       <ScrollView>

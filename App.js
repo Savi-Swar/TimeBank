@@ -28,11 +28,15 @@ import ActivityScreen from "./Screens/ActivityScreen";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from "react-native";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-
+import { AppRegistry } from 'react-native';
+import { registerRootComponent } from 'expo';
+import { LogBox } from 'react-native';
 const Stack = createNativeStackNavigator();
 
-
 export default function App() {
+
+  AppRegistry.registerComponent('App', () => App);
+
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,9 +44,9 @@ export default function App() {
   useEffect(() => {
     const bootstrapAsync = async () => {
       const auth = getAuth();
-      console.log(auth)
+      // console.log(auth)
       onAuthStateChanged(auth, (firebaseUser) => {
-        console.log("firebaseUser=>", firebaseUser);
+        // console.log("firebaseUser=>", firebaseUser);
         setUser(firebaseUser);
 
         if (firebaseUser) {
@@ -83,6 +87,9 @@ export default function App() {
          {user !== null && userType !== null ? (
           <>
             <Stack.Screen name="HomeFile" component={Tabs} />
+
+            <Stack.Screen name="KidsScreen" component={KidsScreen} />
+
             <Stack.Screen name="LinkAccountScreen" component={LinkAccountScreen} />
  
             <Stack.Screen name="IDS" component={IdentificationScreen} />
@@ -91,7 +98,6 @@ export default function App() {
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
             <Stack.Screen name="CompleteTaskScreen" component={CompleteTaskScreen} />
             <Stack.Screen name="CreateTask" component={CreateTask} />
-            <Stack.Screen name="KidsScreen" component={KidsScreen} />
             <Stack.Screen name="Stats" component={KidsStats} />
             <Stack.Screen name="RoutineStats" component={RoutineStats} />
 

@@ -16,6 +16,7 @@ import TasksScreen from "./TasksScreen";
 import StoreScreen from "./StoreScreen";
 import ImagePickerExample from "../components/ImagePicker";
 import * as firebase from "../firebase";
+import { getDatabase, ref, set } from "firebase/database";
 import { uploadBytes } from "firebase/storage";
 import LottieView from "lottie-react-native";
 function CreateTask({ navigation, route }) {
@@ -48,22 +49,20 @@ function CreateTask({ navigation, route }) {
       const userId = firebase.auth.currentUser.uid;
   
       // Reference the user's 'tasks' sub-collection
-      const tasksRef = firebase.firestores.collection(userId).doc('storage').collection(route.params.location);
-  
-      tasksRef
-        .doc(id)
-        .set(data)
+      const db = getDatabase();
+      const tasksRef = ref(db, `Users/${userId}/${route.params.location}/${id}`);
+      console.log("setting...")
+      set(tasksRef, data)
         .then(() => {
           setNameInputValue("");
           setMinutesInputValue("");
           Keyboard.dismiss();
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error);
         });
     }
   }
-  
   const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
   return (
     <Screen>

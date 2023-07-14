@@ -11,49 +11,25 @@ function ActivityScreen({navigation, route}) {
     const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
-        firebase.getRequests(setNames, setMins, route.params.name);
-      }, [refresh]);
-    
-      const handleApprove = () => {
-        Alert.alert(
-          "Approve Request",
-          "Are you sure you want to approve this request?",
-          [
-            {
-              text: "Cancel",
-              style: "cancel"
-            },
-            {
-              text: "OK",
-              onPress: () => {
-                firebase.addMins(mins, minutes, kid);
-                firebase.removeRequest(kid, index);
-                onRemoveRequest();
-              }
-            }
-          ]
-        );
-      };
-    
-      const handleDeny = () => {
-        Alert.alert(
-          "Deny Request",
-          "Are you sure you want to deny this request?",
-          [
-            {
-              text: "Cancel",
-              style: "cancel"
-            },
-            {
-              text: "OK",
-              onPress: () => {
-                firebase.removeRequest(kid, index);
-                onRemoveRequest();
-              }
-            }
-          ]
-        );
-      };
+      // add the function to set requests inside the callback
+      firebase.getRequests(setRequests, setMins, route.params.name);
+    }, []);
+  
+    const handleRemove = (index) => {
+      setRequests(requests.filter((_, i) => i !== index));
+    };
+  
+    const handleApprove = (index, kid, minutes) => {
+      firebase.addMins(minutes, kid);
+      handleRemove(index);
+    };
+  
+    const handleDeny = (index, kid) => {
+      firebase.removeRequest(kid, index);
+      handleRemove(index);
+    };
+  
+
     const [len, setLen] = useState(0)
     useEffect(() => {
     if (names.length && mins.length) {
@@ -70,17 +46,17 @@ function ActivityScreen({navigation, route}) {
           <FlatList 
             data={requests}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => 
-                <Requester 
+            renderItem={({ item, index }) => 
+              <Requester 
                 name={item.name} 
                 kid={route.params.name} 
                 minutes={item.minutes} 
-                index={item.index}
-                setLen = {setLen}
-                onRemoveRequest={() => setRefresh(prevRefresh => !prevRefresh)}
-                />
+                index={index}
+                onApprove={handleApprove}
+                onDeny={handleDeny}
+              />
             }
-            />
+          />
           <View style={styles.buttonContainer}>
             <AppButton 
               title='Back'

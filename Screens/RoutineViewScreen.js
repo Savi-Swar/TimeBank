@@ -40,12 +40,14 @@ function RoutineViewScreen({ navigation, route }) {
     }
   };
 
-  firebase.RoutinesCollections(
-    routines,
-    setRoutines,
-    route.params.title,
-    route.params.id,
-  );
+  useEffect(() => {
+    firebase.RoutinesCollections(
+      setRoutines,
+      route.params.title,
+      route.params.id,
+    );
+  }, [route.params.title, route.params.id]);
+
   const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
 
   const navigateWithIsAdult = (screen, params = {}) => {
@@ -59,6 +61,7 @@ function RoutineViewScreen({ navigation, route }) {
   function nav() {
     navigation.navigate("HomeFile")
   }
+  // console.log(routines)
   return (
     <Screen style={styles.container}>
       <View style={[styles.title, { backgroundColor: colors["secondary"] }]}>
@@ -74,7 +77,7 @@ function RoutineViewScreen({ navigation, route }) {
           </View>
           <Text style={styles.text2}>{route.params.st} - {route.params.et}</Text>
         </View>
-        {showBar && <TimeProgressBar startTime={route.params.st} endTime={route.params.et} />}
+        {route.params.isActive && <TimeProgressBar startTime={route.params.st} endTime={route.params.et} />}
       </View>
       <View style={styles.screen}>
         {routines.length > 0 ? (

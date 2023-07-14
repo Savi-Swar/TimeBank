@@ -14,38 +14,40 @@ function KidsStats({navigation, route}) {
     const [routinePopupVisible, setRoutinePopupVisible] = useState(false);
     const [selectedRoutine, setSelectedRoutine] = useState(null);
 
-    const times = route.params.times || []; // assuming `times` is passed as a prop in route.params
-    const timesInMinutes = times.map(time => {
-        const [hour, minute] = time.split(':');
-        return parseInt(hour) * 60 + parseInt(minute);
-    });
+    // const times = route.params.times || []; // assuming `times` is passed as a prop in route.params
+    // console.log(times)
+    // const timesInMinutes = times.map(time => {
+    //     const [hour, minute] = time.split(':');
+    //     return parseInt(hour) * 60 + parseInt(minute);
+    // });
 
     const { store: routines, loading: routinesLoading } = firebase.useRoutines();
-    const { dataset, loading: weeklyLoading } = firebase.getWeekly(route.params.name);
-
     const data = {
-        labels: ["1", "2", "3", "4", "5"],
+        labels: Object.keys(route.params.weeklyArray),
         datasets: [
           {
-            data: dataset
+            data: Object.values(route.params.weeklyArray)
           }
         ]
-    };
+      };
+      
 
-    const isValidData = (data) => {
-        return data.every((item) => {
-            return typeof item === 'number' && !isNaN(item) && item !== Infinity && item !== -Infinity;
-        });
-    }
+    // const isValidData = (data) => {
+    //     return data.every((item) => {
+    //         return typeof item === 'number' && !isNaN(item) && item !== Infinity && item !== -Infinity;
+    //     });
+    // }
     
-    if (weeklyLoading || routinesLoading) {
-        return <ActivityIndicator />;
-    }
+    // if (weeklyLoading || routinesLoading) {
+    //     return <ActivityIndicator />;
+    // }
     // firebase.Routines(routines, setRoutines)
     return (
         <View style={styles.container}>
-            <AppButton title = "Activity" onPress = {() => navigation.navigate("ActivityScreen", {name: route.params.name})}/>
-            <Text style={styles.title}>{route.params.name}'s Stats</Text>
+            <View style={styles.top}>
+                <AppButton title = "Activity" onPress = {() => navigation.navigate("ActivityScreen", {name: route.params.name})}/>
+                <Text style={styles.title}>{route.params.name}'s Stats</Text>
+
             
             <Text style={styles.statsText}>Minutes: {route.params.minutes}</Text>
             <Text style={styles.statsText}>Minutes Earned This Week: {route.params.weekly}</Text>
@@ -54,8 +56,8 @@ function KidsStats({navigation, route}) {
 
             <Text style={styles.title}>Last Ten Weeks</Text>
 
-            {
-            isValidData(dataset) && (
+            {/* { */}
+            {/* // isValidData(data) && ( */}
                 <LineChart
                     data={data}
                     width={screenWidth}
@@ -76,7 +78,7 @@ function KidsStats({navigation, route}) {
                         borderRadius: 16
                     }}
                 />
-            )}   
+            {/* // )}    */}
         <Text style={styles.title}>Routine Stats</Text>
         <RoutinePopup
             visible={routinePopupVisible}
@@ -111,7 +113,8 @@ function KidsStats({navigation, route}) {
                     No routines found. Add one on a kids account!
                 </Text>
             )}
-            <View style = {{width: "100%", bottom: 140}}>
+                </View>
+            <View style={styles.bottom}>
                 <AppButton title="Back" onPress={() => navigation.navigate("KidsScreen")} style={styles.backButton}/>
             </View> 
         </View>
@@ -154,7 +157,17 @@ const styles = StyleSheet.create({
     backButton: {
         width: '100%', // make the button cover most of the screen width
         marginTop: 20,
-    }
+    },
+    top: {
+        bottom: 80,
+        alignItems: 'center',
+        width: '90%',
+        flex:1
+    },
+    bottom: {
+        marginBottom: 140,
+        width: "90%",
+    },
 
 });
 

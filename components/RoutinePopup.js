@@ -54,7 +54,7 @@ function RoutinePopup({ visible, onClose, routine }) {
                         <Text style={styles.modalText}>Kid: {kid}</Text>
                         {stats &&
                             <>
-                                <Text style={styles.modalText}>Average Time: {stats.averageTime}</Text>
+                                <Text style={styles.modalText}>Average Time Left: {stats.averageTime}</Text>
                                 <Text style={styles.modalText}>Last Completed: {stats.lastCompleted}</Text>
                                 <Text style={styles.modalText}>Streak: {stats.streak}</Text>
                                 <Text style={styles.modalText}>Times Completed: {stats.timesCompleted}</Text>

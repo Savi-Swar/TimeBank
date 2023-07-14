@@ -6,7 +6,6 @@ import Card from "../components/Card";
 import AppButton from "../components/AppButton";
 import Minutes from "../components/Minutes";
 import * as firebase from "../firebase";
-import { Firestore } from "firebase/firestore";
 import { TabRouter } from "@react-navigation/native";
 
 function TasksScreen({ navigation, route }) {

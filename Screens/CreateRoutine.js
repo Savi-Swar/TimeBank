@@ -11,13 +11,13 @@ import ImagePickerExample from "../components/ImagePicker";
 import * as firebase from "../firebase";
 import { uploadBytes } from "firebase/storage";
 import LottieView from "lottie-react-native";
+import { push, set, ref, getDatabase } from "firebase/database";
 
 function CreateRoutine({ navigation, route }) {
   const [nameInputValue, setNameInputValue] = useState("");
   const userId = firebase.auth.currentUser.uid;
 
-  let path = userId +  "/storage/routines/" + route.params.id + "/" + route.params.name;
-  const todoRef = firebase.firebase.firestore().collection(path);
+  const todoRef = ref(getDatabase(), `Users/${userId}/routines/${route.params.id}/${route.params.name}`);
   let id = firebase.makeid(20);
   let x = firebase.getRoutineLength(route.params.name, route.params.id);
   x+=1;
@@ -35,12 +35,10 @@ function CreateRoutine({ navigation, route }) {
     if (nameInputValue && nameInputValue.length > 0) {
       const data = {
         title: nameInputValue,
-        indx: x
+        indx: x,
       };
-  
-      todoRef
-        .doc(id)
-        .set(data)
+      const newTaskRef = push(todoRef);
+      set(newTaskRef, data)
         .then(() => {
           setNameInputValue("");
           Keyboard.dismiss();
@@ -49,7 +47,7 @@ function CreateRoutine({ navigation, route }) {
         .catch(error => {
           alert(error);
         });
-    } 
+    }
   }
 
   return (

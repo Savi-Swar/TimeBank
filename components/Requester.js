@@ -7,49 +7,42 @@ import colors from '../config/colors';
 function Requester({ name, kid, minutes, index, setLen }) {
   const [mins, setMins] = useState(minutes);
 
-  const handleApprove = () => {
-    Alert.alert(
-      "Approve Request",
-      "Are you sure you want to approve this request?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "OK",
-          onPress: () => {
-            // Approve request: call firebase.minutes and pass the current state of 'mins', the 'minutes' prop, and the 'kid' prop
-            firebase.addMins(mins, minutes, kid);
-            // TODO: Remove the request from the array
-            firebase.removeRequest(kid, index, setLen);
+    // Rest of the code ...
+  
+    const handleApprove = () => {
+      Alert.alert(
+        "Approve Request",
+        "Are you sure you want to approve this request?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "OK",
+            onPress: () => onApprove(index, kid, minutes)
           }
-        }
-      ]
-    );
-  };
-
-  const handleDeny = () => {
-    Alert.alert(
-      "Deny Request",
-      "Are you sure you want to deny this request?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "OK",
-          onPress: () => {
-            // TODO: Remove the request from the array
-            console.log(index)
-            firebase.removeRequest(kid, index, setLen);
+        ]
+      );
+    };
+  
+    const handleDeny = () => {
+      Alert.alert(
+        "Deny Request",
+        "Are you sure you want to deny this request?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "OK",
+            onPress: () => onDeny(index, kid)
           }
-        }
-      ]
-    );
-  };
-
+        ]
+      );
+    };
+    
   return (
     <View style={styles.container}>
       <Text style={styles.text}>

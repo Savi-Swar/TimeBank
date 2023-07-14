@@ -59,7 +59,8 @@ function KidsScreen({ navigation }) {
                   name: item.name,
                   weekly: item.WeeklyMinutesEarned,
                   spent: item.MinutesSpent,
-                  earned: item.MinutesAccumalated,
+                  earned: item.MinutesAccumulated,
+                  weeklyArray: item.WeeklyArray
                 })
               }
             >
@@ -67,7 +68,7 @@ function KidsScreen({ navigation }) {
             </TouchableOpacity>
           )}
         />
-        <AppButton title="Back" onPress={()=> navigation.navigate("WelcomeScreen")}/>
+        <AppButton title="Log Out" onPress={()=> navigation.navigate("WelcomeScreen")}/>
       </View>
     </Screen>
   );

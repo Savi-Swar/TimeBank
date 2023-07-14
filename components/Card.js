@@ -16,6 +16,7 @@ import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import { doc, deleteDoc, getFirestore, collection, getDoc } from "firebase/firestore";
 // import { } from "firebase/storage";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as db from "firebase/database";
 
 
 // import { Grayscale} from 'react-native-color-matrix-image-filters'
@@ -41,18 +42,16 @@ function Card({ title, subTitle, image, id, location }) {
     func();
   }, []);
   const deleteTask = async () => {
-    const db = getFirestore();
     const userId = firebase.auth.currentUser.uid;
-
-    const docRef = doc(db, userId, "storage", location, id);
-    const docSnap = await getDoc(docRef);
-
-    const img = docSnap.data().image
+  
+    // Define the path to the task in the Realtime Database
+    const taskRef = db.ref(db.getDatabase(), `Users/${userId}/${location}/${id}`);
+  
     const storage = getStorage();
-
+  
     // Create a reference to the file to delete
-    const desertRef = ref(storage, img);
-    
+    const desertRef = ref(storage, image);
+  
     // Delete the file
     deleteObject(desertRef).then(() => {
       // File deleted successfully
@@ -61,8 +60,9 @@ function Card({ title, subTitle, image, id, location }) {
       // Uh-oh, an error occurred!
       console.log(error)
     });
-    await deleteDoc(docRef);
-
+  
+    // Delete the task
+    await db.remove(taskRef);
   };
   const [minutes, setMinutes] = useState(0);
   const [named, setName] = useState("def");

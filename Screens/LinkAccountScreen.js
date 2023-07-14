@@ -18,7 +18,7 @@ import * as Animatable from "react-native-animatable";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import ErrorMessage from "../components/ErrorMessage";
-import { addKids, auth, updateActiveUser } from "../firebase";
+import { addKids, auth, createCollectionWithUserId, createRecordWithUserId, updateActiveUser } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -52,8 +52,9 @@ function LinkAccountScreen({ navigation }) {
     try {
       await AsyncStorage.setItem('@user_id', userId);
       await AsyncStorage.setItem('@user_type', userType);
+      await AsyncStorage.setItem('@active_kid', name);
     } catch (e) {
-      // saving error
+      console.log(e)
     }
   }
   const [email, setEmail] = useState("");
@@ -63,21 +64,26 @@ function LinkAccountScreen({ navigation }) {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      if (user.stsTokenManager.accessToken) {
-        await storeData(name)
-        // await storeUserDetails(firebase.auth.currentUser.uid, "kid")
-
+      if (user) {
+        await storeData(name);
+        await storeUserDetails(user.uid, "kid", name);
+        try {
+          await createRecordWithUserId(user.uid);
+          console.log("Collection created successfully");
+        } catch (error) {
+          console.log("Error creating collection: ", error);
+        }        
         // await updateActiveUser(name);
-        console.log(auth.currentUser.uid)
         await addKids(name);
         navigation.navigate("HomeFile");
+      } else {
+        console.log("User not authenticated");
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error in handleSignIn function: ", error);
       alert("Invalid LogIn");
     }
   }
-  
 
   return (
     <View style={styles.container}>

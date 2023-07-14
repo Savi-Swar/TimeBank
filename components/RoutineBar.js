@@ -11,9 +11,10 @@ import { doc, deleteDoc, getFirestore, collection } from "firebase/firestore";
 
 import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons";
 import colors from "../config/colors";
-import { getRoutineLength, rearrangeRoutine, updateTimes } from "../firebase";
+import { getRoutineLength, rearrangeRoutine } from "../firebase";
 import AppButton from "./AppButton";
 import * as firebase from "../firebase";
+import { remove, getDatabase, ref } from "firebase/database";
 
 function RoutineBar({
   title,
@@ -33,14 +34,13 @@ function RoutineBar({
     ]);
   };
   const deleteTask = async () => {
-    try {
-      const db = getFirestore();
-      const userId = firebase.auth.currentUser.uid;
-      const docRef = doc(db, userId, "storage", "routines", colId, colTitle, id);
-      await deleteDoc(docRef);
-    } catch (error) {
-      console.error("Error deleting document: ", error);
-    }
+    const db = getDatabase();
+    const userId = firebase.auth.currentUser.uid;
+    const docRef = ref(db, `${userId}/storage/routines/${colId}/${colTitle}/${id}`);
+    remove(docRef)
+      .catch((error) => {
+        console.error("Error deleting document: ", error);
+      });
   };
   const rearrangeUp = () => {
     if (im != 1) {

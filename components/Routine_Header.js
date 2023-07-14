@@ -8,13 +8,13 @@ import Screen from "./Screen";
 import { Entypo } from "@expo/vector-icons";
 import { getFirestore, doc, deleteDoc, collection } from "firebase/firestore";
 import * as firebase from "../firebase";
-function Routine_Header({ title, id, st, et, isAdult = "false" }) {
-  const [days, setDays] = useState([]);
-  const [months, setMonths] = useState([]);
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+function Routine_Header({ title, id, st, et, days, months, isAdult = "false" }) {
+
   const navigation = useNavigation();
 
-  retrieveDays(setDays, id, setMonths);
-  var week = [
+   const week = [
     "Sunday",
     "Monday",
     "Tuesday",
@@ -23,7 +23,7 @@ function Routine_Header({ title, id, st, et, isAdult = "false" }) {
     "Friday",
     "Saturday",
   ];
-  var theMonths = [
+  const theMonths = [
     "January",
     "February",
     "March",
@@ -39,9 +39,29 @@ function Routine_Header({ title, id, st, et, isAdult = "false" }) {
   ];
   let dayOfWeek = week[new Date().getDay()];
   let curMonth = theMonths[new Date().getMonth()];
-  let length = 3;
-  if (days.indexOf(dayOfWeek) != -1 && months.indexOf(curMonth) != -1) {
-    length = 0;
+  const currentHour = new Date().getHours();
+  const currentMinutes = new Date().getMinutes();
+  const currentTime = currentHour * 60 + currentMinutes;
+
+  const [startTimeHour, startTimeMinutes] = st.split(':').map(Number);
+  const startTime = startTimeHour * 60 + startTimeMinutes;
+  
+  const [endTimeHour, endTimeMinutes] = et.split(':').map(Number);
+  const endTime = endTimeHour * 60 + endTimeMinutes;
+
+  const isActiveToday = days.includes(dayOfWeek) && months.includes(curMonth);
+  const isActiveNow = isActiveToday && currentTime >= startTime && currentTime <= endTime;
+
+  let circleColor, statusText;
+  if (isActiveNow) {
+    circleColor = 'green';
+    statusText = 'Active';
+  } else if (isActiveToday) {
+    circleColor = 'cyan';
+    statusText = 'Active Today';
+  } else {
+    circleColor = 'red';
+    statusText = 'Not Today';
   }
   const deleteTask = async () => {
     const db = getFirestore();
@@ -67,12 +87,16 @@ function Routine_Header({ title, id, st, et, isAdult = "false" }) {
   };
   return (
     <View style={styles.container}>
+      <View style={styles.statusContainer}>
+        <MaterialCommunityIcons name="circle" size={24} color={circleColor} />
+        <Text>{statusText}</Text>
+      </View>
       <View style={styles.titleContainer}>
         <Text style={styles.text}>{title}</Text>
       </View>
-      <TouchableOpacity onPress={() => handlePress()}>
-          <Entypo name="circle-with-cross" size={35} color="red" />
-        </TouchableOpacity>
+      <TouchableOpacity onPress={handlePress}>
+        <Entypo name="circle-with-cross" size={35} color="red" />
+      </TouchableOpacity>
       <View style={styles.buttonContainer}>
         <AppButton
           borderColor={colors.primary}
@@ -83,7 +107,8 @@ function Routine_Header({ title, id, st, et, isAdult = "false" }) {
               id: id,
               st: st,
               et: et,
-              isAdult: isAdult
+              isAdult: isAdult,
+              isActive: isActiveNow // Pass isActiveNow
             })
           }
         />
@@ -91,6 +116,7 @@ function Routine_Header({ title, id, st, et, isAdult = "false" }) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -105,8 +131,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   titleContainer: {
     flex: 1,
+    alignItems: 'center', // Center the title
   },
   text: {
     fontSize: 30,

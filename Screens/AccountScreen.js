@@ -8,6 +8,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as firebase from "../firebase";
 import Bar from "../components/Bar";
 import Logo from '../components/Logo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function AccountScreen({ navigation }) {
 
@@ -18,7 +19,6 @@ function AccountScreen({ navigation }) {
         text: "Yes",
         onPress: () => {
           navigation.navigate("WelcomeScreen");
-          firebase.updateActiveUser("");
           firebase.signoutUser();
         },
       },
@@ -27,39 +27,32 @@ function AccountScreen({ navigation }) {
   };
 
   const [minutes, setMinutes] = useState(0);
-  const [name, setName] = useState("def");
+  const [name, setName] = useState("Can");
 
-  // const storeUserDetails = async (userId, userType) => {
-  //   try {
-  //     await AsyncStorage.setItem('@user_id', userId);
-  //     await AsyncStorage.setItem('@user_type', userType);
-  //   } catch (e) {
-  //     // saving error
-  //   }
-  // }
+
   const getData = async () => {
     try {
-        const value = await AsyncStorage.getItem('@active_kid')
-        if(value !== null) {
-            // value previously stored
-            console.log(value)
-            firebase.Mins(minutes, setMinutes, value);
-            setName(value)
-        }
+      const value = await AsyncStorage.getItem('@active_kid')
+      if(value !== null) {
+        firebase.Mins(minutes, setMinutes, value);
+        setName(value)
+      } else {
+        console.log('Value is null')
+      }
     } catch(e) {
-        // error reading value
+      console.log('Error:', e) // Log the error
     }
-}
+  }
+  
 
 
   useEffect(() => {  
     getData()
-    // console.log(name)
   }, []);
+
   let state = " Minutes: " + minutes;
 
  
-
   return (
     <Screen style={styles.screen}>
 
