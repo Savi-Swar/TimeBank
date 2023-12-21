@@ -53,12 +53,6 @@ function FinishRoutineScreen({ navigation, route }) {
     endTime.setHours(endHours);
     endTime.setMinutes(endMinutes);
 
-    // Ensure that the chosen time is between the start time and end time
-    if (currentDate < startTime || currentDate > endTime) {
-      Alert.alert('Invalid Time', `Finish time must be between ${route.params.st} and ${route.params.obj}`);
-      return;
-    }
-
     // Calculate the difference in minutes
     const mins = Math.floor((endTime - currentDate) / (1000 * 60));
     setMinutes(mins);
@@ -98,22 +92,38 @@ function FinishRoutineScreen({ navigation, route }) {
           color="secondary"
           title="Complete"
           onPress={() => {
+            const [startHours, startMinutes] = route.params.st.split(':').map(Number);
+            const [endHours, endMinutes] = route.params.obj.split(':').map(Number);
+
+            const startTime = new Date();
+            startTime.setHours(startHours);
+            startTime.setMinutes(startMinutes);
+
+            const endTime = new Date();
+            endTime.setHours(endHours);
+            endTime.setMinutes(endMinutes);
+
+            if (finishedTime < startTime || finishedTime > endTime) {
+              Alert.alert('Invalid Time', `Finish time must be between ${route.params.st} and ${route.params.obj}`);
+              return;
+            }
+            
             if (isAdult) {
-              firebase.addMins(holder, minutes, selectedKid);
+              firebase.addMins( minutes, selectedKid);
             } else {
               firebase.updateRequest(named, minutes, route.params.name);
             }
+            console.log(minutes, named, route.params.name, route.params.obj)
             firebase.finishRoutine(minutes, named, route.params.name, route.params.obj);
           }}
         />
       </View>
-
       <View style={styles.button}>
         <AppButton
           title="Back to Routines"
 
           onPress={() => { if (isAdult) {
-            navigation.navigate("RoutinesScreen", { isAdult: true })
+            navigation.navigate("Routines", { isAdult: true })
           } else {
             navigation.navigate("HomeFile")
           }}}

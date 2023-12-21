@@ -4,7 +4,7 @@ import * as firebase from '../firebase';
 import AppButton from '../components/AppButton';
 import colors from '../config/colors';
 
-function Requester({ name, kid, minutes, index, setLen }) {
+function Requester({ name, kid, minutes, index, onDeny, onApprove }) {
   const [mins, setMins] = useState(minutes);
 
     // Rest of the code ...

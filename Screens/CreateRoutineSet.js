@@ -6,7 +6,8 @@ import {
   Text,
   Alert,
   Keyboard,
-  Button
+  Button, 
+  TouchableOpacity
 } from "react-native";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
@@ -30,7 +31,6 @@ function CreateRoutineSet({ navigation, route }) {
   const [triggerEffect, setTriggerEffect] = useState(false);
   const userId = firebase.auth.currentUser.uid;
 
-  const todoRef = firebase.firebase.firestore().collection(userId + "/storage/routines");
   let id = firebase.makeid(20);
   const [st, setST] = useState(new Date());
   const [et, setET] = useState(new Date());
@@ -49,6 +49,15 @@ function CreateRoutineSet({ navigation, route }) {
 
   const [daysOfWeek, setDaysOfWeek] = useState([]);
   const [monthsOfYear, setMonthsOfYear] = useState([]);
+  const [kids, setKids] = useState([]);
+  firebase.Kids(kids, setKids);
+  let names = [];
+  for (let i = 0; i < kids.length; i++) {
+    names.push(kids[i].name)
+  }
+
+  console.log(names)
+  const [selected, setSelected] = useState(names);
 
   const daysOptions = [
     "Monday",
@@ -75,36 +84,18 @@ function CreateRoutineSet({ navigation, route }) {
     "December",
   ];
 
-  function addField() {
-    const data = {
-      title: nameInputValue,
-      days: daysOfWeek,
-      months: monthsOfYear,
-      startTime: st.toString().substring(16,21),
-      endTime: et.toString().substring(16,21),
-    };
-    addField2();
-    todoRef
-      .doc(id)
-      .set(data)
-      .then(() => {
-        Keyboard.dismiss();
-        firebase.kidsRoutine(nameInputValue);
 
-        setDaysOfWeek([]);
-        setMonthsOfYear([]);
-      })
-      .catch((error) => {
-        alert(error);
-      });
-  }
-  function addField2() {
+  function addField() {
+    if (names.length == 1) {
+      setSelected(names);
+    }
     const data = {
-      title: nameInputValue,
+      title:nameInputValue.replace(/ /g, "-"),
       days: daysOfWeek,
       months: monthsOfYear,
       startTime: st.toString().substring(16,21),
       endTime: et.toString().substring(16,21),
+      kids: selected,
     };
     const db = getDatabase();
       const tasksRef = ref(db, `Users/${userId}/routines/${id}`);
@@ -173,6 +164,15 @@ function CreateRoutineSet({ navigation, route }) {
             options={monthsOptions}
             onSelection={setMonthsOfYear}
           />
+          {names.length > 1 && 
+          <>
+           <Text style={styles.text}>Which kids will this apply to?</Text>
+          <MultiSelectDropdown
+            options={names}
+            onSelection={setSelected}
+          />
+          </>
+        }
         </View>
 
         <View style={styles.buttons}>
@@ -181,10 +181,11 @@ function CreateRoutineSet({ navigation, route }) {
             onPress={() => {
               addField();
               setTriggerEffect(true); // setting triggerEffect to true when the button is pressed
-              // if (route.params?.isAdult === true) {
-              //   navigation.navigate("RoutinesScreen", { isAdult: true });
-              // } else {
+              if (route.params?.isAdult === true) {
+                navigation.navigate("Routines", { isAdult: true });
+              } else {
                 navigation.navigate("HomeFile");
+              } 
            
             }}
           />
@@ -192,7 +193,7 @@ function CreateRoutineSet({ navigation, route }) {
             title="Back"
             onPress={() => {
               if (route.params?.isAdult === true) {
-                navigation.navigate("RoutinesScreen", { isAdult: true });
+                navigation.navigate("Routines", { isAdult: true });
               } else {
                 navigation.navigate("HomeFile");
               }
@@ -210,6 +211,11 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  quickSelectButtons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 15,
   },
   times: {
     justifyContent: "center",

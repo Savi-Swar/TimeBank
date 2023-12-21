@@ -1,12 +1,15 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/storage";
-import { getDatabase, ref, set, get, onValue, update, off } from "firebase/database";
+import { getDatabase, ref, set, get, onValue, update, off, remove } from "firebase/database";
 import { useState, useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 import { initializeAuth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getReactNativePersistence } from "firebase/auth/react-native"
+import { registerForPushNotificationsAsync, sendPushNotification } from "./notifications";
+// import * as Notifications from 'expo-notifications';
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -35,7 +38,7 @@ const db = getDatabase();
 const auth = firebase.auth();
 
 
-// ... (rest of your code)
+
 export const signoutUser = () => {
   auth.signOut().then(()=>console.log("Signed Out"))
 };
@@ -51,6 +54,68 @@ export const retrieveUserId = (user, setUser) => {
 
   return unsubscribe;
 };
+export const cleanupExpiredAssignments = async (userId) => {
+  const db = getDatabase();
+  const assignmentsRef = ref(db, `Users/${userId}/assignments`);
+  
+  // Get the current date and ignore time components
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  // Get assignments data
+  const snapshot = await get(assignmentsRef);
+  const data = snapshot.val();
+
+  if (data) {
+    // Check each assignment
+    for (let id in data) {
+      const assignment = data[id];
+
+      // Parse the due date of the assignment and ignore time components
+      const dueDate = new Date(assignment.dueDate);
+      dueDate.setHours(0, 0, 0, 0);
+
+      // If the due date of the assignment is before the current date, delete it
+      if (dueDate < currentDate) {
+        const assignmentRef = ref(db, `Users/${userId}/assignments/${id}`);
+        await remove(assignmentRef);
+      }
+    }
+  }
+}
+
+
+export const Assignments = (callback) => {
+  const db = getDatabase();
+  const userId = auth.currentUser.uid;
+
+  const assignmentsRef = ref(db, `Users/${userId}/assignment`);
+
+  // Attach a listener
+  const listener = onValue(assignmentsRef, (snapshot) => {
+    const data = snapshot.val();
+    // Check if data is null before trying to iterate over it
+    if (data) {
+      const assignments = Object.keys(data).map((key) => ({
+        ...data[key],
+        id: key,
+      }));
+      callback(assignments); // pass data to callback to update state
+    } else {
+      callback([]); // pass empty array to callback if data is null
+    }
+  });
+  // Cleanup expired assignments
+  cleanupExpiredAssignments(userId);
+
+  // Return cleanup function
+  return () => {
+    off(assignmentsRef, 'value', listener);
+  };
+};
+
+
+
 
 export function Tasks(tasks, setTasks) {
   const [loading, setLoading] = useState(true);
@@ -63,6 +128,7 @@ export function Tasks(tasks, setTasks) {
       snapshot.forEach((childSnapshot) => {
         tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
       });
+      tasks.sort((a, b) => a.minutes - b.minutes);
 
       setTasks(tasks);
       setLoading(false);
@@ -80,9 +146,10 @@ export function Tasks(tasks, setTasks) {
 export async function updateRequest(kidName, reqMinutes, taskName) {
   // Current userId
   const userId = firebase.auth().currentUser.uid;
-
+  
   // Point to the correct reference
   const db = getDatabase();
+ 
   const kidRef = ref(db, `Users/${userId}/kids/${kidName}`);
 
   // Get the current state of the 'requests' field
@@ -99,11 +166,16 @@ export async function updateRequest(kidName, reqMinutes, taskName) {
 
     // Update the fields in the reference
     await update(kidRef, { names: updatedNames, reqMinutes: updatedReqMinutes});
-
+    const tokenRef = ref(db, `Users/${userId}/token`)
+    const token =  await get(tokenRef);
+    // console.log(token)
+    let message = kidName + " did " + taskName + " for " + reqMinutes + " minutes!"
+    sendPushNotification(token, "Task Completed!",message)
   } else {
     // If the document does not exist, set each field to an array containing the new value
     await set(kidRef, { names: [taskName], reqMinutes: [reqMinutes]});
   }
+  
 }
 export function getRequests(setNames, setMins, kidName) {
   const userId = firebase.auth().currentUser.uid;
@@ -111,50 +183,122 @@ export function getRequests(setNames, setMins, kidName) {
   const kidRef = ref(db, `Users/${userId}/kids/${kidName}`);
   
   // Attach a listener to the kidRef
-  onValue(kidRef, (snapshot) => {
+  const unsubscribe = onValue(kidRef, (snapshot) => {
     if (snapshot.exists()) {
       let currentNames = Array.isArray(snapshot.val().names) ? snapshot.val().names : [];
       let currentReqMinutes = Array.isArray(snapshot.val().reqMinutes) ? snapshot.val().reqMinutes : [];
-      setNames(currentNames);
-      setMins(currentReqMinutes);
+      setNames([...currentNames]);
+      setMins([...currentReqMinutes]);
     } else {
       setNames([]);
       setMins([]);
     }
   });
-}
+ 
 
-export async function createRecordWithUserId(userId) {
+  // Return the unsubscribe function
+  return () => off(kidRef, unsubscribe);
+}
+export async function createRecordWithUserId(userId,display) {
   console.log("createRecordWithUserId is called with userId: ", userId);
-  const [exist, setExist] = useState(false);
   try {
     // Define the initial structure of the data
+
     const initialData = {
       kids: {def: {minutes: 0, name: "def"}},
-    };
+      display: display,
+      store: {
+        "67mEQCVAszQvN8lOBy5u": {
+          "id": "67mEQCVAszQvN8lOBy5u",
+          "image": "WaffleSundae.jpeg",
+          "minutes": "40",
+          "title": "Waffle Sundae"
+        },
+        "67mEQCVAszQvN8lOBy89": {
+          "id": "67mEQCVAszQvN8lOBy89",
+          "image": "HappyMeal.jpeg",
+          "minutes": "60",
+          "title": "McDonalds"
+        },
+        "U03iUdjSlWJEuYfdN2Ue": {
+          "id": "U03iUdjSlWJEuYfdN2Ue",
+          "image": "Starbucks.webp",
+          "minutes": "60",
+          "title": "Starbucks"
+        },
+        "YvYaIlQ7zbPf1gu8ywXF": {
+          "id": "YvYaIlQ7zbPf1gu8ywXF",
+          "image": "Monopoly.jpeg",
+          "minutes": "180",
+          "title": "Monopoly game"
+        },
+        "elQ3mygPOHd0tEGnE6EA": {
+          "id": "elQ3mygPOHd0tEGnE6EA",
+          "image": "WsormIIg1wBbl8b.jpg",
+          "minutes": "0",
+          "title": "10 swings and 1 turnaround "
+        },
+        "uWRCa4v5XILZxIv0ovPp": {
+          "id": "uWRCa4v5XILZxIv0ovPp",
+          "image": "LLT1rkv7iQdEsYz.jpg",
+          "minutes": "0",
+          "title": "Read your tintin comics 8 pages"
+        }
+      },
+      tasks: {
+        "UVZPzfu3VPwbwAq44H8R": {
+          "id": "UVZPzfu3VPwbwAq44H8R",
+          "image": "table.jpeg",
+          "minutes": "2",
+          "title": "Set Dinner Table"
+        },
+        "d6enbabcHy9OQ8xzeHfB": {
+          "id": "d6enbabcHy9OQ8xzeHfB",
+          "image": "Room.jpeg",
+          "minutes": "10",
+          "title": "Clean your room"
+        },
+        "vxL8tL245qKQmh3BTdWG": {
+          "id": "vxL8tL245qKQmh3BTdWG",
+          "image": "bed.jpeg",
+          "minutes": "2",
+          "title": "Make your bed"
+        },
+        "UVZPzfu3VPwbwAq44H8R": {
+          "id": "UVZPzfu3VPwbwAq44H8R",
+          "image": "table.jpeg",
+          "minutes": "2",
+          "title": "Set Dinner Table"
+        },
+        "vxL8tL245qKQmh3BTdWG": {
+          "id": "vxL8tL245qKQmh3BTdWG",
+          "image": "bed.jpeg",
+          "minutes": "2",
+          "title": "Make your bed"
+        }
+    }
+  }
 
     // Get a reference to the database service
     const db = getDatabase();
     const userRef = ref(db, `Users/${userId}`);
+    console.log(userId)
     // Check if the user exists
     get(userRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        setExist(true)
+      if (!snapshot.exists()) {
+        registerForPushNotificationsAsync(userRef);
+        update(userRef, initialData).catch((error) => {
+          console.error("Error creating user: ", error);
+        });
       } 
     }).catch((error) => {
       console.error("Error fetching user: ", error);
     });
-    if (!exist) {
-      try {
-        await set(userRef, initialData);
-      } catch (error) {
-        console.error("Error creating user: ", error);
-      }
-    }
   } catch (error) {
     console.error("Error in createRecordWithUserId function: ", error);
   }
 }
+
 
 export function Store(tasks, setTasks) {
   const [loading, setLoading] = useState(true);
@@ -166,6 +310,7 @@ export function Store(tasks, setTasks) {
       snapshot.forEach((childSnapshot) => {
         tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
       });
+      tasks.sort((a, b) => a.minutes - b.minutes);
 
       setTasks(tasks);
       setLoading(false);
@@ -207,6 +352,30 @@ export async function Mins(minutes, setMinutes, name) {
 //   const mins = snapshot.val();
 //   console.log(mins);
 // });
+export async function useKids() {
+  const [kids, setKids] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const userId = auth.currentUser.uid;
+
+  useEffect(() => {
+    const tasksRef = ref(getDatabase(), `Users/${userId}/kids`);
+    const unsubscribe = onValue(tasksRef, (snapshot) => {
+      const fetchedKids = [];
+      snapshot.forEach((childSnapshot) => {
+        if (childSnapshot.val().name !== "def") {
+          fetchedKids.push({ ...childSnapshot.val(), id: childSnapshot.key });
+        }
+      });
+
+      setKids(fetchedKids);
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup function
+  }, [userId]); // Dependency on userId
+
+  return { kids, loading };
+}
 export function Kids(tasks, setTasks) {
   const [loading, setLoading] = useState(true);
   const userId = auth.currentUser.uid;
@@ -216,7 +385,9 @@ export function Kids(tasks, setTasks) {
     const unsubscribe = onValue(tasksRef, (snapshot) => {
       tasks = [];
       snapshot.forEach((childSnapshot) => {
-        tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
+        if (childSnapshot.val().name != "def") {
+          tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
+        }
       });
 
       setTasks(tasks);
@@ -233,47 +404,101 @@ export function Kids(tasks, setTasks) {
   // ...
 }
 
-export async function addKids(kid) {
+export async function deleteKid(kidName) {
+  const userId = firebase.auth().currentUser.uid;
+  const db = getDatabase();
+
+  // Reference to the kid's data
+  const kidRef = ref(db, `Users/${userId}/kids/${kidName}`);
+  
+  // Check if the kid exists
+  const snapshot = await get(kidRef);
+  if (!snapshot.exists()) {
+    console.log('The kid does not exist!');
+    return { success: false, message: 'Kid not found' };
+  }
+
+  // Kid exists, get the image URL
+  const kidData = snapshot.val();
+  const imageUrl = kidData.profilePic;
+
+  // Delete the image from storage if URL exists
+  if (imageUrl) {
+    const storage = getStorage();
+    const imageRef = storageRef(storage, imageUrl);
+
+    try {
+      await deleteObject(imageRef);
+      console.log(`Deleted image for ${kidName}`);
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      return { success: false, message: 'Error deleting image' };
+    }
+  }
+
+  // Now, delete the kid's data from the database
+  try {
+    await remove(kidRef);
+    console.log('The kid has been deleted!');
+
+    // Optionally, remove any other related data for the kid
+    // For example, deleting the kid's routines, tasks, etc.
+    // ...
+
+    return { success: true, message: 'Kid deleted successfully' };
+  } catch (error) {
+    console.error("Error deleting kid:", error);
+    return { success: false, message: 'Error deleting kid' };
+  }
+}
+
+export async function addKids(kid ,url) {
+  const userId = firebase.auth().currentUser.uid;
+  const db = getDatabase();
+
+  const kidRef = ref(db, `Users/${userId}/kids/${kid}`);
+  
+  // Check if the kid already exists
+  const snapshot = await get(kidRef);
+  if (snapshot.exists()) {
+    console.log('The kid already exists!');
+    return;
+  }
+
+  const routineRef = ref(db, `Users/${userId}/routines`);
+  const routineSnapshot = await get(routineRef);
+  const routines = Object.values(routineSnapshot.val() || {});
+
   const data = {
     name: kid,
     minutes: 0,
     MinutesAccumulated: 0,
     WeeklyMinutesEarned: 0,
     MinutesSpent: 0,
-    WeeklyArray: [], 
+    WeeklyArray: [],
+    profilePic: url
   };
 
-  const userId = firebase.auth().currentUser.uid;
-  const db = getDatabase();
-
-  const kidRef = ref(db, `Users/${userId}/kids/${kid}`);
-  console.log('userId:', userId);
-  console.log('kid:', kid);
   await set(kidRef, data);
-  const routineRef = ref(db, `Users/${userId}/routines`);
-  const routineSnapshot = await get(routineRef);
-  const routines = Object.values(routineSnapshot.val() || {});
 
-  routines.forEach(async (routine) => {
+  for (const routine of routines) {
     const routineData = {
-      [routine.name]: {
-        timesCompleted: 0,
-        averageTime: 0,
-        streak: 0,
-        lastCompleted: "",
-        times: [],
-      }
+      timesCompleted: 0,
+      averageTime: 0,
+      lastCompleted: "",
+      times: [],
     };
-
-    const routineStatsRef = ref(db, `Users/${userId}/kids/${kid}/${routine.name}`);
-    await set(routineStatsRef, routineData);
-  });
+    const routineRef2 = ref(db, `Users/${userId}/kids/${kid}/${routine.title}`);
+    await set(routineRef2, routineData);
+  };
 }
 
 
-export function addMins(minutes, total, name) {
+export async function addMins(total, name) {
   const userId = firebase.auth().currentUser.uid;
   const database = getDatabase();
+  
+
   const minsRef = ref(database, `Users/${userId}/kids/${name}`);
 
   function getWeekStartDate(d) {
@@ -298,7 +523,7 @@ export function addMins(minutes, total, name) {
   const endMonth = endDate.getMonth() + 1;
   const endDay = endDate.getDate();
 
-  const currentWeekKey = `${startMonth}/${startDay}-${endMonth}/${endDay}`;
+  const currentWeekKey = `${startMonth}|${startDay}__${endMonth}|${endDay}`;
 
   async function noCap() {
     const snapshot = await get(minsRef);
@@ -318,7 +543,7 @@ export function addMins(minutes, total, name) {
       accum = parseInt(accum) + parseInt(total);
       spen = parseInt(spen) - parseInt(total);
       week = parseInt(week) + parseInt(total);
-
+      console.log(minutesUpdate)
       if (parseInt(total) > 0) {
         await update(minsRef, {
           minutes: minutesUpdate,
@@ -369,11 +594,12 @@ export function getWeekly(name) {
 }
 
 export async function getRoutineStats(kidName, routineName) {
+  const formattedRoutineName = routineName.replace(/\s+/g, '-'); // This will replace all spaces with dashes
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
 
   try {
-      const routineStatsRef = ref(db, `Users/${userId}/kids/${kidName}/${routineName}/Stats`);
+      const routineStatsRef = ref(db, `Users/${userId}/kids/${kidName}/${formattedRoutineName}`);
       const snapshot = await get(routineStatsRef);
 
       if (snapshot.exists()) {
@@ -413,9 +639,10 @@ export function useRoutines() {
 }
 
 export async function finishRoutine(minutesEarly, childName, routineName, et) {
+  const formattedRoutineName = routineName.replace(/\s+/g, '-'); // This will replace all spaces with dashes
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
-  const routineRef = ref(db, `Users/${userId}/kids/${childName}/${routineName}/Stats`);
+  const routineRef = ref(db, `Users/${userId}/kids/${childName}/${formattedRoutineName}`);
   
   const etInMinutes = toMinutes(et);
   const finishTime = toHHMM(etInMinutes - minutesEarly);
@@ -426,34 +653,51 @@ export async function finishRoutine(minutesEarly, childName, routineName, et) {
 
     if (snapshot.exists()) {
       data = snapshot.val();
+      console.log('Data after get:', data); 
     } else {
       data = {
         timesCompleted: 0,
         averageTime: 0,
-        streak: 0,
         lastCompleted: "",
-        times: [],
       };
+      console.log('Data after initialization:', data);
     }
 
     data.timesCompleted += 1;
     data.averageTime = ((data.averageTime * (data.timesCompleted - 1) + minutesEarly)) / data.timesCompleted;
-    data.streak += 1; 
     data.lastCompleted = new Date().toLocaleDateString();
 
     // Handle the last ten times
-    if (data.times.length >= 10) {
-      data.times.shift();
+    const timesRef = ref(db, `Users/${userId}/kids/${childName}/${formattedRoutineName}/times`);
+    let timesData = [];
+    const timesSnapshot = await get(timesRef);
+    if (timesSnapshot.exists()) {
+      timesData = timesSnapshot.val();
     }
-    data.times.push(finishTime);
 
-    await set(routineRef, data);
+    timesData.push(finishTime);
+    if (timesData.length > 10) {
+      timesData.shift();
+    }
+
+    console.log('Data before update:', data); 
+    console.log('Times data before update:', timesData);
+
+    await update(routineRef, {
+      timesCompleted: data.timesCompleted,
+      averageTime: data.averageTime,
+      lastCompleted: data.lastCompleted,
+    });
+
+    await set(timesRef, timesData);
+
   } catch (error) {
     console.log(error);
   }
 }
+
+
 function toMinutes(timeStr) {
-  console.log(timeStr)
   const [hours, minutes] = timeStr.split(":").map(Number);
   return hours * 60 + minutes;
 }
@@ -476,12 +720,14 @@ export function Routines(tasks, setTasks) {
   const [loading, setLoading] = useState(true);
   const userId = auth.currentUser.uid;
   const tasksRef = ref(getDatabase(), `Users/${userId}/routines`);
-
   useEffect(() => {
     const unsubscribe = onValue(tasksRef, (snapshot) => {
       tasks = [];
       snapshot.forEach((childSnapshot) => {
-        tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
+        let task = { ...childSnapshot.val(), id: childSnapshot.key };
+        // console.log(task);
+        // task.title = task.title.replace(/-/g, " ");  // replace dashes with spaces in title
+        tasks.push(task);
       });
 
       setTasks(tasks);
@@ -509,7 +755,7 @@ export function getRoutineLength(collections, id) {
     const db = getDatabase();
     const routinesRef = ref(db, `Users/${userId}/routines/${id}/${collections}`);
     
-    const listener = onValue(routinesRef, snapshot => {
+    const unsubscribe = onValue(routinesRef, snapshot => {
       const routinesData = snapshot.val();
       const routines = [];
       for (let key in routinesData) {
@@ -520,12 +766,13 @@ export function getRoutineLength(collections, id) {
     });
 
     // Make sure to unsubscribe from your realtime listener when component unmounts.
-    return () => listener.off();
+    return unsubscribe;
 
   }, []);  // The empty array ensures this runs once on mount and not on every re-render
 
   return x;
 }
+
 
 
 export function rearrangeRoutine(collections, title, colID, id, im, up) {
@@ -616,10 +863,9 @@ export async function kidsRoutine(routineName) {
     for (let kidId in kids) {
       const kid = kids[kidId];
       if (kid.name !== 'def') {
-        const kidRoutineRef = ref(db, `Users/${userId}/kids/${kidId}/${routineName}/Stats`);
+        const kidRoutineRef = ref(db, `Users/${userId}/kids/${kidId}/${routineName}`);
         set(kidRoutineRef, {
           times: [],
-          streak: 0,
           lastCompleted: "",
           averageTime: 0,
           timesCompleted: 0
@@ -641,7 +887,7 @@ export async function deleteKidsRoutine(routineName) {
     for (let kidId in kids) {
       const kid = kids[kidId];
       if (kid.name !== 'def') {
-        const statsDocRef = ref(db, `Users/${userId}/kids/${kidId}/${routineName}/Stats`);
+        const statsDocRef = ref(db, `Users/${userId}/kids/${kidId}/${routineName}`);
         remove(statsDocRef)
           .then(() => {
             console.log(`Deleted 'Stats' document from ${kid.name}'s ${routineName} routine.`);
@@ -656,7 +902,7 @@ export async function deleteKidsRoutine(routineName) {
 }
 
 
-export async function removeRequest(kidName, index, setLen) {
+export async function removeRequest(kidName, index) {
   // Current userId
   const userId = firebase.auth().currentUser.uid;
 
@@ -676,7 +922,6 @@ export async function removeRequest(kidName, index, setLen) {
       // Remove the item at the specified index from both arrays
       currentNames.splice(index, 1);
       currentReqMinutes.splice(index, 1);
-      setLen(currentNames.length);
 
       // Update the fields in the reference
       await update(kidRef, { names: currentNames, reqMinutes: currentReqMinutes });
@@ -706,5 +951,8 @@ export default {
   getRequests,
   removeRequest,
   signoutUser,
-  createRecordWithUserId
+  createRecordWithUserId,
+  Assignments,
+  useKids
+  
 };

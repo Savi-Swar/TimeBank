@@ -14,16 +14,9 @@ function AccountScreen({ navigation }) {
 
 
   const logout = () => {
-    Alert.alert("Delete", "Are you sure you want to logout?", [
-      {
-        text: "Yes",
-        onPress: () => {
-          navigation.navigate("WelcomeScreen");
-          firebase.signoutUser();
-        },
-      },
-      { text: "No" },
-    ]);
+    
+      navigation.navigate("EnterScreen");
+
   };
 
   const [minutes, setMinutes] = useState(0);
@@ -45,7 +38,6 @@ function AccountScreen({ navigation }) {
   }
   
 
-
   useEffect(() => {  
     getData()
   }, []);
@@ -64,7 +56,7 @@ function AccountScreen({ navigation }) {
         <Bar title={state} icon="gold" />
         <Bar title="Settings" icon="cog" />
         <TouchableOpacity onPress={logout}>
-          <Bar title="Logout" icon="logout" />
+          <Bar title="Back" icon="logout" />
           
         </TouchableOpacity>
         </View>

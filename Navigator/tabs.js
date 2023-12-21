@@ -7,6 +7,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import AccountScreen from '../Screens/AccountScreen';
 import RoutinesScreen from '../Screens/RoutinesScreen';
+import AssignmentScreen from '../Screens/AssignmentScreen';
+import KidAssignScreen from '../Screens/KidAssignScreen';
 const Tab = createBottomTabNavigator();
 
 const screenOptions = (route, color) => {
@@ -16,15 +18,19 @@ const screenOptions = (route, color) => {
       case 'Home':
         iconName = 'home';
         break;
-      case 'StoreScreen':
+      case 'Store':
         iconName = 'shopping';
         break;
-      case 'TasksScreen':
+      case 'Tasks':
         iconName = 'broom';
         break;
-    case 'RoutinesScreen':
+    case 'Routines':
         iconName = 'bowl';
         break;
+    case 'Assignments':
+        iconName = "clock-outline"
+        break;
+
       default:
         break;
     }
@@ -42,9 +48,11 @@ const Tabs = () => {
           })}>
 
             <Tab.Screen name = "Home" component = {AccountScreen}/>
-            <Tab.Screen name="StoreScreen" component={StoreScreen} />
-            <Tab.Screen name="TasksScreen" component={TasksScreen} />
-            <Tab.Screen name="RoutinesScreen" component={RoutinesScreen} />
+            <Tab.Screen name="Store" component={StoreScreen} />
+            <Tab.Screen name="Tasks" component={TasksScreen} />
+            <Tab.Screen name="Routines" component={RoutinesScreen} />
+            <Tab.Screen name = "Assignments" component = {KidAssignScreen}/>
+
    
         </Tab.Navigator>
     );

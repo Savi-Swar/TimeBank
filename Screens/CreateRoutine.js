@@ -5,23 +5,19 @@ import AppTextInput from "../components/AppTextInput";
 import Logo from "../components/Logo";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
-import TasksScreen from "./TasksScreen";
-import StoreScreen from "./StoreScreen";
-import ImagePickerExample from "../components/ImagePicker";
+
 import * as firebase from "../firebase";
 import { uploadBytes } from "firebase/storage";
-import LottieView from "lottie-react-native";
 import { push, set, ref, getDatabase } from "firebase/database";
 
 function CreateRoutine({ navigation, route }) {
   const [nameInputValue, setNameInputValue] = useState("");
   const userId = firebase.auth.currentUser.uid;
 
-  const todoRef = ref(getDatabase(), `Users/${userId}/routines/${route.params.id}/${route.params.name}`);
+  const todoRef = ref(getDatabase(), `Users/${userId}/routines/${route.params.id}/${route.params.title}`);
   let id = firebase.makeid(20);
-  let x = firebase.getRoutineLength(route.params.name, route.params.id);
+  let x = firebase.getRoutineLength(route.params.title, route.params.id);
   x+=1;
-  
   const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
   const navigateWithIsAdult = (screen, params = {}) => {
     if (isAdult) {
@@ -40,16 +36,24 @@ function CreateRoutine({ navigation, route }) {
       const newTaskRef = push(todoRef);
       set(newTaskRef, data)
         .then(() => {
-          setNameInputValue("");
           Keyboard.dismiss();
-          navigateWithIsAdult("RoutinesScreen");
+          setNameInputValue(""); 
+        })
+        .then(() => {
+          navigateWithIsAdult("RoutineViewScreen", {
+            title: route.params.title,
+            id: route.params.id,
+            et: route.params.et,
+            st: route.params.st,
+            isActive: route.params.isActive
+          });
         })
         .catch(error => {
           alert(error);
         });
     }
   }
-
+  
   return (
     <Screen>
       <View style={styles.container}>
@@ -67,6 +71,18 @@ function CreateRoutine({ navigation, route }) {
           title="Create"
           onPress={() => 
             addField()
+          }
+        />
+         <AppButton
+          title="Back"
+          onPress={() => 
+            navigateWithIsAdult("RoutineViewScreen", {
+              title: route.params.title,
+              id: route.params.id,
+              et: route.params.et,
+              st: route.params.st,
+              isActive: route.params.isActive
+            })
           }
         />
       </View>

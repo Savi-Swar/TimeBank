@@ -5,22 +5,36 @@ import * as firebase from "../firebase"
 import Requester from '../components/Requester'; // Ensure correct path
 
 function ActivityScreen({navigation, route}) {
-    const [names, setNames] = useState([]);
     const [mins, setMins] = useState([])
-    const [requests, setRequests] = useState([]);
+    const [names, setNames] = useState([]);
     const [refresh, setRefresh] = useState(false);
+    const [data, setData] = useState([]);
 
+    
     useEffect(() => {
-      // add the function to set requests inside the callback
-      firebase.getRequests(setRequests, setMins, route.params.name);
+      const unsubscribe = firebase.getRequests(setNames, setMins, route.params.name);
+      return () => unsubscribe();
     }, []);
+    
+    
+    useEffect(() => {
+      if (names.length && mins.length) {
+        let d = names.map((name, index) => {
+          return { name: name, minutes: mins[index] };
+        });
+        setData(d);
+      }
+    }, [names, mins]);
+    
   
     const handleRemove = (index) => {
-      setRequests(requests.filter((_, i) => i !== index));
+      setData(data.filter((_, i) => i !== index));
     };
   
     const handleApprove = (index, kid, minutes) => {
       firebase.addMins(minutes, kid);
+      firebase.removeRequest(kid, index);
+
       handleRemove(index);
     };
   
@@ -30,21 +44,11 @@ function ActivityScreen({navigation, route}) {
     };
   
 
-    const [len, setLen] = useState(0)
-    useEffect(() => {
-    if (names.length && mins.length) {
-        const requests = names.map((name, index) => {
-        return { name: name, minutes: mins[index], index: index };
-        });
-        setRequests(requests);
-    }
-    }, [names, mins, len]);
-    // console.log(len)
       return (
         <View style={styles.container}>
           <Text style={styles.titleText}>{route.params.name}'s Activity</Text>
           <FlatList 
-            data={requests}
+            data={data}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => 
               <Requester 

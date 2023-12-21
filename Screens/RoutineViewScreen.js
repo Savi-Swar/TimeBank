@@ -46,6 +46,8 @@ function RoutineViewScreen({ navigation, route }) {
       route.params.title,
       route.params.id,
     );
+    console.log(route.params.title)
+
   }, [route.params.title, route.params.id]);
 
   const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
@@ -61,12 +63,11 @@ function RoutineViewScreen({ navigation, route }) {
   function nav() {
     navigation.navigate("HomeFile")
   }
-  // console.log(routines)
   return (
     <Screen style={styles.container}>
       <View style={[styles.title, { backgroundColor: colors["secondary"] }]}>
         <AppButton title="Back" color = "secondary" onPress = {() =>  {if (isAdult) {
-          navigation.navigate("RoutinesScreen", {isAdult: true})
+          navigation.navigate("Routines", {isAdult: true})
          } else {
           navigation.navigate("HomeFile")
          }}}/>
@@ -93,6 +94,8 @@ function RoutineViewScreen({ navigation, route }) {
               im = {item.indx}  
               colTitle={route.params.title}
               colId={route.params.id}
+              routinesLength={routines.length}  // Pass the length of the routines array.
+
             />
             )}
           />
@@ -104,24 +107,30 @@ function RoutineViewScreen({ navigation, route }) {
               loop
               style={styles.lottie}
             />
+            {isAdult &&
             <Text style={styles.emptyStateText}>
               This routine is empty, click ADD+ to add some steps!
             </Text>
+            }
           </View>
         )}
       </View>
       <View style={{ padding: 20, }}>
+      {isAdult && (
         <AppButton
           title="Add+"
           onPress={() =>
             navigateWithIsAdult("CreateRoutine", {
-              name: route.params.title,
+              title: route.params.title,
               id: route.params.id,
               et: route.params.et,
               st: route.params.st,
+              isAdult: isAdult,
+              isActive: route.params.isActive
             })
           }
         />
+      )}
            {!isAdult && (
           <AppButton 
             title="Complete"

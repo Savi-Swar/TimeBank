@@ -19,15 +19,15 @@ import * as firebase from "../firebase";
 import { getDatabase, ref, set } from "firebase/database";
 import { uploadBytes } from "firebase/storage";
 import LottieView from "lottie-react-native";
+
+
 function CreateTask({ navigation, route }) {
   // I had to make two useState variables so I could use both of them on this screen
   const [nameInputValue, setNameInputValue] = useState("");
   const [minutesInputValue, setMinutesInputValue] = useState("");
   const [imageLink, setImageLink] = useState(null);
-  const [url, setUrl] = useState("");
-  const todoRef = firebase.firebase
-    .firestore()
-    .collection(route.params.location);
+  const defaultImageUrl = "Screenshot 2023-07-30 at 2.48.00 PM.png";
+  const [url, setUrl] = useState(defaultImageUrl);
   let bytes;
   let id = firebase.makeid(20);
 
@@ -38,13 +38,31 @@ function CreateTask({ navigation, route }) {
       nameInputValue &&
       nameInputValue.length > 0
     ) {
+      // Check if the minutesInputValue is an integer
+      if(!Number.isInteger(Number(minutesInputValue))){
+        Alert.alert('Invalid Input', 'Minutes should be an integer');
+        return;
+      }
+  
+      // Check if the nameInputValue is a string
+      if(typeof nameInputValue !== 'string'){
+        Alert.alert('Invalid Input', 'Name should be a string');
+        return;
+      }
+    
+      // Check if image url is not null
+      if(!url){
+        Alert.alert('Missing Image', 'Please select an image');
+        return;
+      }
+  
       const data = {
         image: url,
         minutes: minutesInputValue,
         title: nameInputValue,
         id: id,
       };
-  
+      console.log(url)
       // Get the current user's ID
       const userId = firebase.auth.currentUser.uid;
   
@@ -61,9 +79,28 @@ function CreateTask({ navigation, route }) {
         .catch((error) => {
           alert(error);
         });
+      if (isAdult === true) {
+              if (route.params.location == "store") {
+                navigation.navigate("Store",
+              {
+                url: url,
+                isAdult: true
+              });    
+            } else {
+              navigation.navigate("Tasks",
+              {
+                url: url,
+                isAdult: true
+              });   
+            }        
+            } else {
+              navigation.navigate("HomeFile")            
+             }
     }
   }
+  
   const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
+
   return (
     <Screen>
       <View style={styles.container}>
@@ -97,23 +134,7 @@ function CreateTask({ navigation, route }) {
           title="Create"
           onPress={() => {
             addField()
-            if (isAdult === true) {
-              if (route.params.location == "store") {
-                navigation.navigate("StoreScreen",
-              {
-                url: url,
-                isAdult: true
-              });    
-            } else {
-              navigation.navigate("TasksScreen",
-              {
-                url: url,
-                isAdult: true
-              });   
-            }        
-            } else {
-              navigation.navigate("HomeFile")            
-             }
+            
             
           }}
         />

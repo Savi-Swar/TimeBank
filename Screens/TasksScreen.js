@@ -27,7 +27,7 @@ function TasksScreen({ navigation, route }) {
             <TouchableOpacity
             onPress={() => {
               if (route.params?.isAdult === true) {
-                navigation.navigate("CompleteTaskScreen", {
+                navigation.navigate("EditScreen", {
                   item: item,
                   isAdult: true
                 });    
@@ -44,31 +44,26 @@ function TasksScreen({ navigation, route }) {
                 image={item.image}
                 id={item.id}
                 location={"tasks"}
+                length = {tasks.length}
+                numColumns = {2}
               />
             </TouchableOpacity>
           )}
         />
       </View>
       <View style={styles.button}>
+      {isAdult && 
         <AppButton
           color="secondary"
           title="Add More +"
-          onPress={() => {
-            if (route.params?.isAdult === true) {
+          onPress={() => 
               navigation.navigate("CreateTask", {
                 location: "tasks",
-                loconame: "TasksScreen",
+                loconame: "Tasks",
                 isAdult: true
-              })             
-            } else {
-              navigation.navigate("CreateTask", {
-                location: "tasks",
-                loconame: "TasksScreen",
-              })              
-             }
-            
-          }}
-        />
+              })
+      }/>
+      }
       </View>
     </Screen>
   );
@@ -79,9 +74,11 @@ const styles = StyleSheet.create({
   screen: {
     backgroundColor: colors.light,
     paddingHorizontal: 20,
-    flex: 0.8,
-    top: 10,
+    flex: 1,
   },
-  minutes: { flex: 0.15 },
-  button: { flex: 0.1, paddingHorizontal: 20, top: 5 },
+  button: {  paddingHorizontal:20 },
+  minutes: {
+    flex: 0.15,
+    backgroundColor: colors.light
+  }
 });

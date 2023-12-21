@@ -4,7 +4,6 @@ import AppButton from '../components/AppButton';
 import { Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import * as firebase from '../firebase'
-import RoutineStats from './RoutineStats';
 import { ActivityIndicator } from 'react-native';
 import RoutinePopup from '../components/RoutinePopup';
 
@@ -20,17 +19,30 @@ function KidsStats({navigation, route}) {
     //     const [hour, minute] = time.split(':');
     //     return parseInt(hour) * 60 + parseInt(minute);
     // });
+    const weekly = route.params?.weeklyArray || false; // If isAdult is not passed or is undefined, it will default to false
+    console.log(route.params.weeklyArray)
+    const kidName = route.params.name;
 
-    const { store: routines, loading: routinesLoading } = firebase.useRoutines();
-    const data = {
-        labels: Object.keys(route.params.weeklyArray),
-        datasets: [
-          {
-            data: Object.values(route.params.weeklyArray)
-          }
-        ]
-      };
-      
+    const allRoutines = firebase.useRoutines().store;
+    let routines = [];
+    if(Array.isArray(allRoutines)) {
+        routines = allRoutines.filter((routine) => 
+            Array.isArray(routine.kids) && routine.kids.includes(kidName));
+    }
+
+    const weeklyObject = route.params?.weeklyArray || {}; // Replace this with the actual object if it's not coming from route.params
+
+    const labels = Object.keys(weeklyObject);
+    let data = Object.values(weeklyObject);
+
+    const chartData = {
+    labels: labels,
+    datasets: [
+        {
+        data: data
+        }
+    ]
+    };
 
     // const isValidData = (data) => {
     //     return data.every((item) => {
@@ -41,7 +53,6 @@ function KidsStats({navigation, route}) {
     // if (weeklyLoading || routinesLoading) {
     //     return <ActivityIndicator />;
     // }
-    // firebase.Routines(routines, setRoutines)
     return (
         <View style={styles.container}>
             <View style={styles.top}>
@@ -54,31 +65,34 @@ function KidsStats({navigation, route}) {
             <Text style={styles.statsText}>Total Minutes Earned: {route.params.earned}</Text>
             <Text style={styles.statsText}>Total Minutes Spent: {route.params.spent}</Text>
 
-            <Text style={styles.title}>Last Ten Weeks</Text>
+            
+      {weekly && 
+      <>
+        <Text style={styles.title}>Last Ten Weeks</Text>
 
-            {/* { */}
-            {/* // isValidData(data) && ( */}
-                <LineChart
-                    data={data}
-                    width={screenWidth}
-                    height={220}
-                    chartConfig={{
-                        backgroundColor: "#e26a00",
-                        backgroundGradientFrom: "#fb8c00",
-                        backgroundGradientTo: "#ffa726",
-                        decimalPlaces: 2, 
-                        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                        style: {
-                        borderRadius: 16
-                        }
-                    }}
-                    bezier
-                    style={{
-                        marginVertical: 8,
-                        borderRadius: 16
-                    }}
-                />
-            {/* // )}    */}
+        <LineChart
+          data={chartData}
+          width={screenWidth}
+          height={220}
+          chartConfig={{
+            backgroundColor: "#e26a00",
+            backgroundGradientFrom: "#fb8c00",
+            backgroundGradientTo: "#ffa726",
+            decimalPlaces: 2, 
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 16
+            }
+          }}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16
+          }}
+        />
+        </>
+        }
+    
         <Text style={styles.title}>Routine Stats</Text>
         <RoutinePopup
             visible={routinePopupVisible}
@@ -91,21 +105,21 @@ function KidsStats({navigation, route}) {
                     data={routines}
                     keyExtractor={(routines) => routines.id}
                     renderItem={({ item }) => (
-                    <View style={{width: '100%', width: 350}}>
-                        <AppButton
-                            title={item.title}
-                            style={styles.routineButton}
-                            onPress={() => {
-                                setSelectedRoutine({
-                                    name: item.title,
-                                    st: item.startTime,
-                                    et: item.endTime,
-                                    kid: route.params.name
-                                });
-                                setRoutinePopupVisible(true);
-                            }}
-                        />
-                    </View>
+                        <View style={{width: '100%', width: 350}}>
+                            <AppButton
+                                title={item.title.replace(/-/g, ' ')}  // <- Replace hyphen with space
+                                style={styles.routineButton}
+                                onPress={() => {
+                                    setSelectedRoutine({
+                                        name: item.title.replace(/-/g, ' '), // <- Replace hyphen with space
+                                        st: item.startTime,
+                                        et: item.endTime,
+                                        kid: route.params.name
+                                    });
+                                    setRoutinePopupVisible(true);
+                                }}
+                            />
+                        </View>
                     )}
                 />
             ) : (

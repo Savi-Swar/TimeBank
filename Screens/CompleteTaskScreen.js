@@ -36,7 +36,6 @@ function CompleteTaskScreen({ navigation, route }) {
         const value = await AsyncStorage.getItem('@active_kid')
         if(value !== null) {
             // value previously stored
-            console.log(value)
             setName(value)
         }
     } catch(e) {
@@ -45,7 +44,6 @@ function CompleteTaskScreen({ navigation, route }) {
 }
   useEffect(() => {  
     getData()
-    // console.log(name)
   }, []);  
   const [minutes, setMinutes] = useState(0);
   const isAdult = route.params?.isAdult || false;
@@ -98,7 +96,7 @@ function CompleteTaskScreen({ navigation, route }) {
         <AppButton
           title="Back to Tasks"
           onPress={() => {{ if (isAdult) {
-            navigation.navigate("TasksScreen", { isAdult: true })
+            navigation.navigate("Tasks", { isAdult: true })
           } else {
             navigation.navigate("HomeFile")
           }}}}

@@ -2,39 +2,53 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import colors from "../config/colors";
 
-// The MultiSelectDropdown component receives an array of options and a function to handle the selection
 function MultiSelectDropdown ({ options, onSelection }) {
-  // A state variable to keep track of the selected items
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // A function to handle the item press event
   const handleItemPress = (item) => {
     let newSelectedItems = [...selectedItems];
 
-    // Check if the item is already selected
     if (selectedItems.includes(item)) {
-      // If it is, remove it from the selected items array
       newSelectedItems = newSelectedItems.filter((i) => i !== item);
     } else {
-      // If not, add the item to the selected items array
       newSelectedItems.push(item);
     }
 
-    // Update the state with the new selected items array
     setSelectedItems(newSelectedItems);
-
-    // Call the onSelection function, passing the new selected items array
     onSelection(newSelectedItems);
   };
 
+  const handleSelectAllPress = () => {
+    // If all items are already selected, deselect all. Otherwise, select all.
+    if (selectedItems.length === options.length) {
+      setSelectedItems([]);
+      onSelection([]);
+    } else {
+      setSelectedItems(options);
+      onSelection(options);
+    }
+  }
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        key={"Select All"}
+        style={[
+          styles.item,
+          selectedItems.length === options.length && styles.selectedItem,
+        ]}
+        onPress={handleSelectAllPress}
+      >
+        <Text style={styles.itemText}>
+          {/* Change button text based on whether all items are selected */}
+          {selectedItems.length === options.length ? "Unselect All" : "Select All"}
+        </Text>
+      </TouchableOpacity>
       {options.map((item) => (
         <TouchableOpacity
           key={item}
           style={[
             styles.item,
-            // If the item is selected, apply the selected item style
             selectedItems.includes(item) && styles.selectedItem,
           ]}
           onPress={() => handleItemPress(item)}

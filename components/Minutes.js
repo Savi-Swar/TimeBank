@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 function Minutes({ name }) {
   const [minutes, setMinutes] = useState(0);
   const [named, setName] = useState("def");
+
   // let minutes;
   const getData = async () => {
     try {
@@ -31,6 +32,7 @@ function Minutes({ name }) {
   if (!loaded) {
     return null;
   }
+  // name(minutes)
   firebase.Mins(minutes, setMinutes, named);
   return (
     <View style={{ flex: 1, alignItems: "center" }}>

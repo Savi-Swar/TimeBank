@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import colors from "../config/colors";
 import AppButton from "../components/AppButton";
@@ -7,12 +7,51 @@ import Minutes from "../components/Minutes";
 import Routine_Header from "../components/Routine_Header";
 import * as firebase from "../firebase";
 import LottieView from "lottie-react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getDatabase, ref, onValue } from "firebase/database";
+const db = getDatabase();
 
 function RoutinesScreen({ navigation, route}) {  // Set default value here
   const [routines, setRoutines] = useState([]);
   const isAdult = route.params?.isAdult || false; // If isAdult is not passed or is undefined, it will default to false
+  const [kidName, setKidName] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const getActiveKid = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@active_kid');
+      if(value !== null) {
+        setKidName(value);
+      } else {
+        console.log('Value is null')
+      }
+    } catch(e) {
+      console.log('Error:', e); // Log the error
+    }
+  }
+  useEffect(() => {
+    getActiveKid();
 
-  firebase.Routines(routines, setRoutines);
+    const userId = firebase.auth.currentUser.uid;
+    const routinesRef = ref(db, `Users/${userId}/routines`);
+    onValue(routinesRef, (snapshot) => {
+      let fetchedRoutines = [];
+      snapshot.forEach((childSnapshot) => {
+        fetchedRoutines.push({ ...childSnapshot.val(), id: childSnapshot.key });
+      });
+
+      let filteredRoutines = fetchedRoutines;
+      if (!isAdult && kidName) {
+        filteredRoutines = fetchedRoutines.filter((routine) =>
+            routine.kids && routine.kids.includes(kidName)
+        );
+    }
+
+      setRoutines(filteredRoutines);
+      setLoading(false);
+    });
+  }, [isAdult, kidName]);
+  
+ 
   return (
     <Screen style = {styles.fullScreen}>
       <View style={styles.MinBar}>
@@ -28,7 +67,8 @@ function RoutinesScreen({ navigation, route}) {  // Set default value here
             data={routines}
             keyExtractor={(routines) => routines.id}
             renderItem={({ item }) => (
-              <Routine_Header isAdult = {isAdult} title={item.title} id={item.id}
+              <Routine_Header isAdult = {isAdult}       title={item.title.replace(/-/g, ' ')} // replaces dashes with spaces
+              id={item.id}
                st = {item.startTime} et = {item.endTime} days = {item.days} months = {item.months}/>
             )}
           />
@@ -41,16 +81,18 @@ function RoutinesScreen({ navigation, route}) {  // Set default value here
               style={styles.lottie}
             />
             <Text style={styles.emptyStateText}>
-              No routines found. Add one below!
+              No routines found. Ask your parents to add one!
             </Text>
           </View>
         )}
       </View>
       <View style={styles.addButton}>
+        {isAdult && 
         <AppButton
           title="Add+"
           onPress={() => navigation.navigate("CreateRoutineSet", {isAdult: true})}
         />
+        }
       </View>
     </Screen>
   );

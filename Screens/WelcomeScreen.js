@@ -16,7 +16,7 @@ function WelcomeScreen({ navigation }) {
         <Logo />
       </View>
       <View style={styles.buttonsContainer}>
-        <AppButton title="Login" onPress={() => navigation.navigate("IDS")} />
+        <AppButton title="Login" onPress={() => navigation.navigate("SplashScreen")} />
         <AppButton title="Register" color="secondary" onPress={() => navigation.navigate("SignUpScreen")} />
       </View>
     </ImageBackground>

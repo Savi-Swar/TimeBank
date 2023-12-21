@@ -67,13 +67,6 @@ function LinkAccountScreen({ navigation }) {
       if (user) {
         await storeData(name);
         await storeUserDetails(user.uid, "kid", name);
-        try {
-          await createRecordWithUserId(user.uid);
-          console.log("Collection created successfully");
-        } catch (error) {
-          console.log("Error creating collection: ", error);
-        }        
-        // await updateActiveUser(name);
         await addKids(name);
         navigation.navigate("HomeFile");
       } else {
@@ -165,6 +158,11 @@ function LinkAccountScreen({ navigation }) {
                 title="Sign In"
                 color="secondary"
                 onPress={() => handleSignIn()}
+              />
+              <AppButton
+                title="Back"
+                color="secondary"
+                onPress={() => navigation.navigate("IDS")}
               />
             </>
           )}

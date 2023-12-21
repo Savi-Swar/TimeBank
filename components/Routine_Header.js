@@ -1,6 +1,6 @@
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, Alert, Switch } from "react-native";
 import colors from "../config/colors";
 import { retrieveDays } from "../firebase";
 import AppButton from "./AppButton";
@@ -11,32 +11,9 @@ import * as firebase from "../firebase";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 function Routine_Header({ title, id, st, et, days, months, isAdult = "false" }) {
-
   const navigation = useNavigation();
-
-   const week = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  const theMonths = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const theMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let dayOfWeek = week[new Date().getDay()];
   let curMonth = theMonths[new Date().getMonth()];
   const currentHour = new Date().getHours();
@@ -48,9 +25,37 @@ function Routine_Header({ title, id, st, et, days, months, isAdult = "false" }) 
   
   const [endTimeHour, endTimeMinutes] = et.split(':').map(Number);
   const endTime = endTimeHour * 60 + endTimeMinutes;
-
-  const isActiveToday = days.includes(dayOfWeek) && months.includes(curMonth);
+  const [isActiveToday, setIsActiveToday] = useState(days.includes(dayOfWeek) && months.includes(curMonth));
+  const [isSwitchOn, setIsSwitchOn] = useState(isActiveToday);
+  
+  const handleSwitch = (value) => {
+      setIsSwitchOn(value);
+      setIsActiveToday(value);
+      
+      if (value) {
+        Alert.alert("Activate Today", "Do you want to activate this routine today?", [
+          { text: "Yes", onPress: () => console.log("Activated") },
+          { text: "No", onPress: () => {
+            setIsSwitchOn(false); 
+            setIsActiveToday(false);
+          }}
+        ]);
+      } else {
+        Alert.alert("Deactivate Today", "Do you want to deactivate this routine today?", [
+          { text: "Yes", onPress: () => {
+            console.log("Deactivated");
+            setIsActiveToday(false);
+          }},
+          { text: "No", onPress: () => {
+            setIsSwitchOn(true);
+            setIsActiveToday(true);
+          }}
+        ]);
+      }
+    };
+  
   const isActiveNow = isActiveToday && currentTime >= startTime && currentTime <= endTime;
+  
 
   let circleColor, statusText;
   if (isActiveNow) {
@@ -87,31 +92,36 @@ function Routine_Header({ title, id, st, et, days, months, isAdult = "false" }) 
   };
   return (
     <View style={styles.container}>
-      <View style={styles.statusContainer}>
-        <MaterialCommunityIcons name="circle" size={24} color={circleColor} />
-        <Text>{statusText}</Text>
+      <View style={styles.topRow}>
+        {isAdult && <Switch style={styles.switch} value={isSwitchOn} onValueChange={handleSwitch} />}
+        <View style={styles.statusContainer}>
+          <MaterialCommunityIcons name="circle" size={24} color={circleColor} />
+          <Text>{statusText}</Text>
+        </View>
       </View>
-      <View style={styles.titleContainer}>
-        <Text style={styles.text}>{title}</Text>
-      </View>
-      <TouchableOpacity onPress={handlePress}>
-        <Entypo name="circle-with-cross" size={35} color="red" />
-      </TouchableOpacity>
-      <View style={styles.buttonContainer}>
-        <AppButton
-          borderColor={colors.primary}
-          title="view"
-          onPress={() =>
-            navigation.navigate("RoutineViewScreen", {
-              title: title,
-              id: id,
-              st: st,
-              et: et,
-              isAdult: isAdult,
-              isActive: isActiveNow // Pass isActiveNow
-            })
-          }
-        />
+      <View style={styles.bottomRow}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.text}>{title}</Text>
+        </View>
+        <TouchableOpacity onPress={handlePress}>
+          <Entypo name="circle-with-cross" size={35} color="red" />
+        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <AppButton
+            borderColor={colors.primary}
+            title="view"
+            onPress={() =>
+              navigation.navigate("RoutineViewScreen", {
+                title: title,
+                id: id,
+                st: st,
+                et: et,
+                isAdult: isAdult,
+                isActive: isActiveNow
+              })
+            }
+          />
+        </View>
       </View>
     </View>
   );
@@ -120,9 +130,6 @@ function Routine_Header({ title, id, st, et, days, months, isAdult = "false" }) 
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     backgroundColor: colors.light,
     borderColor: colors.primary,
     borderWidth: 2,
@@ -131,13 +138,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  bottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  switch: {
+    margin: 5,
+  },
   statusContainer: {
     flexDirection: "row",
     alignItems: "center",
+    padding: 5
   },
   titleContainer: {
     flex: 1,
-    alignItems: 'center', // Center the title
   },
   text: {
     fontSize: 30,

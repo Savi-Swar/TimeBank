@@ -17,6 +17,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { firebaseConfig } from "../firebase";
 import { makeid } from "../firebase";
 import mime from 'mime';
+import CustomButton from "../Components_v2/CustomButton";
 
 export default function ImagePickerExample({
   setImage,
@@ -24,6 +25,7 @@ export default function ImagePickerExample({
   bytes,
   url,
   setUrl,
+  source
 }) {
   const [pickedImagePath, setPickedImagePath] = useState("");
 
@@ -53,7 +55,9 @@ export default function ImagePickerExample({
       await uploadBytes(refer, bytes);
 
       const uploadedFileURL = await getDownloadURL(refer);
-      setPickedImagePath(uploadedFileURL);
+      setPickedImagePath(uploadedFileURL); 
+      setUrl(link) 
+
     }
 };
 
@@ -79,23 +83,18 @@ export default function ImagePickerExample({
       if (!result.canceled) {
         const uri = result.assets[0].uri;
         const type = result.assets[0].type;
-        console.log("Picked image URI: ", uri);
   
         const extension = mime.getExtension(type) || 'jpg';
         let link = makeid(15) + "." + extension;
-        console.log("Generated link: ", link);
     
         const storage = getStorage();
         const refer = ref(storage, link);
         const img = await fetch(uri);
         const bytes = await img.blob();
-        console.log("Got image blob, starting upload...");
         await uploadBytes(refer, bytes);
-        console.log("Upload finished");
 
         const uploadedFileURL = await getDownloadURL(refer);
-        console.log("Uploaded file URL: ", uploadedFileURL);
-        setImage(uploadedFileURL);
+        setPickedImagePath(uploadedFileURL);
         setUrl(link)
       }
     } catch (error) {
@@ -109,59 +108,70 @@ export default function ImagePickerExample({
   // for photos from library
   const handlePress = () => {
     Alert.alert("Delete", "Are you sure you want to delete this image?", [
-      { text: "Yes", onPress: () => setImage(null) },
-      { text: "No" },
-    ]);
-  };
-  //for camera photos
-  const handlePress2 = () => {
-    Alert.alert("Delete", "Are you sure you want to delete this image?", [
       { text: "Yes", onPress: () => setPickedImagePath("") },
       { text: "No" },
     ]);
   };
-
+  const change = source == "edit"
   return (
     <>
-      <AppButton title="Take Photo" onPress={takePhoto} />
+              
+           
+      {change && 
+      <View style = {{left: 20, top: 120}}>
+        <View >
+          <CustomButton 
+              onPress={takePhoto}
+              imageUrl={require("../assets/buttons/Capture.png")}
+              width={200}
+              height={80}
 
-      <View style={{position: 'relative'}}>
-        <TouchableWithoutFeedback onPress={handlePress2}>
-          <View>
-            {pickedImagePath !== "" && (
-              <Image
-                source={{ uri: pickedImagePath }}
-                style={{ width: 180, height: 100 }}
-              />
-            )}
-          </View>
-        </TouchableWithoutFeedback>
-        {pickedImagePath !== "" && (
-          <TouchableOpacity 
-            style={{position: 'absolute', right: 0, top: 0}} 
-            onPress={handlePress2}
-          >
-            <Text style={{fontSize: 20}}>X</Text>
-          </TouchableOpacity>
-        )}
+          />
+        </View>
+        <CustomButton 
+            onPress={pickImage}
+            imageUrl={require("../assets/buttons/Gallery.png")}
+            width={200}
+            height={80}
+
+          />
       </View>
+    }
+    {!change && 
+      <>
+        <CustomButton 
+            onPress={takePhoto}
+            imageUrl={require("../assets/buttons/Capture.png")}
+            width={200}
+            height={150}
+            style={{ width: 200, height: 150, alignSelf: 'center' }}
 
-      <AppButton title="Add Image from library" onPress={pickImage} />
+        />
+        <CustomButton 
+            onPress={pickImage}
+            imageUrl={require("../assets/buttons/Gallery.png")}
+            width={200}
+            height={150}
+            style={{ width: 200, height: 150, alignSelf: 'center' }}
 
-      <View style={{position: 'relative'}}>
+          />
+      </>
+    }
+
+      <View style={{position: 'absolute', left: 175, top: 40}}>
         <TouchableWithoutFeedback onPress={handlePress}>
           <View>
-            {image && (
+            {pickedImagePath && (
               <Image
-                source={{ uri: image }}
-                style={{ width: 180, height: 100 }}
+                source={{ uri: pickedImagePath }}
+                style={{ width: 140, height: 140, left: 80, top: 90, borderRadius: 10}}
               />
             )}
           </View>
         </TouchableWithoutFeedback>
-        {image && (
+        {pickedImagePath && (
           <TouchableOpacity 
-            style={{position: 'absolute', right: 0, top: 0}} 
+            style={{position: 'absolute', left: 220, top: 80, height: 20}} 
             onPress={handlePress}
           >
             <Text style={{fontSize: 20}}>X</Text>

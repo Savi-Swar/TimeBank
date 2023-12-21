@@ -14,7 +14,7 @@ import colors from "../config/colors";
 import { getRoutineLength, rearrangeRoutine } from "../firebase";
 import AppButton from "./AppButton";
 import * as firebase from "../firebase";
-import { remove, getDatabase, ref } from "firebase/database";
+import { remove, getDatabase, ref, get, set } from "firebase/database";
 
 function RoutineBar({
   title,
@@ -24,7 +24,8 @@ function RoutineBar({
   color = "primary",
   colTitle,
   colId,
-  im
+  im,
+  routinesLength
   
 }) {
   const handlePress = () => {
@@ -36,12 +37,36 @@ function RoutineBar({
   const deleteTask = async () => {
     const db = getDatabase();
     const userId = firebase.auth.currentUser.uid;
-    const docRef = ref(db, `${userId}/storage/routines/${colId}/${colTitle}/${id}`);
-    remove(docRef)
-      .catch((error) => {
+    const colRef = ref(db, `Users/${userId}/routines/${colId}/${colTitle}`);
+  
+    // Get the snapshot of the collection
+    get(colRef).then((snapshot) => {
+      const data = snapshot.val();
+      const keys = Object.keys(data);
+  
+      // Loop through each step
+      keys.forEach((key) => {
+        const stepData = data[key];
+  
+        // If the indx of the step is greater than the indx of the deleted step, decrement it
+        if (stepData.indx > im) {
+          const stepRef = ref(db, `Users/${userId}/routines/${colId}/${colTitle}/${key}`);
+          set(stepRef, {
+            ...stepData,
+            indx: stepData.indx - 1,
+          });
+        }
+      });
+  
+      // Delete the step
+      const docRef = ref(db, `Users/${userId}/routines/${colId}/${colTitle}/${id}`);
+      remove(docRef).catch((error) => {
         console.error("Error deleting document: ", error);
       });
+    });
   };
+    
+  
   const rearrangeUp = () => {
     if (im != 1) {
       rearrangeRoutine(colTitle, title, colId, id, im, true)
@@ -56,38 +81,48 @@ function RoutineBar({
     console.log("Rearrange down");
     } 
   };
+  let barHeight = 560 / routinesLength;
+  let fontSize = 25; // Original font size
+  let iconSize = 80; // Original icon size
 
+  if (barHeight > 100) {
+    barHeight = 100;
+  } else { // Adjust the sizes accordingly
+    if (barHeight < 50) {
+      barHeight = 50;
+    }
+    fontSize = fontSize * (barHeight / 100);
+    iconSize = iconSize * (barHeight / 100);
+  }
   return (
     <Screen>
-      <View style={[styles.container, { backgroundColor: colors[color] }]}>
-        <MaterialCommunityIcons name={graphic} size={80} color="gold" />
+      <View style={[styles.container, { backgroundColor: colors[color], height: barHeight }]}>
+        <MaterialCommunityIcons name={graphic} size={iconSize} color="gold" />
         <View style={styles.arrowContainer}>
           <TouchableOpacity onPress={rearrangeUp}>
-            <FontAwesome name="arrow-up" size={30} color="black" />
+            <FontAwesome name="arrow-up" size={fontSize} color="black" />
           </TouchableOpacity>
           <TouchableOpacity onPress={rearrangeDown}>
-            <FontAwesome name="arrow-down" size={30} color="black" />
+            <FontAwesome name="arrow-down" size={fontSize} color="black" />
           </TouchableOpacity>
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.text}>{title}</Text>
+          <Text style={[styles.text, {fontSize: fontSize}]}>{title}</Text>
         </View>
         <TouchableOpacity
           onPress={() => 
             handlePress()}
           style={styles.deleteButton}
         >
-          <Entypo name="circle-with-cross" size={35} color="red" />
+          <Entypo name="circle-with-cross" size={fontSize} color="red" />
         </TouchableOpacity>
       </View>
     </Screen>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    height: 100,
     alignItems: "center",
     padding: 10,
     flexDirection: "row",

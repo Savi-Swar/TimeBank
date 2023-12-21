@@ -23,23 +23,33 @@ function RoutinePopup({ visible, onClose, routine }) {
     useEffect(() => {
         if (routine) {
             getRoutineStats(routine.kid, routine.name)
-                .then(data => setStats(data));
+                .then(data => {
+                    // console.log(data);
+                    setStats(data);
+                });
         }
     }, [routine]);
-
+    
     if (routine) {
-        const { name, st, et, kid } = routine;
+        const { name, st, et } = routine;
         const screenWidth = Dimensions.get("window").width;
-        const yAxisMin = timeToMinutes(st);
-        const yAxisMax = timeToMinutes(et);
+        const endTimeInMinutes = timeToMinutes(et);
+    
+        // Calculate minutes earned for each finish time
+        const minutesEarnedData = stats && stats.times
+            ? stats.times.map(time => endTimeInMinutes - timeToMinutes(time))
+            : [];
+    
         const data = {
-            labels: stats ? Array.from({length: stats.times.length}, (_, i) => i + 1) : [],
+            labels: Array.from({ length: minutesEarnedData.length }, (_, i) => (i + 1).toString()),
             datasets: [
                 {
-                    data: stats ? stats.times.map(time => timeToMinutes(time)) : [],
+                    data: minutesEarnedData,
                 }
             ]
         };
+    
+        
         return (
             <Modal
                 animationType="slide"
@@ -51,14 +61,15 @@ function RoutinePopup({ visible, onClose, routine }) {
                         <Text style={styles.modalTitle}>{name}</Text>
                         <Text style={styles.modalText}>Start Time: {st}</Text>
                         <Text style={styles.modalText}>End Time: {et}</Text>
-                        <Text style={styles.modalText}>Kid: {kid}</Text>
+                        {/* <Text style={styles.modalText}>Kid: {kid}</Text> */}
                         {stats &&
                             <>
-                                <Text style={styles.modalText}>Average Time Left: {stats.averageTime}</Text>
-                                <Text style={styles.modalText}>Last Completed: {stats.lastCompleted}</Text>
-                                <Text style={styles.modalText}>Streak: {stats.streak}</Text>
-                                <Text style={styles.modalText}>Times Completed: {stats.timesCompleted}</Text>
-                                <Text style={styles.modalTitle}>Finish Times for {name}</Text>
+                                {stats.averageTime !== undefined ? <Text style={styles.modalText}>Average Minutes Saved: {stats.averageTime}</Text> : null}
+                                {stats.lastCompleted !== undefined ? <Text style={styles.modalText}>Last Completed: {stats.lastCompleted}</Text> : null}
+                                {stats.timesCompleted !== undefined ? <Text style={styles.modalText}>Times Completed: {stats.timesCompleted}</Text> : null}
+                                {stats.times &&
+                                <>
+                               <Text style={styles.modalTitle}>Minutes Earned for {name}</Text>
                                 <LineChart
                                     data={data}
                                     width={screenWidth}
@@ -67,7 +78,7 @@ function RoutinePopup({ visible, onClose, routine }) {
                                         backgroundColor: "#e26a00",
                                         backgroundGradientFrom: "#fb8c00",
                                         backgroundGradientTo: "#ffa726",
-                                        decimalPlaces: 2, 
+                                        decimalPlaces: 0, // Since you're dealing with minutes
                                         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                                         style: {
                                             borderRadius: 16
@@ -79,8 +90,11 @@ function RoutinePopup({ visible, onClose, routine }) {
                                         borderRadius: 16
                                     }}
                                 />
+                                </>
+                                }
                             </>
                         }
+
                         <Button title="Back" onPress={onClose} />
                     </View>
                 </View>

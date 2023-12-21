@@ -15,12 +15,15 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
 import AppButton from "../components/AppButton";
 import * as Animatable from "react-native-animatable";
-import { auth } from "../firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, createRecordWithUserId } from "../firebase";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 
 function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confPassword, setConfPassword] = useState("");
+  const [display, setDisplay] = useState("");
+
   const [data, setData] = React.useState({
     username: "",
     password: "",
@@ -58,14 +61,33 @@ function SignUpScreen({ navigation }) {
     });
   };
   const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredentials) => {
-        const user = userCredentials.user;
-        console.log(user.email);
-        alert("Signed up");
-      })
-      .catch((error) => alert(error.message));
+    if ((confPassword == password) && password.length > 7) {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredentials) => {
+          const user = userCredentials.user;
+          sendEmailVerification(user).then(() => {
+            alert('Verification Email Sent. Please verify your email.');
+  
+            // Start checking if the email is verified
+            const checkEmailVerified = setInterval(() => {
+              user.reload().then(() => {
+                if (user.emailVerified) {
+                  clearInterval(checkEmailVerified);
+                  navigation.navigate('TermsAndConditionsScreen', { userId: user.uid, display: display });
+                }
+              });
+            }, 3000); // Check every 3 seconds
+          }).catch((error) => {
+              alert(error.message)
+          });
+        })
+        .catch((error) => alert(error.message));
+    } else {
+      alert("Passwords do not match or are too short");
+    }
   };
+  
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#009387" barStyle="light-content" />
@@ -118,6 +140,7 @@ function SignUpScreen({ navigation }) {
             style={styles.textInput}
             autoCapitalize="none"
             secureTextEntry={data.confirm_secureTextEntry ? true : false}
+            onChangeText={(text) => setConfPassword(text)}
           />
           <TouchableOpacity onPress={updateConfirmSecureTextEntry}>
             {data.confirm_secureTextEntry ? (
@@ -126,13 +149,24 @@ function SignUpScreen({ navigation }) {
               <Feather name="eye" color="grey" size={20} />
             )}
           </TouchableOpacity>
+          
         </View>
+        <Text style={styles.text_footer}>Display Name</Text>
+        <View style={styles.action}>
+        <TextInput
+            placeholder="Enter Display Name (eg Mom/Dad/etc)"
+            style={styles.textInput}
+            autoCapitalize="none"
+            onChangeText={(text) => setDisplay(text)}
+          />
+        </View>
+        
+        <AppButton title="Sign Up" color="secondary" onPress={handleSignUp} />
         <AppButton
-          title="Sign In"
+          title="Go to Sign In"
           color="secondary"
           onPress={() => navigation.navigate("SignInScreen")}
         />
-        <AppButton title="Sign Up" color="secondary" onPress={handleSignUp} />
       </Animatable.View>
     </View>
   );
@@ -172,6 +206,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f2f2f2",
     paddingBottom: 5,
+    marginBottom: 10,
   },
   actionError: {
     flexDirection: "row",

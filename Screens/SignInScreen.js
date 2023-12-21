@@ -18,13 +18,15 @@ import * as Animatable from "react-native-animatable";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import ErrorMessage from "../components/ErrorMessage";
-import { auth, updateActiveUser } from "../firebase";
+import { auth, createRecordWithUserId } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
   password: Yup.string().required().min(4).label("Password"),
 });
+
 
 function SignInScreen({ navigation }) {
   const [data, setData] = React.useState({
@@ -33,6 +35,7 @@ function SignInScreen({ navigation }) {
     check_textInputChange: false,
     secureTextEntry: true,
   });
+  
   const [loginFailed, setLoginFailed] = useState(false);
   const updateSecureTextEntry = () => {
     setData({
@@ -49,23 +52,24 @@ function SignInScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleSignIn() {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log(user.stsTokenManager.accessToken);
+  async function handleSignIn() {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Signed in
+      const user = userCredential.user;
+      if (user.emailVerified) {
         if (user.stsTokenManager.accessToken) {
-          navigation.navigate("KidsScreen");
-          updateActiveUser("def")
+          navigation.navigate("EnterScreen");
         }
-        // ...
-      })
-      .catch((error) => {
-        console.log(error);
-        alert("Invalid LogIn");
-      });
+      } else {
+        alert("Please verify your email before signing in on the sign up page.");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Invalid LogIn");
+    }
   }
+  
 
   return (
     <View style={styles.container}>
@@ -139,9 +143,14 @@ function SignInScreen({ navigation }) {
                 onPress={() => handleSignIn()}
               />
               <AppButton
-                title="Sign Up"
+                title="Back"
                 color="secondary"
-                onPress={() => navigation.navigate("SignUpScreen")}
+                onPress={() => navigation.navigate("WelcomeScreen")}
+              />
+               <AppButton
+                title="Forgot Password?"
+                color="secondary"
+                onPress={() => navigation.navigate("ResetPassword")}
               />
             </>
           )}
