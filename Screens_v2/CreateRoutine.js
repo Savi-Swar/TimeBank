@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ImageBackground, Image, Alert, Platform, Text } from 'react-native';
+import { View, StyleSheet, ImageBackground, Image, Alert, Platform, Text, TouchableOpacity } from 'react-native';
 import AppTextInput from '../Components_v2/AppTextInput';
 import BigButton from '../Components_v2/BigButton';
 import BubbleText from '../Components_v2/BubbleText';
@@ -114,6 +114,7 @@ function CreateRoutine({ navigation }) {
       let minutes = time.getMinutes().toString().padStart(2, '0');
       return `${hours}:${minutes}`;
     };
+    let top = showEndTimePicker || showStartTimePicker ? verticalScale(-230) : verticalScale(-200);
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/21_add-routine.png")}>
        <ScrollView >
@@ -125,10 +126,10 @@ function CreateRoutine({ navigation }) {
           <BackButton  onPress={() => navigation.navigate("ParentRoutine")}
             imageUrl={require("../assets/buttons/Back.png")}/>
         </View>
-        <View style = {{top:verticalScale(40), right: scale(-20)}}>
+        <View style = {{top:verticalScale(130), right: scale(-20)}}>
           <BubbleText size = {moderateScaleFont(32)} text = {"Upload Picture"}/>
         </View>
-        <View style={{right: scale(0), bottom: verticalScale(70)}}>
+        <View style={{right: scale(0), bottom: verticalScale(-15)}}>
           <ImagePickerExample
                 setImage={setImageLink}
                 image={imageLink}
@@ -137,16 +138,16 @@ function CreateRoutine({ navigation }) {
                 source="edit" // or "add", depending on your need
             />
         </View>
-        <View style = {{top: verticalScale(75), right: -10}}>
-          <BubbleText size = {moderateScaleFont(24)} text = {"Enter Start/End Times & Name"}/>
+        <View style = {{top: verticalScale(145), right: scale(-10)}}>
+          <BubbleText size = {moderateScaleFont(24)} text = {"Enter Start/End Times"}/>
         </View>
-        <View style={{flexDirection: 'row', marginHorizontal: scale(10), top: verticalScale(65), left: scale(10)}}>
+        <View style={{flexDirection: 'row', marginHorizontal: scale(10), top: verticalScale(150), left: scale(10), zIndex: 1}}>
             <View style={{right: scale(10)}}>
-          <BlankButton width = {scale(175)} text="Start Time" onPress={() => setShowStartTimePicker(!showStartTimePicker)} />
-          <View style = {{right: scale(36), bottom: verticalScale(15)}}>
+          <BlankButton width = {scale(175)} height = {verticalScale(35)}  text="Start Time" onPress={() => setShowStartTimePicker(!showStartTimePicker)} />
+          <View style = {{right: scale(36), bottom: verticalScale(-5)}}>
 
           {showStartTimePicker && (
-            <DateTimePicker
+            <DateTimePicker 
               value={startTime}
               mode="time"
               display="default"
@@ -160,8 +161,8 @@ function CreateRoutine({ navigation }) {
           </View>
         </View>
         <View>
-          <BlankButton text="End Time" width = {scale(190)} onPress={() => setShowEndTimePicker(!showEndTimePicker)} />
-          <View style = {{right: scale(42), bottom: verticalScale(15)}}>
+          <BlankButton text="End Time" width = {scale(190)} height = {verticalScale(35)} onPress={() => setShowEndTimePicker(!showEndTimePicker)} />
+          <View style = {{right: scale(55), bottom: verticalScale(-5)}}>
           {showEndTimePicker && (
             <DateTimePicker
               value={endTime}
@@ -176,23 +177,28 @@ function CreateRoutine({ navigation }) {
           </View>
           </View>
         </View>
-        <View style = {{top: verticalScale(70)}}>
-          <AppTextInput
-            placeholder="Name"
+        
+        <View style = {{top:verticalScale(top-verticalScale(5)), right: scale(-20)}}>
+          <BubbleText size = {moderateScaleFont(24)} text = {"Enter Name"}/>
+        </View>
+        <View style = {{top: verticalScale(top), zIndex: 0}}> 
+          <AppTextInput 
+
+            placeholder="Name" 
             iconSource={require("../assets/icons/email.png")}
             onChangeText={(text) => setRoutineName(text)}
             value={routineName}
           />        
         </View> 
         <View style = {{alignItems: "center"}}>   
-        <View style = {{bottom: verticalScale(-80), left: scale(10)}}>
+        <View style = {{top: verticalScale(100), left: scale(10)}}>
           <BubbleText size = {24} text = {"Select Days of the Week"}/>
           <MultiSelectDropdown
             options={daysOptions}
             onSelection={setDaysOfWeek}
             />
         </View>
-        <View style = {{top: verticalScale(90), left: scale(0)}}>
+        <View style = {{top: verticalScale(110), left: scale(0)}}>
           <View style = {{left: 10}}>
              <BubbleText size = {moderateScaleFont(24)} text = {"Select Months of the Year"}/>
           </View>
@@ -202,7 +208,7 @@ function CreateRoutine({ navigation }) {
             onSelection={setMonthsOfYear}
             />
         </View>
-        <View style={{top: verticalScale(110)}}>
+        <View style={{top: verticalScale(125)}}>
             <View style = {{marginRight: scale(145)}}>
                 <BubbleText size={moderateScaleFont(24)} text={"Select Kids for Routine"} />
             </View>

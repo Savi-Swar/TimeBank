@@ -21,7 +21,6 @@ function ParentHome({ navigation, route }) {
   const [kids, setKids] = useState([]);
   const [isAccessCodeModalVisible, setIsAccessCodeModalVisible] = useState(false);
   const [isParentModal, setIsParentModalVisible] = useState(false);
-
   const [isAddKidModalVisible, setIsAddKidModalVisible] = useState(false);
   const [resetModalVisible, setResetModalVisible] = useState(false);
   const [kidName, setKidName] = useState('');
@@ -38,8 +37,15 @@ function ParentHome({ navigation, route }) {
   const [deleteKidName, setDeleteKidName] = useState('');
 
   useEffect(() => {
-    fetchUsers();
-  }, [])
+    const unsubscribe = firebase.auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchUsers(); // Fetch data for the current user
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup subscription
+  }, []);
+  
   const fetchUsers = async () => {
     const userId = firebase.auth.currentUser.uid;
     const db = getDatabase();
@@ -74,6 +80,7 @@ function ParentHome({ navigation, route }) {
 
     let tasks = [];
     tasksSnapshot.forEach((childSnapshot) => {
+      console.log(userId)
       if (childSnapshot.val().name != 'def') {
         tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
       }
@@ -232,6 +239,28 @@ function ParentHome({ navigation, route }) {
       <Text style={styles.textButton}>{title}</Text>
     </TouchableOpacity>
   );
+  const resetData = () => {
+    // set ALL state variables to default
+    setResetModalVisible(false);
+    setResetEmail('');
+    setResetPassword('');
+    setNewCode('');
+    setCodeInput('');
+    setCodeSetup(false);
+    setCodeUsed(false);
+    setKidName('');
+    setAccessCode('');
+    setUsers([]);
+    setKids([]);
+    setIsAccessCodeModalVisible(false);
+    setIsParentModalVisible(false);
+    setIsAddKidModalVisible(false);
+    setImageLink(null);
+    setUrl(null);
+    setIsDeleteKidModalVisible(false);
+    setDeleteKidName('');
+    
+  }
   return (
     <ImageBackground  style={styles.background} source={require("../assets/backgrounds/terms_conditions.png")}>
       <ScrollView>
@@ -259,7 +288,7 @@ function ParentHome({ navigation, route }) {
 
             <BlankButton text="Reset Code" onPress={() => setResetModalVisible(true)} />
             <View style={{marginBottom: verticalScale(80)}}>
-              <BlankButton text="Log Out" onPress={() => { navigation.navigate("Login"), firebase.signoutUser()}} />
+              <BlankButton text="Log Out" onPress={() => { navigation.navigate("Login"), resetData(), firebase.signoutUser()}} />
             </View>
         </View>
       </View>

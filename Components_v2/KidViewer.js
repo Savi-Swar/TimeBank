@@ -13,6 +13,9 @@ function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned
     if (!profilePic) { 
         profilePic = defaultImageUrl;
     }
+    if (name.length > 10) {
+        name = name.substring(0,9) + "..."
+    }
     useEffect(() => {
         const fetchImageUrl = async () => {
             const storage = getStorage();

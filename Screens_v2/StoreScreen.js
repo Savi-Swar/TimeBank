@@ -36,6 +36,7 @@ function StoreScreen({ navigation }) {
       <View style={styles.minutesContainer}>
         <Minutes />
       </View>
+      <View style={styles.flatListContainer}>
       <FlatList 
         data={store}
         renderItem={({ item }) => (
@@ -66,6 +67,7 @@ function StoreScreen({ navigation }) {
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
       />
+      </View>
     </ImageBackground>
   );
 }
@@ -79,14 +81,16 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Center the minutes container horizontally
   },
   listContent: {
-    paddingBottom: verticalScale(85), // Padding for top and bottom inside the list
+    paddingBottom: verticalScale(100), // Padding for top and bottom inside the list
   },
   cardContainer: {
     marginHorizontal: scale(20), // Margin on the sides for each card
-    top: scale(75),
-
-
   },
+  flatListContainer: {
+    height: verticalScale(500),
+    top: verticalScale(100),
+
+  }
 });
 
 

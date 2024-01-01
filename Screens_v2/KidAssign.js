@@ -34,8 +34,9 @@ function KidAssign({ navigation }) {
    <View style={{top: verticalScale(80)}}>
       <Minutes/>
      </View>
+     <View style = {styles.flatListContainer}>
     <FlatList 
-      style={styles.flatList}
+      style={styles.listContent}
       data={correctAssignments}
       renderItem={({ item }) => (
         <TouchableOpacity style={styles.cardContainer} onPress={() => {
@@ -63,6 +64,7 @@ function KidAssign({ navigation }) {
       )}
       keyExtractor={item => item.id}
     />
+    </View>
   </ImageBackground>
   
   );
@@ -74,15 +76,18 @@ const styles = StyleSheet.create({
     flex: 1, // Ensure the background takes up the full screen
   },
  
-  flatList: {
-    flex: 1, // Let the FlatList expand to fill available space
-    top: verticalScale(150), // Adjust top margin to avoid overlapping with buttons
+  listContent: {
+    paddingBottom: verticalScale(100), // Padding for top and bottom inside the list
   },
   cardContainer: {
-    // other styles as needed
-    marginHorizontal:scale(40),
-    marginTop: verticalScale(5)
+    marginHorizontal: scale(20), // Margin on the sides for each card
+
   },
+  flatListContainer: {
+    height: verticalScale(500),
+    top: verticalScale(70),
+
+  }
 
 });
 

@@ -3,10 +3,10 @@ import { StyleSheet, TouchableOpacity, ImageBackground, View } from 'react-nativ
 import BubbleText from './BubbleText';
 import { playSound } from '../audio'; // Adjust the path to your audio.js file
 import { scale, verticalScale, moderateScaleFont } from '../scaling'; // Adjust the path to your scaling.js file
-function BlankButton({ onPress, width = scale(370), text, ...otherProps }) {
+function BlankButton({ onPress, height = verticalScale(67), width = scale(370), text, ...otherProps }) {
   // Define the dimensions of the button based on the passed width or a default value
   const buttonWidth = width; // Example default width
-  const buttonHeight = verticalScale(67); // Replace yourAspectRatio with the width/height ratio of your image
+  const buttonHeight = height; // Replace yourAspectRatio with the width/height ratio of your image
 
   // Function to handle button press
   const handlePress = () => {

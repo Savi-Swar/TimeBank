@@ -250,18 +250,6 @@ export async function createRecordWithUserId(userId,display) {
           "minutes": "180",
           "title": "Monopoly game"
         },
-        "elQ3mygPOHd0tEGnE6EA": {
-          "id": "elQ3mygPOHd0tEGnE6EA",
-          "image": "WsormIIg1wBbl8b.jpg",
-          "minutes": "0",
-          "title": "10 swings and 1 turnaround "
-        },
-        "uWRCa4v5XILZxIv0ovPp": {
-          "id": "uWRCa4v5XILZxIv0ovPp",
-          "image": "LLT1rkv7iQdEsYz.jpg",
-          "minutes": "0",
-          "title": "Read your tintin comics 8 pages"
-        }
       },
       tasks: {
         "UVZPzfu3VPwbwAq44H8R": {
@@ -516,18 +504,16 @@ export async function addKids(kid ,url) {
   const routines = Object.values(routineSnapshot.val() || {});
 
   const now = new Date();
-  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-  
-  // Find the end (Saturday) of the current week
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(endOfWeek.getDate() + 6);
+  // Adjust the day of the week so Monday is 0, Tuesday is 1, ..., Sunday is 6
+  const dayOfWeek = (now.getDay() + 6) % 7; 
 
-  // Format the dates as 'YYYY|MM|DD'
-  const format = date => [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, '0'), // JavaScript months are 0-indexed
-    String(date.getDate()).padStart(2, '0')
-  ].join('|');
+  // Calculate the start of the week (Monday)
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - dayOfWeek);
+
+  // Calculate the end of the week (Sunday)
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
 
   const weeklyArrayKey = `${format(startOfWeek)}__${format(endOfWeek)}`;
 
