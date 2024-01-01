@@ -14,8 +14,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ImagePickerExample from '../Components_v2/ImagePicker';
 import BubbleText from '../Components_v2/BubbleText';
 import { playSound, sounds, toggleSoundEffects } from '../audio';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Example
 import { scale, verticalScale, moderateScale,moderateScaleFont } from '../scaling';
+import {MaterialCommunityIcons} from '@expo/vector-icons';
 
 function ParentHome({ navigation, route }) {
   const [users, setUsers] = useState([]);
@@ -239,10 +239,10 @@ function ParentHome({ navigation, route }) {
         <View>
           <View style={styles.soundControlContainer}>
             <TouchableOpacity onPress={toggleMusic}>
-              <Icon name={isMusicOn ? 'music' : 'music-off'} size={scale(30)} color="black" />
+              <MaterialCommunityIcons name={isMusicOn ? 'music' : 'music-off'} size={scale(30)} color="black" />
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleSound} style={styles.soundEffectIcon}>
-              <Icon name={isSoundEffectsOn ? 'volume-high' : 'volume-off'} size={scale(30)} color="black" />
+              <MaterialCommunityIcons name={isSoundEffectsOn ? 'volume-high' : 'volume-off'} size={scale(30)} color="black" />
             </TouchableOpacity>
           </View>
             <View style={{alignItems: "center", top: verticalScale(100)}}>
@@ -277,7 +277,7 @@ function ParentHome({ navigation, route }) {
               style={styles.textInput}
               onChangeText={setCodeInput}
               value={codeInput}
-              placeholder="Enter 6-digit code"
+              placeholder="Enter 6-digit parental pin"
               keyboardType="numeric"
               maxLength={6}
             />
@@ -299,7 +299,7 @@ function ParentHome({ navigation, route }) {
               style={styles.textInput}
               onChangeText={setCodeInput}
               value={codeInput}
-              placeholder="Enter 6-digit code"
+              placeholder="Enter 6-digit parental pin"
               keyboardType="numeric"
               maxLength={6}
             />
@@ -374,7 +374,7 @@ function ParentHome({ navigation, route }) {
               style={styles.textInput}
               onChangeText={setNewCode}
               value={newCode}
-              placeholder="Set new 6-digit code"
+              placeholder="Set new 6-digit parental pin"
               keyboardType="numeric"
               maxLength={6}
             />

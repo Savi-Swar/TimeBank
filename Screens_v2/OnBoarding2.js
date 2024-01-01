@@ -4,7 +4,8 @@ import { useFonts } from "expo-font";
 import { playSound } from "../audio";
 // Import the ImageButton component
 import ImageButton from '../Components_v2/ImageButton';
-import { scale, verticalScale, moderateScale } from '../scaling'; // Import scaling functions
+import BubbleText from '../Components_v2/BubbleText';
+import { scale, verticalScale, moderateScaleFont } from '../scaling'; // Import scaling functions
 function OnBoarding2({ navigation }) {
  
 
@@ -13,7 +14,16 @@ function OnBoarding2({ navigation }) {
       <TouchableOpacity onPress={() => {navigation.navigate("Login"), playSound("transition")}}>
         <Image style={styles.skip} source={require("../assets/skip.png")} />
       </TouchableOpacity>      
-      <Image style={styles.image} source={require("../assets/Text/BubbleText2.png")} />
+      {/* <Image style={styles.image} source={require("../assets/Text/BubbleText2.png")} /> */}
+      <View style = {{right: scale(40), bottom: verticalScale(280)}}>
+          <BubbleText text = "Build Habits" size = {moderateScaleFont(40)}/>
+          <View style={{top: verticalScale(30)}}>
+            <BubbleText text = "Help Children be on Time in a" size = {moderateScaleFont(24)} color="#650000"/>
+          </View>
+          <View style={{top: verticalScale(35)}}>
+            <BubbleText text = "Healthy and Happy Way!" size = {moderateScaleFont(24)} color="#650000"/>
+          </View>
+        </View>
       {/* Place the ImageButton 100px below the BubbleText image */}
       <View style={styles.imageButtonContainer}>
         <ImageButton onPress={() => navigation.navigate("OnBoarding3")} />
@@ -40,7 +50,7 @@ const styles = StyleSheet.create({
     width: scale(70),
     height: verticalScale(35),
     resizeMode: "contain",
-    bottom: verticalScale(280),
+    bottom: verticalScale(320),
     left: scale(150)
   },
   imageButtonContainer: {

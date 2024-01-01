@@ -4,7 +4,8 @@ import { View, StyleSheet, ImageBackground, Image, TouchableOpacity } from 'reac
 // Import the ImageButton component
 import ImageButton from '../Components_v2/ImageButton';
 import { playSound } from '../audio';
-import { scale, verticalScale, moderateScale } from '../scaling'; // Import scaling functions
+import BubbleText from '../Components_v2/BubbleText';
+import { scale, verticalScale, moderateScaleFont } from '../scaling'; // Import scaling functions
 
 function OnBoarding1({ navigation }) {
   return (
@@ -12,7 +13,15 @@ function OnBoarding1({ navigation }) {
       <TouchableOpacity onPress={() => {navigation.navigate("Login"), playSound("transition")}}>
         <Image style={styles.skip} source={require("../assets/skip.png")} />
       </TouchableOpacity>
-      <Image style={styles.image} source={require("../assets/Text/BubbleText1.png")} />
+        <View style = {{right: scale(20), bottom: verticalScale(280)}}>
+          <BubbleText text = "TimeBank" size = {moderateScaleFont(40)}/>
+          <View style={{top: verticalScale(30)}}>
+            <BubbleText text = "Where Learning the Value of Time" size = {moderateScaleFont(24)} color="#650000"/>
+          </View>
+          <View style={{top: verticalScale(35)}}>
+            <BubbleText text = "Becomes a Rewarding Adventure!" size = {moderateScaleFont(24)} color="#650000"/>
+          </View>
+        </View>
 
       {/* Place the ImageButton 100px below the BubbleText image */}
       <View style={styles.imageButtonContainer}>
@@ -40,7 +49,7 @@ const styles = StyleSheet.create({
     width: scale(70),
     height: verticalScale(35),
     resizeMode: "contain",
-    bottom: verticalScale(280),
+    bottom: verticalScale(320),
     left: scale(150)
   },
   imageButtonContainer: {
