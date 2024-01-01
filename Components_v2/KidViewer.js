@@ -11,17 +11,14 @@ import BubbleText from "./BubbleText";
 import Ticker from "./Ticker";
 import { set } from "firebase/database";
 import { NavigationContainer } from "@react-navigation/native";
+import { playSound } from "../audio";
+import { scale, verticalScale, moderateScaleFont } from "../scaling";
 
-function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned, minutes }) {
-    // const [loaded] = useFonts({
-    //     BubbleBobble: require("../assets/fonts/BubbleBobble.ttf"),
-    // });
-    // if (!loaded) {
-    //     return null;
-    // }
+function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned, minutes, weeklyArray, routineStats }) {
+   
     const [url, setUrl] = useState();
     // if theres no url, set url to default image
-    const defaultImageUrl = "4fjVI8Z0e4ntlHx.jpg"; // if the user doesnt set a photo
+    const defaultImageUrl = "GuZ6IdnQPdkKaRn.jpg"; // if the user doesnt set a photo
     if (!profilePic) { 
         profilePic = defaultImageUrl;
     }
@@ -38,31 +35,34 @@ function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned
 
     
 
-    // if (title.length > 22) {
-    //     title = title.substring(0,22) + "..."
-    // }
-
+    if (name.length > 22) {
+        name = name.substring(0,22) + "..."
+    }
+    
+    let r = Math.min(scale(135), verticalScale(135))
     return (
 
-        <View style={styles.card}>
+        <View style={[styles.card, {height:r}]}>
             <View style = {styles.miniCard}>
-                <View style={{ top: 30, left: 10 }}>
+                <View style={{ top: verticalScale(30), left: scale(10) }}>
                     <Text style={styles.name}>{name}</Text>
                 
                 </View>
                 
             </View>
-            <Image source={{uri: url}} style={styles.image} />
-            <TouchableOpacity style={styles.detailsButton} onPress={() => navigation.navigate("StatsScreen",
+            <Image source={{uri: url}} style={[styles.image, {width: r, height: r}]} />
+            <TouchableOpacity style={styles.detailsButton} onPress={() => {navigation.navigate("StatsScreen",
             {
                 name: name,
-                weekly: weekly,
-                spent: spent,
-                earned: earned,
-                minutes: minutes
+                // weekly: weekly,
+                // spent: spent,
+                // earned: earned,
+                // minutes: minutes,
+                // array: weeklyArray,
+                // routineStats: routineStats
             }
-            )}>
-                        <BubbleText text={"View Stats ->"} color={"#21BF73"} size={19} />
+            ), playSound('transition')}}>
+                        <BubbleText text={"View Stats ->"} color={"#21BF73"} size={moderateScaleFont(19)} />
             </TouchableOpacity>
         </View>
     );
@@ -70,72 +70,70 @@ function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned
 }
 const styles = StyleSheet.create({
     miniCard: {
-        borderRadius: 20,
-        width: 310,
+        borderRadius: scale(20),
+        width: scale(310),
         position: 'relative',
         shadowColor: "#0000001A",
         shadowOffset: {
             width: 0,
-            height: 20,
+            height: verticalScale(20),
         },
         shadowOpacity: 0.5,
-        shadowRadius: 10,
-        elevation: 5, // for Android
+        shadowRadius: scale(10),
+        elevation: scale(5), // for Android
         alignItems: 'center',
-        height: 90,
+        height: verticalScale(90),
         backgroundColor: '#FFFFFF', // it's good to set a background color for better shadow visibility
-        right: 10,
-        bottom: 20
+        right: scale(10),
+        bottom: verticalScale(20)
         
 
     },
     detailsButton: {
         position: "absolute",
-        bottom: 10,   // Adjust this value to move the label closer to the bottom edge
-        right: 90, 
-        fontSize: 22   // Adjust this value to move the label closer to the right edge
+        bottom: verticalScale(10),   // Adjust this value to move the label closer to the bottom edge
+        right: scale(90), 
+        fontSize: moderateScaleFont(22)   // Adjust this value to move the label closer to the right edge
         // Add any other necessary styles
     },
     timer: {
-        width: 30,
-        height: 30,
+        width: scale(30),
+        height: verticalScale(30),
     },
     card: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 20,
-        padding: 10,
-        width: 310,
-        height: 135,
+        borderRadius: scale(20),
+        paddingHorizontal: scale(10),
+        paddingVertical: verticalScale(10),
+        width: scale(310),
         backgroundColor: '#FFFFFF',
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: verticalScale(2) },
         shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowRadius: scale(3.84),
         elevation: 5,
-        top: 10,
-        left: 60
+        top: verticalScale(10),
+        left: scale(60)
         // Remove fixed width to allow for responsive design
     },
     image: {
-        width: 135,
-        height: 135,
-        borderRadius: 80, // This will create a circle
-        borderWidth: 4,
+        borderRadius: scale(80), // This will create a circle
+        borderWidth: scale(4),
         borderColor: "#fbcb04",
-        right:365,
+        right: scale(365),
 
         // Remove right and bottom, use margin if needed
     },
     contentContainer: {
         flex: 1, // Take up remaining space
-        paddingLeft: 10, // Add padding between image and text
+        paddingLeft: scale(10), // Add padding between image and text
         // Adjust other styles as necessary
 
     },
     name: {
         flex: 1,
-        fontSize: 30,
+        fontSize: moderateScaleFont(30),
         color: "#A74A29",
         // You'll need to link the 'Bubble Bobble' font for this to work
         fontFamily: 'BubbleBobble',
@@ -143,27 +141,27 @@ const styles = StyleSheet.create({
     minutesContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        bottom: 10,
-        right: 10
+        bottom: verticalScale(10),
+        right: scale(10)
         
     },
     minutes: {
-        marginLeft: 5,
+        marginLeft: scale(5),
         color: "#2bc37a",
         // You'll need to link the 'Bubble Bobble' font for this to work
         fontFamily: 'BubbleBobble',
-        fontSize: 18,
+        fontSize: moderateScaleFont(18),
         
 
     },
     x: {
-        width: 40,
-        height: 40,
+        width: scale(40),
+        height: verticalScale(40),
     },
     pos: {
         position: "absolute",
-        left: 275, // Adjust this value to move the button closer to the right edge
-        bottom: 105,   // Adjust this value to move the button closer to the top edge
+        left: scale(275), // Adjust this value to move the button closer to the right edge
+        bottom: verticalScale(105),   // Adjust this value to move the button closer to the top edge
     },
     
 });

@@ -12,7 +12,7 @@ import AppTextInput from "../components/AppTextInput";
 import Logo from "../components/Logo";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
-import ImagePickerExample from "../components/ImagePicker";
+import ImagePickerExample from "../Components_v2/ImagePicker";
 import * as firebase from "../firebase";
 import { getDatabase, ref, set, update } from "firebase/database";
 

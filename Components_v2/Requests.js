@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground, Image, Text, Alert } from 'react-native';
 import CustomButton from './CustomButton';
+import {scale, verticalScale, moderateScale, moderateScaleFont} from '../scaling';
 // Import the ImageButton component
 
 function Requests({ navigation, name, minutes, kid, onApprove, onDeny }) {
@@ -14,12 +15,12 @@ function Requests({ navigation, name, minutes, kid, onApprove, onDeny }) {
     <View style={styles.card}>
          <View style = {{ flexDirection: "row"}}>
            
-            <Text style = {{fontFamily: "BubbleBobble", fontSize: 25, color: "#00000", bottom:20, left: 15}}>{text}</Text>
+            <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(25), color: "#00000", bottom: verticalScale(20), left: scale(15)}}>{text}</Text>
 
         </View>
-        <View style = {{ flexDirection: "row", position: "absolute", top: 85, left: 120}}>
-          <CustomButton imageUrl={require("../assets/buttons/Reject.png")} height={60} width={120} onPress={onDeny}/>
-          <CustomButton imageUrl={require("../assets/buttons/Approve.png")} height={60} width={120} onPress={onApprove}/>
+        <View style = {{ flexDirection: "row", position: "absolute", top: verticalScale(95), left: scale(110)}}>
+          <CustomButton imageUrl={require("../assets/buttons/Reject.png")} height={verticalScale(40)} width={scale(129)} onPress={onDeny}/>
+          <CustomButton imageUrl={require("../assets/buttons/Approve.png")} height={verticalScale(40)} width={scale(129)} onPress={onApprove}/>
 
         </View>
     </View>
@@ -29,23 +30,24 @@ function Requests({ navigation, name, minutes, kid, onApprove, onDeny }) {
 
 const styles = StyleSheet.create({
   card: {
-      width: 375,
-      height: 150,
+      width: scale(375),
+      height: verticalScale(150),
       flexDirection: 'row',
       alignItems: 'center',
-      borderRadius: 20,
-      padding: 10,
+      borderRadius: scale(20),
+      paddingHorizontal: scale(10),
+      paddingVertical: verticalScale(10),
       position: 'relative',
       backgroundColor: '#FFFFFF', // it's good to set a background color for better shadow visibility
       shadowColor: "#000",
       shadowOffset: {
           width: 0,
-          height: 2,
+          height: verticalScale(2),
       },
       shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5, // for Android
-      marginBottom: 20,
+      shadowRadius: scale(3.84),
+      elevation: scale(5), // for Android
+      marginBottom: verticalScale(20),
   },
 });
 

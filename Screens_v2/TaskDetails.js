@@ -10,6 +10,8 @@ import CustomButton from '../Components_v2/CustomButton';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { updateRequest } from '../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { playSound } from '../audio';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
 function TaskDetails({ navigation, route }) {
   const [minutes, setMinutes] = useState(route.params.minutes);
   const [url, setUrl] = useState();
@@ -58,15 +60,23 @@ useEffect(() => {
   }
 
   const handleCompleteTask = async () => {
+    playSound("complete")
+
     const taskName = route.params.title; // The task name
-    await updateRequest(kidName, minutes, taskName);
+    if (assignment) {
+      await updateRequest(kidName, minutes, taskName, route.params.id);
+    } else {
+      await updateRequest(kidName, minutes, taskName, "false");
+    }
+    
     navigation.navigate("KidsNav");
     // Optionally add more logic if needed
   };
- 
+  let assignment = route.params?.assignment || false;
+  let left = assignment ? scale(-20): scale(30);
     return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/12_complete.png")}>
-      <View style = {{bottom: 75, left: 25}}>
+      <View style = {{bottom: verticalScale(80), left: scale(25)}}>
       <BackButton
              onPress={() => navigation.navigate("KidsNav")}
             imageUrl={require("../assets/buttons/Back.png")}
@@ -77,29 +87,36 @@ useEffect(() => {
       <View style={styles.circularImageView}>
           <Image style={styles.image2} source={{ uri: url }} />
         </View>
-        <View style = {{top: 80, left: 50}}>
+        <View style = {{top: verticalScale(80), left: scale(50)}}>
         <Image style={styles.monkey} source={require("../assets/Monkey2.png")} />
         </View>
         </View>
-        <View style = {{alignItems: "center", top: 15, right: 90}}>
+        <View style = {{left: left, top: verticalScale(590), position: "absolute"}}>
+          <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(47), color: "#FFE57B"}}>{route.params.title}</Text>
+        </View>
+        <View style = {{alignItems: "center", top: verticalScale(10), right: scale(90)}}>
           
-        <Text style = {{fontFamily: "BubbleBobble", fontSize: 47, left: 40, color: "#FFE57B"}}>{route.params.title}</Text>
-        <View style = {{flexDirection: "row", left: 40, top: 10}}>
-          <View style = {{left: 30, top: 15}}>
-            <CustomButton onPress={() => setMinutes(minutes > 0 ? minutes-1 : minutes)} imageUrl={require("../assets/buttons/Minus.png")} width={40} height={40}/>
+        <View style = {{flexDirection: "row", left: scale(40), top: verticalScale(50)}}>
+          {!assignment && (
+          <View style = {{left: scale(25), top: verticalScale(15)}}>
+            <CustomButton onPress={() => setMinutes(minutes > 0 ? minutes-1 : minutes)} imageUrl={require("../assets/buttons/Minus.png")} width={scale(40)} height={verticalScale(40)}/>
           </View>
-          <Image style={styles.image3} source={require("../assets/Text/BubbleText13.png")} />
-          <View style = {{flexDirection: "row", top: 30, right: 125}}>
-            <Text style = {{fontFamily: "BubbleBobble", fontSize: 24, color: "#21bf73", top: 8, left: 29, paddingHorizontal:3}}>{minutes}</Text>
-            <Image style={styles.image} source={require("../assets/Text/BubbleText12.png")} />
+          )}
+          <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(24), color: "#9b8da2", top: verticalScale(8), left: scale(29), paddingHorizontal:scale(3)}}>Time Taken</Text>
+          <View style = {{flexDirection: "row", top: verticalScale(30), right: scale(105)}}>
+            <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(24), color: "#21bf73", top: verticalScale(8), left: scale(29), paddingHorizontal:scale(3)}}>{minutes} Minutes</Text>
           </View>
-          <View style = {{right: 85, top: 15}}>
-            <CustomButton onPress={() => setMinutes(minutes- -1)} imageUrl={require("../assets/buttons/add.png")} width={40} height={40} />
-          </View>        
+          {!assignment && (
+          <View style = {{right: scale(60), top: verticalScale(15)}}>
+            <CustomButton onPress={() => setMinutes(minutes- -1)} imageUrl={require("../assets/buttons/add.png")} width={scale(40)} height={verticalScale(40)} />
+          </View>   
+          )}     
         </View>
 
-        <View style = {{right: 3, bottom: 20}}>
+        <View style = {{right: scale(3), bottom: verticalScale(-100)}}>
         <SmallButton 
+            width = {scale(141)}
+            height = {verticalScale(66)}
             onPress={handleCompleteTask}
             imageUrl={require("../assets/buttons/Complete.png")}
         />
@@ -110,48 +127,50 @@ useEffect(() => {
     );
 }
 
+let r = Math.min(scale(1, verticalScale(1)));
 const styles = StyleSheet.create({
  background: {
     flex: 1,
     justifyContent: "center",
   },
   image: {
-    width: 100,
-    height: 70,
+    width: scale(100),
+    height: verticalScale(70),
     resizeMode: "contain",
-    bottom: 15,
-    left: 25
+    bottom: verticalScale(15),
+    left: scale(25)
   },
   image3: {
-    width: 140,
-    height: 100,
+    width: scale(140),
+    height: verticalScale(100),
     resizeMode: "contain",
-    bottom: 30,
-    left: 30
+    bottom: verticalScale(30),
+    left: scale(30)
 
   },
   image2: {
-    width: 440,
-    height: 440,
+    width: 440 * r,
+    height: 440*r,
     resizeMode: "cover",
-    borderRadius: 220,
+    borderRadius: 220*r,
   },
   monkey: {
-    width: 160,
-    height: 250,
+    width: scale(167),
+    height: verticalScale(190),
     resizeMode: "contain",
-    right: 200,
+    right: scale(200),
   },
   circularImageView: {
-    width: 400,
-    height: 400,
-    borderRadius: 220,
-    borderWidth: 5,
+    width: 400*r,
+    height: 400*r,
+    borderRadius: 220*r,
+    borderWidth: 5*r,
     borderColor: 'black',
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    right: 80,
+    right: scale(80),
+    bottom: scale(50)
   }
 });
 

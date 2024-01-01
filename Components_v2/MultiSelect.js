@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import colors from "../config/colors";
 import BubbleText from "./BubbleText";
-
+import { playSound } from "../audio";
+import { scale, verticalScale, moderateScaleFont } from "../scaling";
 function MultiSelect ({ options, onSelection }) {
   const [selectedItems, setSelectedItems] = useState([]);
 
   const handleItemPress = (item) => {
+    playSound("select"); // Play the click sound
     let newSelectedItems = [...selectedItems];
 
     if (selectedItems.includes(item)) {
@@ -20,6 +22,7 @@ function MultiSelect ({ options, onSelection }) {
   };
 
   const handleSelectAllPress = () => {
+    playSound("select"); // Play the click sound
     // If all items are already selected, deselect all. Otherwise, select all.
     if (selectedItems.length === options.length) {
       setSelectedItems([]);
@@ -67,11 +70,12 @@ const styles = StyleSheet.create({
   item: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    borderRadius: scale(20),
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(12),
     backgroundColor: "#ffe57b",
-    margin: 4,
+    marginHorizontal: scale(4),
+    marginVertical: verticalScale(4),
   },
   selectedItem: {
     backgroundColor:  "#d2623a",

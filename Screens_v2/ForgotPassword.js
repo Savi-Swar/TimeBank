@@ -5,6 +5,8 @@ import BigButton from '../Components_v2/BigButton';
 import SmallButton from '../Components_v2/SmallButton';
 import { auth } from "../firebase"; // Make sure this path is correct
 import { sendPasswordResetEmail } from "firebase/auth";
+import { playSound } from '../audio';
+import { scale, verticalScale } from '../scaling';
 
 function ForgotPassword({ navigation }) {
   const [email, setEmail] = useState("");
@@ -12,8 +14,10 @@ function ForgotPassword({ navigation }) {
   const handleSendVerification = async () => {
     try {
       await sendPasswordResetEmail(auth, email);
+      playSound("alert")
       Alert.alert("Check your email", "A link to reset your password has been sent to your email.", [{ text: "OK" }]);
     } catch (error) {
+      playSound("alert")
       Alert.alert("Error", error.message, [{ text: "OK" }]);
     }
   };
@@ -21,7 +25,7 @@ function ForgotPassword({ navigation }) {
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/08_forgot_password.png")}>
       <Image style={styles.image} source={require("../assets/Text/BubbleText9.png")} />
-      <View style={{ bottom: 60 }}>
+      <View style={{ bottom: verticalScale(150) }}>
         <AppTextInput 
           placeholder="Email Address" 
           iconSource={require("../assets/icons/email.png")}
@@ -29,7 +33,7 @@ function ForgotPassword({ navigation }) {
           onChangeText={setEmail}
         />
       </View>
-      <View style={{ alignItems: "center", bottom: 100 }}>
+      <View style={{ alignItems: "center", bottom: verticalScale(145) }}>
         <BigButton 
           onPress={handleSendVerification} // Use the actual password reset function here
           imageUrl={require("../assets/buttons/Verification.png")}
@@ -37,7 +41,7 @@ function ForgotPassword({ navigation }) {
       </View>
       <View style={styles.image2}>
         <SmallButton 
-          onPress={() => navigation.goBack()} // Adjust if you have specific back navigation requirements
+          onPress={() => {navigation.goBack()}} // Adjust if you have specific back navigation requirements
           imageUrl={require("../assets/Text/BubbleText8.png")}
         />
       </View>
@@ -51,16 +55,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   image: {
-    width: 350,
-    height: 220,
+    width: scale(350),
+    height: verticalScale(220),
     resizeMode: "contain",
-    top: 20,
-    left: 30
+    bottom: verticalScale(100),
+    left: scale(30)
   },
   image2: {
     resizeMode: "contain",
-    width: 140,
-    top:120
+    width: scale(140),
+    top: verticalScale(160),
+    left: scale(30)
   },
 });
 

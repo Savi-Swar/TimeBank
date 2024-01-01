@@ -5,18 +5,10 @@ import Card from '../Components_v2/Card';
 import * as firebase from '../firebase';
 import BubbleText from '../Components_v2/BubbleText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+
 function KidHome({ navigation }) {
-  
-  // hey pilot
-  // why do i have a hook issue
-  // i have a hook issue
-  // i have a hook issue
-  // because in your useEffect you are calling setKidName and setKidMinutes
-  // which are hooks
-  // and you can't call hooks inside of useEffect
-  // so you need to move that logic outside of useEffect
-  // and then call the hooks inside of useEffect
-  // so you can do something like this:
+
   const [kidName, setKidName] = useState('');
   const [kidMinutes, setKidMinutes] = useState(0);
   const [assignments, setAssignments] = useState([]);
@@ -65,19 +57,19 @@ const closestAssignment = assignments
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
       
-      <View style = {{bottom: 40, alignItems: "center"}}>
-        <View style ={{top:-10}}>
-          <BubbleText style={styles.welcomeText} text={"Welcome " + kidName + "!"}  size={40}/>
+      <View style = {{bottom: verticalScale(110), alignItems: "center"}}>
+        <View style ={{top: verticalScale(-10)}}>
+          <BubbleText style={styles.welcomeText} text={"Welcome " + kidName + "!"}  size={moderateScaleFont(40)}/>
         </View>
-        <BubbleText style={styles.welcomeText} text={"You have " + kidMinutes + " minutes"} size={25}/>
+        <BubbleText style={styles.welcomeText} text={"You have " + kidMinutes + " minutes"} size={moderateScaleFont(25)}/>
       </View>
-      <View style = {{bottom: 80}}>
+      <View style = {{bottom: verticalScale(90)}}>
           <Image style={styles.logo} source={require("../assets/icons/Logo.png")} />
           <Image style={styles.tagLine} source={require("../assets/icons/Tagline.png")} />
         </View>
-      <View style={{bottom: 140}}>
-      <View style={{bottom:10, right: 15}}>
-        <BubbleText style={styles.welcomeText} text={"Next Assignment Due..."} size={28}/>
+      <View style={{bottom: verticalScale(70)}}>
+      <View style={{bottom: verticalScale(0), alignItems: "center"}}>
+        <BubbleText style={styles.welcomeText} text={"Next Assignment Due"} size={moderateScaleFont(28)}/>
       </View>
       {closestAssignment ? (
         <Card 
@@ -94,22 +86,26 @@ const closestAssignment = assignments
         <BubbleText style={styles.welcomeText} text={"No Assignments due; Great Job!"} size={20}/>
       )}
       </View>
-      <View style={{bottom: 110}}>
-      <View style={{bottom:10, right: 10}}>
-      <BubbleText style={styles.welcomeText} text={"Next item to buy..."} size={28}/>
+      <View style={{bottom: verticalScale(60)}}>
+      <View style={{bottom: verticalScale(0), alignItems: "center"}}>
+        <BubbleText style={styles.welcomeText} text={"Next item to buy"} size={moderateScaleFont(28)}/>
       </View>
 
       {closestStoreItem ? (
-        <Card 
-          image={closestStoreItem.image} 
-          title={closestStoreItem.title} 
-          minutes={closestStoreItem.minutes}
-        />
+        <View style = {{width: '100%'}}>
+          <Card 
+            image={closestStoreItem.image} 
+            title={closestStoreItem.title} 
+            minutes={closestStoreItem.minutes}
+          />
+        </View>
       ) : (
         <BubbleText style={styles.welcomeText} text={"No Items in store; Ask a parent to add them!"} size={20}/>
       )}
       </View>
+      <View style = {{position: "absolute", bottom: verticalScale(125)}}>
       <BlankButton onPress={() => navigation.navigate("ParentHome")} text="Log Out" />
+      </View>
     </ImageBackground>
   );
 }
@@ -127,15 +123,14 @@ const styles = StyleSheet.create({
     // Add your styles for no items text
   },
   logo: {
-    width: 200,
-    height: 300,
+    width: scale(250),
+    height: verticalScale(173),
     resizeMode: "contain",
   },
   tagLine: {
-    width: 200,
-    height: 80,
+    width: scale(215),
+    height: verticalScale(40),
     resizeMode: "contain",
-    bottom:90
   },
   // ... other styles ...
 });

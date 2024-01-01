@@ -6,34 +6,38 @@ import Card from '../Components_v2/Card';
 import * as firebase from '../firebase'
 import { ScrollView } from 'react-native-gesture-handler';
 import Minutes from '../Components_v2/Minutes';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
 function TaskScreen({ navigation }) {
   const [store, setStore] = useState([]);
   firebase.Tasks(store, setStore);
-  // console.log(store);
+
   return (
     <ImageBackground style={styles.backgroundImage} source={require("../assets/backgrounds/10_tasks.png")}>
-      <View style={{top:120}}>
-        <Minutes/>
-     </View>
+      <View style={styles.minutesContainer}>
+        <Minutes />
+      </View>
       <FlatList 
-        style={styles.flatList}  // Use style instead of contentContainerStyle here
         data={store}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.cardContainer}  onPress={() => navigation.navigate('TaskDetails', {
-            title: item.title,
-            imageUri: item.image,
-            minutes: item.minutes
-          })}>
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('TaskDetails', {
+              title: item.title,
+              imageUri: item.image,
+              minutes: item.minutes
+            })}
+            style={styles.cardContainer}
+          >
             <Card 
               image={item.image} 
               title={item.title} 
               minutes={item.minutes}
-              id = {item.id}
-              isAdult = {false}
+              id={item.id}
+              isAdult={false}
             />
           </TouchableOpacity>
         )}
         keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContent}
       />
     </ImageBackground>
   );
@@ -41,30 +45,22 @@ function TaskScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   backgroundImage: {
-    flex: 1
-  },
-  topContainer: {
-    height: 320,  // This height will be static and can be adjusted based on your needs
-    flexDirection: "row"
-  },
-  bigButtonContainer: {
-    alignItems: "center",
-    marginTop: 183,
-    left: 20
-  },
-  mediumButtonContainer: {
-    marginTop: 240,
-    left: 90
-  },
-  flatList: {
     flex: 1,
-    paddingHorizontal: 20,
-    left: 20,
-    top: 180
+  },
+  minutesContainer: {
+    paddingTop: verticalScale(80), // Adjust this value as needed
+    alignItems: 'center', // Center the minutes container horizontally
+  },
+  listContent: {
+    paddingBottom: verticalScale(80), // Padding for top and bottom inside the list
   },
   cardContainer: {
-    marginBottom: 30  // margin at the bottom of each card
-  }
+    marginHorizontal: scale(20), // Margin on the sides for each card
+    top: scale(65),
+
+
+  },
 });
+
 
 export default TaskScreen;

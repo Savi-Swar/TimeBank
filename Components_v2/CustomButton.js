@@ -1,10 +1,17 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, Image } from 'react-native';
-
-function CustomButton({ onPress, imageUrl, width = 60, height = 60, ...otherProps }) {
+import { playSound } from '../audio';
+import { scale, verticalScale } from '../scaling';
+function CustomButton({ onPress, imageUrl, width = scale(60), height = verticalScale(60), ...otherProps }) {
+  const handlePress = () => {
+    playSound('click'); // Play the click sound
+    if (onPress) {
+      onPress(); // If there's an onPress function passed, call it
+    }
+  };
   return (
-    <TouchableOpacity onPress={onPress} {...otherProps}>
-      <Image source={imageUrl} style={[styles.button, { width, height }]} />
+    <TouchableOpacity onPress={handlePress} {...otherProps}>
+      <Image source={imageUrl} style={[styles.button, { width: width, height: height }]} />
     </TouchableOpacity>
   );
 }
@@ -12,6 +19,7 @@ function CustomButton({ onPress, imageUrl, width = 60, height = 60, ...otherProp
 const styles = StyleSheet.create({
   button: {
     resizeMode: 'contain',
+    marginBottom: verticalScale(3),
   },
 });
 

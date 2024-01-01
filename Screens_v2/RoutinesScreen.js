@@ -8,6 +8,7 @@ import CustomButton from '../Components_v2/CustomButton';
 import RoutineHeader from '../Components_v2/RoutineHeader';
 import * as firebase from '../firebase'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
 
 function RoutineScreen({ navigation }) {
   const [routines, setRoutines] = useState([]);
@@ -16,11 +17,7 @@ function RoutineScreen({ navigation }) {
     try {
       const storedName = await AsyncStorage.getItem('@active_kid');
       if (storedName !== null) {
-        // We have data!!
         setKidName(storedName);
-        firebase.Mins(minutes, setMinutes, storedName);
-        setKidName(storedName)
-        setKidMinutes(minutes); 
 
       }
     } catch (error) {
@@ -51,6 +48,8 @@ function RoutineScreen({ navigation }) {
               endTime={item.endTime}
               id = {item.id}
               isAdult = {false}
+              navigation = {navigation}
+
             />
           )}
           keyExtractor={item => item.id}
@@ -68,25 +67,25 @@ const styles = StyleSheet.create({
   },
   bigButtonContainer: {
     alignItems: "center",
-    marginTop: 245,
+    marginTop: verticalScale(245),
     position: 'absolute', // Set the position to absolute to keep it at the top
-    left: 20,
+    left: scale(20),
     zIndex: 1, // Ensure the button is above the FlatList
   },
   mediumButtonContainer: {
     position: 'absolute', // Set the position to absolute to keep it at the top
-    top: 240,
-    left: 330,
+    top: verticalScale(240),
+    left: scale(330),
     zIndex: 1, // Ensure the button is above the FlatList
 
   },
   listContainer: {
     flex: 1, // take up all available space
-    marginTop: 300, // adjust the top margin as needed
-    paddingHorizontal: 20, // adjust the padding as needed
+    marginTop: verticalScale(240), // adjust the top margin as needed
+    paddingHorizontal: scale(20), // adjust the padding as needed
   },
   flatList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20)  ,
   },
 });
 

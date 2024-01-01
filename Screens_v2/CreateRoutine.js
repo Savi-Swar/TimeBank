@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ImageBackground, Image, Alert } from 'react-native';
+import { View, StyleSheet, ImageBackground, Image, Alert, Platform, Text } from 'react-native';
 import AppTextInput from '../Components_v2/AppTextInput';
 import BigButton from '../Components_v2/BigButton';
 import BubbleText from '../Components_v2/BubbleText';
@@ -7,10 +7,15 @@ import BackButton from '../Components_v2/BackButton';
 import MultiSelectDropdown from '../Components_v2/MultiSelect';
 import BlankButton from '../Components_v2/BlankButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import ImagePickerExample from '../components/ImagePicker';
+import ImagePickerExample from '../Components_v2/ImagePicker';
 import { getDatabase, ref, set } from 'firebase/database';
 import * as firebase from "../firebase";
 import { ScrollView } from 'react-native-gesture-handler';
+import { playSound } from '../audio';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { format } from 'date-fns'; // Make sure to install date-fns if not already installed
+
+
 function CreateRoutine({ navigation }) {
     const [daysOfWeek, setDaysOfWeek] = useState([]);
     const [monthsOfYear, setMonthsOfYear] = useState([]);
@@ -47,20 +52,33 @@ function CreateRoutine({ navigation }) {
     const [url, setUrl] = useState(""); // State for image URL
     const [selectedKids, setSelectedKids] = useState([]); // State for selected kids
     const onChangeStartTime = (event, selectedTime) => {
-      const currentTime = selectedTime || startTime;
-      setStartTime(currentTime);
+      const isAndroid = Platform.OS === 'android';
+      if (isAndroid && event.type === 'dismissed') {
+        setShowStartTimePicker(false);
+        return;
+      }
+      playSound("select");
+      setShowStartTimePicker(isAndroid ? false : showStartTimePicker); // Hide picker on Android after selection
+      setStartTime(selectedTime || startTime);
     };
     
     const onChangeEndTime = (event, selectedTime) => {
-      const currentTime = selectedTime || endTime;
-      setEndTime(currentTime);
+      const isAndroid = Platform.OS === 'android';
+      if (isAndroid && event.type === 'dismissed') {
+        setShowEndTimePicker(false);
+        return;
+      }
+      playSound("select");
+      setShowEndTimePicker(isAndroid ? false : showEndTimePicker); // Hide picker on Android after selection
+      setEndTime(selectedTime || endTime);
     };
     const addField = () => {
+
       if (!routineName) {
+        playSound("alert")
         Alert.alert('Validation Error', 'Please enter a routine name');
         return;
       }
-    
       const routineData = {
         title: routineName.replace(/ /g, "-"),
         days: daysOfWeek,
@@ -73,9 +91,9 @@ function CreateRoutine({ navigation }) {
       };
     
       const db = getDatabase();
-      let ids = firebase.makeid();
+      let ids = firebase.makeid(20);
       const newRoutineRef = ref(db, `Users/${firebase.auth.currentUser.uid}/routines/${ids}`);
-    
+      playSound("pop")
       set(newRoutineRef, routineData)
         .then(() => {
           
@@ -92,18 +110,26 @@ function CreateRoutine({ navigation }) {
     for (let i =0; i < kids.length; i++) {
         kidsName.push(kids[i].name);
     }
+    const formatTime = (time) => {
+      let hours = time.getHours().toString().padStart(2, '0');
+      let minutes = time.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    };
   return (
-  <ScrollView >
-    <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
-        <View style = {{bottom: 200}}>
+    <ImageBackground style={styles.background} source={require("../assets/backgrounds/21_add-routine.png")}>
+       <ScrollView >
+        <View style = {{bottom: verticalScale(-50), alignItems: "center"}}>
           <Image style={styles.logo} source={require("../assets/icons/Logo.png")} />
           <Image style={styles.tagLine} source={require("../assets/icons/Tagline.png")} />
         </View>
-        <View style = {{bottom:310, right: 170}}>
+        <View style = {{bottom:verticalScale(130), right: scale(-40)}}>
           <BackButton  onPress={() => navigation.navigate("ParentRoutine")}
             imageUrl={require("../assets/buttons/Back.png")}/>
         </View>
-        <View style={{right: 110, bottom: 250}}>
+        <View style = {{top:verticalScale(40), right: scale(-20)}}>
+          <BubbleText size = {moderateScaleFont(32)} text = {"Upload Picture"}/>
+        </View>
+        <View style={{right: scale(0), bottom: verticalScale(70)}}>
           <ImagePickerExample
                 setImage={setImageLink}
                 image={imageLink}
@@ -112,13 +138,13 @@ function CreateRoutine({ navigation }) {
                 source="edit" // or "add", depending on your need
             />
         </View>
-        <View style = {{top: -120, right: 0}}>
-          <BubbleText size = {24} text = {"Enter Start/End Times & Name"}/>
+        <View style = {{top: verticalScale(75), right: -10}}>
+          <BubbleText size = {moderateScaleFont(24)} text = {"Enter Start/End Times & Name"}/>
         </View>
-        <View style={{flexDirection: 'row', marginHorizontal: 10, bottom: 120, left: 10}}>
-            <View style={{right: 10}}>
-          <BlankButton width = {175} text="Start Time" onPress={() => setShowStartTimePicker(!showStartTimePicker)} />
-          <View style = {{right: 36, bottom: 15}}>
+        <View style={{flexDirection: 'row', marginHorizontal: scale(10), top: verticalScale(65), left: scale(10)}}>
+            <View style={{right: scale(10)}}>
+          <BlankButton width = {scale(175)} text="Start Time" onPress={() => setShowStartTimePicker(!showStartTimePicker)} />
+          <View style = {{right: scale(36), bottom: verticalScale(15)}}>
 
           {showStartTimePicker && (
             <DateTimePicker
@@ -128,11 +154,15 @@ function CreateRoutine({ navigation }) {
               onChange={onChangeStartTime}
             />
           )}
+          <View style={{left: scale(38)}}>
+            {Platform.OS === 'android' && <Text style={styles.timeText}>Start: {formatTime(startTime)}</Text>}
+            </View>
+
           </View>
         </View>
         <View>
-          <BlankButton text="End Time" width = {190} onPress={() => setShowEndTimePicker(!showEndTimePicker)} />
-          <View style = {{right: 42, bottom: 15}}>
+          <BlankButton text="End Time" width = {scale(190)} onPress={() => setShowEndTimePicker(!showEndTimePicker)} />
+          <View style = {{right: scale(42), bottom: verticalScale(15)}}>
           {showEndTimePicker && (
             <DateTimePicker
               value={endTime}
@@ -141,49 +171,58 @@ function CreateRoutine({ navigation }) {
               onChange={onChangeEndTime}
             />
           )}
+            <View style={{left: scale(38)}}>
+              {Platform.OS === 'android' && <Text style={styles.timeText}>End: {formatTime(endTime)}</Text>}
+            </View>
           </View>
           </View>
         </View>
-        <View style = {{top: -150}}>
+        <View style = {{top: verticalScale(70)}}>
           <AppTextInput
             placeholder="Name"
             iconSource={require("../assets/icons/email.png")}
             onChangeText={(text) => setRoutineName(text)}
             value={routineName}
           />        
-        </View>    
-        <View style = {{bottom: 155, left: 10}}>
+        </View> 
+        <View style = {{alignItems: "center"}}>   
+        <View style = {{bottom: verticalScale(-80), left: scale(10)}}>
           <BubbleText size = {24} text = {"Select Days of the Week"}/>
           <MultiSelectDropdown
             options={daysOptions}
             onSelection={setDaysOfWeek}
             />
         </View>
-        <View style = {{bottom: 130, left: 10}}>
-             <BubbleText size = {24} text = {"Select Months of the Year"}/>
-
+        <View style = {{top: verticalScale(90), left: scale(0)}}>
+          <View style = {{left: 10}}>
+             <BubbleText size = {moderateScaleFont(24)} text = {"Select Months of the Year"}/>
+          </View>
             
             <MultiSelectDropdown
             options={monthsOptions}
             onSelection={setMonthsOfYear}
             />
         </View>
-        <View style={{bottom: 105, left: 10}}>
-                <BubbleText size={24} text={"Select Kids for Routine"} />
+        <View style={{top: verticalScale(110)}}>
+            <View style = {{marginRight: scale(145)}}>
+                <BubbleText size={moderateScaleFont(24)} text={"Select Kids for Routine"} />
+            </View>
                 <MultiSelectDropdown
                     options={kidsName}
                     onSelection={setSelectedKids}
                 />
             </View>
-        <View style = {{alignItems: "center", bottom: 60}}>
+        </View>
+        <View style = {{alignItems: "center", top: verticalScale(150), paddingBottom: verticalScale(180)}}>
           <BigButton 
               onPress={addField}
               imageUrl={require("../assets/buttons/Create.png")}
 
           />
         </View>
+      </ScrollView>
+
     </ImageBackground>
-    </ScrollView>
   );
 }
 
@@ -194,22 +233,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: 200,
-    height: 300,
+    width: scale(250),
+    height: verticalScale(173),
     resizeMode: "contain",
-    top:200
   },
   tagLine: {
-    width: 200,
-    height: 80,
+    width: scale(215),
+    height: verticalScale(40),
     resizeMode: "contain",
-    top:110
   },
   image: {
-    top: 85,
-    width: 250,
-    height: 250
-  }
+    top: verticalScale(85),
+    width: scale(250),
+    height: verticalScale(250)
+  },
+  timeText: {
+    fontSize: moderateScaleFont(18),
+    marginTop: verticalScale(5),
+    alignSelf: 'center',
+    color: '#000', // Adjust as needed
+  },
 });
 
 export default CreateRoutine;

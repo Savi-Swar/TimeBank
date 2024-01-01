@@ -5,7 +5,8 @@ import AppTextInput from '../Components_v2/AppTextInput';
 import MediumButton from '../Components_v2/MediumButton';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase"; // Make sure this path is correct
-
+import { playSound } from '../audio';
+import { scale, verticalScale } from '../scaling';
 function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +20,7 @@ function LoginScreen({ navigation }) {
       navigation.navigate("ParentHome"); // Adjust this to the screen you want to navigate to upon success
     } catch (error) {
       console.error(error);
+      playSound("alert")
       Alert.alert("Login Failed", "Invalid login credentials", [{ text: "OK" }]);
       setLoading(false);
     }
@@ -31,7 +33,7 @@ function LoginScreen({ navigation }) {
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/06_login.png")}>
       <Image style={styles.image} source={require("../assets/Text/BubbleText5.png")} />
-      <View style={{ top: 135 }}>
+      <View style={{ top: verticalScale(80) }}>
         <AppTextInput 
           placeholder="Email Address"
           iconSource={require("../assets/icons/email.png")}
@@ -41,7 +43,7 @@ function LoginScreen({ navigation }) {
           value={email}
         />
       </View>
-      <View style={{ top: 70 }}>
+      <View style={{ top: verticalScale(90) }}>
         <AppTextInput 
           placeholder="Password"
           iconSource={require("../assets/icons/lock.png")}
@@ -50,7 +52,7 @@ function LoginScreen({ navigation }) {
           secureTextEntry // This is added to make the text input secure for password entry
         />
       </View>
-      <View style={{ alignItems: "center", top: 40 }}>
+      <View style={{ alignItems: "center", top: verticalScale(100) }}>
         <BigButton 
           onPress={handleSignIn}
           imageUrl={require("../assets/buttons/LoginButton.png")}
@@ -60,9 +62,11 @@ function LoginScreen({ navigation }) {
         <MediumButton 
           onPress={() => navigation.navigate("ForgotPassword")}
           imageUrl={require("../assets/Text/BubbleText6.png")}
+          width = {190}
+          height = {60}
         />
       </View>
-      <View style={{ alignItems: "center", top: 20, right: 70 }}>
+      <View style={{ alignItems: "center", top: verticalScale(100), right: scale(70) }}>
         <MediumButton 
           onPress={() => navigation.navigate("Register")}
           imageUrl={require("../assets/buttons/RegisterButton.png")}
@@ -77,20 +81,24 @@ const styles = StyleSheet.create({
  background: {
     flex: 1,
     justifyContent: "center",
+    width: scale(414),
+    height: verticalScale(896),
+    resizeMode: "stretch"
   },
   image: {
-    width: 240,
-    height: 160,
+    width: scale(240),
+    height: verticalScale(160),
     resizeMode: "contain",
-    top: 180,
-    left: 5
+    top: verticalScale(100),
+    left: scale(5)
   },
   image2: {
-    width: 240,
-    height: 120,
+    width: scale(240),
+    height: verticalScale(120),
     resizeMode: "contain",
-    left: 80,
-    bottom: 30
+    alignItems: "center",
+    top: verticalScale(80),
+    left: scale(85)
   },
 });
 

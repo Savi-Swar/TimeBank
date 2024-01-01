@@ -7,6 +7,7 @@ import BackButton from '../Components_v2/BackButton';
 import CustomButton from '../Components_v2/CustomButton';
 import RoutineHeader from '../Components_v2/RoutineHeader';
 import * as firebase from '../firebase'
+import {scale, verticalScale, moderateScale, moderateScaleFont} from '../scaling';
 
 function ParentRoutine({ navigation }) {
   const [routines, setRoutines] = useState([]);
@@ -19,7 +20,7 @@ function ParentRoutine({ navigation }) {
         <MediumButton 
           onPress={() => navigation.navigate("ParentMenu")} 
           imageUrl={require("../assets/buttons/BackToKids.png")} 
-          height = {50}
+          height = {verticalScale(50)}
         />
       </View>
       
@@ -31,7 +32,8 @@ function ParentRoutine({ navigation }) {
         <FlatList 
           data={routines}
           renderItem={({ item }) => (
-            
+            <View style={styles.cardContainer}>
+
             <RoutineHeader 
               title={item.title} 
               image={item.image} 
@@ -39,7 +41,11 @@ function ParentRoutine({ navigation }) {
               months={item.months} 
               startTime={item.startTime} 
               endTime={item.endTime}
+              navigation = {navigation}
+              id = {item.id}
+              isAdult={true}
             />
+            </View>
           )}
           keyExtractor={item => item.id}
         />
@@ -56,25 +62,26 @@ const styles = StyleSheet.create({
   },
   bigButtonContainer: {
     alignItems: "center",
-    marginTop: 245,
+    marginTop: verticalScale(215),
     position: 'absolute', // Set the position to absolute to keep it at the top
-    left: 20,
+    left: scale(20),
     zIndex: 1, // Ensure the button is above the FlatList
   },
   mediumButtonContainer: {
     position: 'absolute', // Set the position to absolute to keep it at the top
-    top: 240,
-    left: 330,
+    top: verticalScale(210),
+    left: scale(330),
     zIndex: 1, // Ensure the button is above the FlatList
 
   },
   listContainer: {
     flex: 1, // take up all available space
-    marginTop: 300, // adjust the top margin as needed
-    paddingHorizontal: 20, // adjust the padding as needed
+    marginTop: verticalScale(275), // adjust the top margin as needed
   },
-  flatList: {
-    paddingHorizontal: 20,
+ 
+  cardContainer: {
+    // other styles as needed
+    marginHorizontal: scale(20),
   },
 });
 

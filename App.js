@@ -6,7 +6,6 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { AppRegistry } from 'react-native';
 import { registerRootComponent } from 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import WelcomeScreen from "./Screens/WelcomeScreen";
 import StoreScreen from "./Screens/StoreScreen";
 import TasksScreen from "./Screens/TasksScreen";
 import CreateTask from "./Screens/CreateTask";
@@ -64,24 +63,42 @@ import CreateAssignment from "./Screens_v2/CreateAssignment";
 import kidsNav from "./Navigator/kidsNav";
 import {View} from "react-native";
 import StatsScreen from "./Screens_v2/StatsScreen";
+import CreateRoutineStep from "./Screens_v2/CreateRoutineStep";
+import FinishRoutine from "./Screens_v2/FinishRoutine";
+import RoutineStats from "./Screens_v2/RoutineStats";
+import { loadSounds } from './audio'; 
+import { playSound } from './audio'; 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [isFontLoaded, setIsFontLoaded] = useState(false);
+  const [areSoundsLoaded, setAreSoundsLoaded] = useState(false);
 
   useEffect(() => {
-    async function loadFonts() {
+    async function loadAssets() {
       await Font.loadAsync({
-        'BubbleBobble': require('./assets/fonts/BubbleBobble.ttf'), // Update the path to your font file
-        // Include any other fonts you want to load
+        'BubbleBobble': require('./assets/fonts/BubbleBobble.ttf'),
+        // ... other fonts ...
       });
+      await loadSounds();
       setIsFontLoaded(true);
+      setAreSoundsLoaded(true);
     }
 
-    loadFonts();
+    loadAssets();
   }, []);
 
-  if (!isFontLoaded) {
+  useEffect(() => {
+    if (areSoundsLoaded) {
+      playSound('happyMusic');
+      // Return a cleanup function to stop the music when the component unmounts
+      return () => {
+        playSound('happyMusic', false); // Stop the music
+      };
+    }
+  }, [areSoundsLoaded]); // Depend on areSoundsLoaded
+
+  if (!isFontLoaded || !areSoundsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
@@ -96,7 +113,7 @@ export default function App() {
           <Stack.Screen name="AuthLoading" component={AuthLoadingScreen} />
 
          <Stack.Screen name="OnBoarding1" component={OnBoarding1} />
-
+          <Stack.Screen name = "RoutineStats" component = {RoutineStats}/>
           <Stack.Screen name="OnBoarding2" component={OnBoarding2} />
           <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
           <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
@@ -111,8 +128,12 @@ export default function App() {
         <Stack.Screen name="StoreDetails" component={StoreDetails} />
         <Stack.Screen name="Create" component={CreateItem} />
         <Stack.Screen name="StatsScreen" component={StatsScreen} />
+        <Stack.Screen name="RoutineSteps" component={RoutineView} />
+        <Stack.Screen name="FinishRoutine" component={FinishRoutine} />
 
         <Stack.Screen name="CreateRout" component={CreateRoutine2} />
+        <Stack.Screen name="CreateRoutineStep" component={CreateRoutineStep} />
+
         <Stack.Screen name="ParentHome" component={ParentHome} />
         <Stack.Screen name="ParentStore" component={ParentStore} />
         <Stack.Screen name="ParentTask" component={ParentTask} />
@@ -189,7 +210,6 @@ export default function App() {
           <Stack.Screen name="ParentRoutine" component={ParentRoutine} />
 
           <Stack.Screen name="AuthLoadingScreen" component={AuthLoadingScreen} />
-          <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
           <Stack.Screen name="AssignmentScreen" component={AssignmentScreen} />
           <Stack.Screen name="SignInScreen" component={SignInScreen} />
           <Stack.Screen name="SignUpScreen" component={SignUpScreen} />

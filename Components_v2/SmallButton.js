@@ -1,18 +1,24 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, Image } from 'react-native';
-
-function SmallButton({ onPress, imageUrl, width, ...otherProps }) {
+import { playSound } from '../audio';
+import { scale, verticalScale } from '../scaling';
+function SmallButton({ onPress, imageUrl, height = verticalScale(180), width = scale(100), ...otherProps }) {
+  const handlePress = () => {
+    playSound('click'); // Play the click sound
+    if (onPress) {
+      onPress(); // If there's an onPress function passed, call it
+    }
+  };
   return (
-    <TouchableOpacity onPress={onPress} {...otherProps}>
-      <Image source={imageUrl} style={styles.button} />
+    <TouchableOpacity onPress={handlePress} {...otherProps}>
+      <Image source={imageUrl} style={[styles.button,{height: height, width: width}]} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    width: 140, // Adjust based on your image dimensions
-    height: 100, // Adjust based on your image dimensions
+   
     resizeMode: 'contain'
   }
 });

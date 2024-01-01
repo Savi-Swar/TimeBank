@@ -5,6 +5,7 @@ import CustomButton from '../Components_v2/CustomButton';
 import Card from '../Components_v2/Card';
 import * as firebase from '../firebase'
 import { ScrollView } from 'react-native-gesture-handler';
+import {scale, verticalScale, moderateScaleFont} from '../scaling';
 
 function ParentTask({ navigation }) {
   const [store, setStore] = useState([]);
@@ -30,11 +31,7 @@ function ParentTask({ navigation }) {
         style={styles.flatList}  // Use style instead of contentContainerStyle here
         data={store}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.cardContainer}  onPress={() => navigation.navigate('TaskDetails', {
-            title: item.title,
-            imageUri: item.image,
-            minutes: item.minutes
-          })}>
+          <TouchableOpacity style={styles.cardContainer}>
             <Card 
               image={item.image} 
               title={item.title} 
@@ -48,32 +45,33 @@ function ParentTask({ navigation }) {
     </ImageBackground>
   );
 }
-
+// make the rescaled version of the component available to other parts of the app
 const styles = StyleSheet.create({
+  // put the scale, verticalScale functions for the styles kid
   backgroundImage: {
     flex: 1
   },
   topContainer: {
-    height: 320,  // This height will be static and can be adjusted based on your needs
+    height: verticalScale(280),  // This height will be static and can be adjusted based on your needs
     flexDirection: "row"
   },
   bigButtonContainer: {
     alignItems: "center",
-    marginTop: 183,
-    left: 20
+    marginTop: verticalScale(153),
+    left: scale(20)
   },
   mediumButtonContainer: {
-    marginTop: 240,
-    left: 90
+    marginTop: verticalScale(210),
+    left: scale(90)
   },
   flatList: {
     flex: 1,
-    paddingHorizontal: 20,
-    left: 20
   },
   cardContainer: {
-    marginBottom: 30  // margin at the bottom of each card
-  }
+    // other styles as needed
+    marginHorizontal: scale(22),
+  },
 });
+
 
 export default ParentTask;

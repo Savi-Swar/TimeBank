@@ -4,6 +4,7 @@ import { View, StyleSheet, Text } from "react-native";
 import { useFonts } from "expo-font";
 import * as firebase from "../firebase";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
 
 function Minutes({ name }) {
   const [minutes, setMinutes] = useState(0);
@@ -35,9 +36,9 @@ function Minutes({ name }) {
   firebase.Mins(minutes, setMinutes, named);
   return (
     <View style={{ alignItems: "center" }}>
-      <Text style={{ fontFamily: "FredokaOne", color: "#371A45", fontSize: 80 }}>{minutes}</Text>
-      <View style={{bottom: 18}}>
-      <Text style={{ fontFamily: "FredokaOne", color: "#371A45", fontSize: 32 }}>minutes</Text>
+      <Text style={{ fontFamily: "FredokaOne", color: "#371A45", fontSize: verticalScale(80) }}>{minutes}</Text>
+      <View style={{bottom: verticalScale(18)}}>
+      <Text style={{ fontFamily: "FredokaOne", color: "#371A45", fontSize: verticalScale(32) }}>minutes</Text>
       </View>
     </View>
   );

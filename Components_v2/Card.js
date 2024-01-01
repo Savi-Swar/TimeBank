@@ -5,13 +5,17 @@ import { useFonts } from "expo-font";
 import * as firebase from "../firebase";
 import { getDownloadURL, ref, getStorage, deleteObject } from "firebase/storage";
 import * as db from "firebase/database";
+import { playSound } from "../audio";
+import { getDatabase, ref as dbRef, remove } from 'firebase/database';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+
 
 function Card({ image, id, title, minutes, location = "store", kids = [], due, isAdult = true }) {
     const [loaded] = useFonts({
         BubbleBobble: require("../assets/fonts/BubbleBobble.ttf"),
     });
    
-    let defaultImageUrl = "Screenshot 2023-07-30 at 2.48.00 PM.png"; // if the user doesnt set a photo
+    let defaultImageUrl = "GuZ6IdnQPdkKaRn.jpg"
 
     const [url, setUrl] = useState();
     useEffect(() => {
@@ -26,34 +30,46 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
     }, [image]);
 
     const handlePress = () => {
+        playSound('alert'); // Play the click sound
         Alert.alert("Delete", "Are you sure you want to delete this", [
-          { text: "Yes", onPress: () => deleteTask() },
-          { text: "No" },
+          { text: "Yes", onPress: () => {deleteTask(), playSound('pop')} },
+          { text: "No", onPress : () => playSound('minimise') },
         ]);
       };
     
       const deleteTask = async () => {
         const userId = firebase.auth.currentUser.uid;
+        const database = getDatabase();
+        if (location === "assignments") {
+          location = "assignment"
+        }
+        const taskRef = dbRef(database, `Users/${userId}/${location}/${id}`);
       
-        // Define the path to the task in the Realtime Database
-        const taskRef = db.ref(db.getDatabase(), `Users/${userId}/${location}/${id}`);
-      
-        const storage = getStorage();
-      
-        // Create a reference to the file to delete
-        const desertRef = ref(storage, image);
-      
-        // Delete the file
+        // Only proceed with deleting the image if it's not the default image
         if (image !== defaultImageUrl) {
-          deleteObject(desertRef).then(() => {
-            console.log("DELETED IMAGE")
-          }).catch((error) => {
-            console.log(error)
-          });
+          const storage = getStorage();
+      
+          // Create a reference to the file to delete
+          const desertRef = ref(storage, image);
+      
+          // Delete the file
+          deleteObject(desertRef)
+            .then(() => {
+              console.log("DELETED IMAGE");
+            })
+            .catch((error) => {
+              console.error("Error deleting image:", error);
+            });
         }
       
         // Delete the task
-        await db.remove(taskRef);
+        remove(taskRef)
+          .then(() => {
+            console.log("Task deleted successfully");
+          })
+          .catch((error) => {
+            console.error("Error deleting task:", error);
+          });
       };
 
     if (!loaded) {
@@ -72,18 +88,32 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
     let offset = -1;
     if (due != undefined) {
         due = due.substring(5, 7) + "/" + due.substring(8, 10)
-        offset = -10;
+        offset = -25;
+    }
+    let r = Math.min(scale(98), verticalScale(98))
+    let top = 10;
+    if (location === "assignments") {
+        top = 5;
+    }
+    let top2 = 0;
+    if (location === "assignments") {
+        top2 = -5;
     }
     return (
-        <View style={styles.card}>
-            <Image source={{uri: url}} style={styles.image} />
-            <View style={{ right: 20, top: 5 }}>
+        <View style={[styles.card, {height: r}]}>
+            <Image source={{uri: url}} style={[styles.image, {height: r, width: r}]} />
+            <View style={{ right: scale(20), top: verticalScale(top2) }}>
                 <Text style={styles.name}>{title}</Text>
                 <View style={styles.minutesContainer}>
+                  <View style = {{ top: verticalScale(top), flexDirection: "row"}}>
                     <Image source={require("../assets/icons/Timer.png")} style={styles.timer} />
-                    <View style ={{bottom: offset}}>
+                    <View style = {{right: scale(3), top: verticalScale(5)}}>
+                      <Text style={styles.minutes}>{minutes} minutes</Text>
+                    </View>
+                  </View>
+                  <View style ={{bottom: verticalScale(offset), right: scale(80)}}>
                     
-                    <Text style={styles.minutes}>{minutes} minutes</Text>
+                    
                     {location === "assignments" && (
                     <>
                         {isAdult ? (
@@ -97,7 +127,7 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
                     </>
                     )}
                     </View>
-                </View>
+                  </View>
             </View>
             {isAdult && (
             <TouchableOpacity style={styles.pos} onPress={handlePress}>
@@ -109,76 +139,69 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
 }
 
 const styles = StyleSheet.create({
-    card: {
-        width: 350,
-        height: 90,
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 20,
-        padding: 10,
-        position: 'relative',
-        backgroundColor: '#FFFFFF', // it's good to set a background color for better shadow visibility
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5, // for Android
-    },
-    timer: {
-        width: 30,
-        height: 30,
-        bottom: 4
-    },
-    image: {
-        width: 98,
-        height: 98,
-        borderRadius: 49, // Half the width and height to create a circle
-        right: 35,
-        borderWidth: 4,
-        borderColor: "#fbcb04"
-    },
-    name: {
-        flex: 1,
-        fontSize: 24,
-        color: "#A74A29",
-        // You'll need to link the 'Bubble Bobble' font for this to work
-        fontFamily: 'BubbleBobble',
-    },
-    minutesContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        bottom: 10,
-        right: 10
-        
-    },
-    minutes: {
-        marginLeft: 5,
-        color: "#2bc37a",
-        // You'll need to link the 'Bubble Bobble' font for this to work
-        fontFamily: 'BubbleBobble',
-        fontSize: 18,
-        bottom: 5
-        
+  card: {
+    width: '95%', // Use the full width provided by the parent container
+    flexDirection: 'row',
+    alignItems: 'center',
+    left: scale(10),
+    borderRadius: scale(20),
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(10),
+    position: 'relative',
+    backgroundColor: '#FFFFFF',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: verticalScale(2) },
+    shadowOpacity: 0.25,
+    shadowRadius: scale(3.84),
+    elevation: scale(5), // for Android shadow
+    marginVertical: verticalScale(15), // Add vertical margin for spacing between cards
+    marginHorizontal: scale(10), // Add horizontal margin for spacing from screen edges
+  },
+  timer: {
+    width: scale(30),
+    height: verticalScale(30),
+    bottom: verticalScale(4)
+  },
+  image: {
 
-    },
-    x: {
-        width: 40,
-        height: 40,
-    },
-    pos: {
-        position: "absolute",
-        left: 315,
-        bottom: 60
-    },
-    subtitle: {
-        top: 2,
-        right: 22,
-        fontFamily: "BubbleBobble",
-
-    }
+    borderRadius: scale(49), // Half the width and height to create a circle
+    right: scale(35),
+    borderWidth: scale(4),
+    borderColor: "#fbcb04"
+  },
+  name: {
+    fontSize: moderateScaleFont(24),
+    color: "#A74A29",
+    fontFamily: 'BubbleBobble',
+  },
+  minutesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    bottom: verticalScale(5),
+    right: scale(10)
+  },
+  minutes: {
+    marginLeft: scale(5),
+    color: "#2bc37a",
+    fontFamily: 'BubbleBobble',
+    fontSize: moderateScaleFont(18),
+    bottom: verticalScale(5)
+  },
+  x: {
+    width: scale(40),
+    height: verticalScale(40),
+  },
+  pos: {
+    position: "absolute",
+    left: scale(316.5),
+    bottom: verticalScale(68)
+  },
+  subtitle: {
+    top: verticalScale(2),
+    right: scale(22),
+    fontFamily: "BubbleBobble",
+  }
 });
+
 
 export default Card;

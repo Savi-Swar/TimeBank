@@ -7,6 +7,8 @@ import { createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChang
 import { auth } from "../firebase"; // Make sure this path is correct
 import CustomButton from '../Components_v2/CustomButton';
 import BlankButton from '../Components_v2/BlankButton';
+import { playSound } from '../audio';
+import { scale, verticalScale } from '../scaling';
 
 function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -23,6 +25,7 @@ function RegisterScreen({ navigation }) {
         // User is signed in
         if (user.emailVerified) {
           clearInterval(verificationCheckIntervalId);
+          playSound("transition")
           navigation.navigate('Terms', { userId: user.uid, displayName: displayName });
         }
       }
@@ -75,6 +78,7 @@ function RegisterScreen({ navigation }) {
                   clearInterval(intervalId);
                   // Once verified, you can create user records or proceed as needed
                   // For example: createRecordWithUserId(user.uid, { displayName });
+                  playSound("transition")
                   navigation.navigate('Terms', { userId: userCredentials.user.uid, displayName: displayName });
                 }
               });
@@ -83,17 +87,19 @@ function RegisterScreen({ navigation }) {
             setVerificationCheckIntervalId(intervalId);
           })
           .catch((error) => {
+            playSound("alert")
             Alert.alert('Error', error.message);
           });
       })
       .catch((error) => {
+        playSound("alert")
         Alert.alert("Registration Error", error.message);
       });
   };
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/07_register.png")}>
-      <Image style={styles.image} source={require("../assets/Text/BubbleText5.png")} />
-      <View style={{ top: 140 }}>
+      <Image style={styles.image} source={require("../assets/Text/BubbleText10.png")} />
+      <View style={{ top: verticalScale(40) }}>
         <AppTextInput 
           placeholder="Email Address"
           iconSource={require("../assets/icons/email.png")}
@@ -101,7 +107,7 @@ function RegisterScreen({ navigation }) {
           onChangeText={setEmail}
         />
       </View>
-      <View style={{ top: 70 }}>
+      <View style={{ top: verticalScale(40) }}>
         <AppTextInput 
           placeholder="Password"
           iconSource={require("../assets/icons/lock.png")}
@@ -110,7 +116,7 @@ function RegisterScreen({ navigation }) {
           secureTextEntry
         />
       </View>
-      <View style={{ top: 0 }}>
+      <View style={{ top: verticalScale(42) }}>
         <AppTextInput 
           placeholder="Confirm Password"
           iconSource={require("../assets/icons/lock.png")}
@@ -119,7 +125,7 @@ function RegisterScreen({ navigation }) {
           secureTextEntry
         />
       </View>
-      <View style={{ top: -70 }}>
+      <View style={{ top: verticalScale(45) }}>
         <AppTextInput 
           placeholder="Display Name (Mom, Dad, etc.)"
           iconSource={require("../assets/icons/user.png")}
@@ -127,7 +133,7 @@ function RegisterScreen({ navigation }) {
           onChangeText={setDisplayName}
         />
       </View>
-      <View style={{ alignItems: "center", bottom: 100 }}>
+      <View style={{ alignItems: "center", bottom: verticalScale(-60) }}>
         <BigButton 
           onPress={handleSignUp}
           imageUrl={require("../assets/buttons/Register.png")}
@@ -139,7 +145,7 @@ function RegisterScreen({ navigation }) {
           />
           )} */}
       </View>
-      <View style={{ alignItems: "center", bottom: 70, right: 70 }}>
+      <View style={{ alignItems: "center", bottom: verticalScale(-80), right: scale(70) }}>
         <MediumButton 
           onPress={() => navigation.navigate("Login")}
           imageUrl={require("../assets/buttons/Login.png")}
@@ -156,18 +162,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   image: {
-    width: 240,
-    height: 160,
+    width: scale(240),
+    height: verticalScale(160),
     resizeMode: "contain",
-    top: 200,
-    left: 30
+    top: verticalScale(40),
+    left: scale(30)
   },
   image2: {
-    width: 240,
-    height: 120,
+    width: scale(240),
+    height: verticalScale(120),
     resizeMode: "contain",
-    left: 80,
-    bottom: 160
+    left: scale(80),
+    bottom: verticalScale(160)
   },
 });
 

@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground, Text, Image } from 'react-native';
 import BubbleText from './BubbleText';
+import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
 
-function StatCard({ minutes, stat, icon, width = 100 }) {
-  let left = 250;
-  if (width < 80) {
-    left+=20;
+function StatCard({ minutes, stat, icon, width = scale(100) }) {
+  let left = scale(250);
+  if (width < scale(80)) {
+    left+=scale(20);
   }
     return (
         <ImageBackground
@@ -19,14 +20,14 @@ function StatCard({ minutes, stat, icon, width = 100 }) {
                 {/* Minutes and Stat */}
             <View style = {{flexDirection: "row"}}> 
                 <View>              
-                    <View  style={{left: 10}}>
-                        <BubbleText size = {20} color="#650000" text={stat} />
+                    <View  style={{left: scale(10)}}>
+                        <BubbleText size = {moderateScaleFont(20)} color="#650000" text={stat} />
                       </View>
-                      <View  style={{ top: 5, left: 10}}>
+                      <View  style={{ top: verticalScale(5), left: scale(10)}}>
                         <BubbleText size = {35} text={minutes} />
                     </View>
                 </View> 
-              <View style = {{position: "absolute", left: left, top: -25}}>
+              <View style = {{position: "absolute", left: left, top: verticalScale(-25)}}>
                 <Image source={icon} style={[styles.icon, {width: width}]} />
               </View>
             </View>
@@ -37,32 +38,32 @@ function StatCard({ minutes, stat, icon, width = 100 }) {
 
 const styles = StyleSheet.create({
   background: {
-    width: 350, // Set to the specific dimensions if needed
-    height: 110, // Set to the specific dimensions if needed
+    width: scale(350), // Set to the specific dimensions if needed
+    height: verticalScale(110), // Set to the specific dimensions if needed
     justifyContent: "center",
     // Add borderRadius and overflow properties
-    borderRadius: 10, // Adjust to your desired curvature
+    borderRadius: scale(10), // Adjust to your desired curvature
     overflow: 'hidden', // Make sure the inner content respects the borderRadius
   },
   imageBackground: {
     // Set the borderRadius for the image itself
-    borderRadius: 20, // This should match the borderRadius of the container
+    borderRadius: scale(20), // This should match the borderRadius of the container
   },
   icon: {
     // Style your icon image
     width: "800%", // Adjust to your icon's dimensions
-    height: 105, // Adjust to your icon's dimensions
-    marginRight: 10, // Add some spacing between icon and text
+    height: Math.max(105, verticalScale(105)), // Adjust to your icon's dimensions
+    marginRight: scale(10), // Add some spacing between icon and text
   },
   minutes: {
     // Style for the minutes text
-    fontSize: 24, // Adjust to your preference
+    fontSize: moderateScaleFont(24), // Adjust to your preference
     fontWeight: 'bold', // Adjust to your preference
     color: '#000', // Adjust to your preference
   },
   stat: {
     // Style for the stat text
-    fontSize: 18, // Adjust to your preference
+    fontSize: moderateScaleFont(18), // Adjust to your preference
     color: '#000', // Adjust to your preference
   },
 });

@@ -14,7 +14,7 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import TasksScreen from "./TasksScreen";
 import StoreScreen from "./StoreScreen";
-import ImagePickerExample from "../components/ImagePicker";
+import ImagePickerExample from "../Components_v2/ImagePicker";
 import * as firebase from "../firebase";
 import { getDatabase, ref, set } from "firebase/database";
 import { uploadBytes } from "firebase/storage";

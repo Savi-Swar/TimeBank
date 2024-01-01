@@ -8,6 +8,9 @@ import TasksScreen from '../Screens_v2/TasksScreen';
 import RoutinesScreen from '../Screens_v2/RoutinesScreen';
 import KidAssignScreen from '../Screens_v2/KidAssign';
 import KidHome from '../Screens_v2/KidHome';
+import { playSound } from '../audio';
+import { NavigationContainer } from '@react-navigation/native';
+
 const Tab = createBottomTabNavigator();
 
 // Function to choose the icon based on route name
@@ -69,11 +72,58 @@ const KidsNav = () => {
           ),
         })}
       >
-        <Tab.Screen name="Home" component={KidHome} />
-        <Tab.Screen name="Store" component={StoreScreen} />
-        <Tab.Screen name="Tasks" component={TasksScreen} />
-        <Tab.Screen name="Routines" component={RoutinesScreen} />
-        <Tab.Screen name="Assignments" component={KidAssignScreen} />
+        <Tab.Screen 
+          name="Home" 
+          component={KidHome} 
+          listeners={({ navigation }) => ({
+            tabPress: e => {
+              e.preventDefault();
+              playSound('click').then(() => {
+                navigation.navigate("Home");
+              });
+            },
+          })}
+        />
+        {/* Repeat the same pattern for other Tab Screens */}
+        <Tab.Screen 
+          name="Store" 
+          component={StoreScreen} 
+          listeners={({ navigation }) => ({
+            tabPress: e => {
+              e.preventDefault();
+              playSound('click').then(() => {
+                navigation.navigate("Store");
+              });
+            },
+          })}
+        />
+        <Tab.Screen name="Tasks" component={TasksScreen} 
+        listeners={({ navigation }) => ({
+            tabPress: e => {
+              e.preventDefault();
+              playSound('click').then(() => {
+                navigation.navigate("Tasks");
+              });
+            },
+          })}/>
+        <Tab.Screen name="Routines" component={RoutinesScreen} 
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            e.preventDefault();
+            playSound('click').then(() => {
+              navigation.navigate("Routines");
+            });
+          },
+        })}/>
+        <Tab.Screen name="Assignments" component={KidAssignScreen}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            e.preventDefault();
+            playSound('click').then(() => {
+              navigation.navigate("Assignments");
+            });
+          },
+        })}/>
   
       </Tab.Navigator>
     );

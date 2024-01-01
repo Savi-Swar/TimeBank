@@ -8,6 +8,7 @@ import { initializeAuth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getReactNativePersistence } from "firebase/auth/react-native"
 import { registerForPushNotificationsAsync, sendPushNotification } from "./notifications";
+import { getStorage, ref as storageRef, deleteObject } from "firebase/storage";
 // import * as Notifications from 'expo-notifications';
 
 // Your web app's Firebase configuration
@@ -56,7 +57,7 @@ export const retrieveUserId = (user, setUser) => {
 };
 export const cleanupExpiredAssignments = async (userId) => {
   const db = getDatabase();
-  const assignmentsRef = ref(db, `Users/${userId}/assignments`);
+  const assignmentsRef = ref(db, `Users/${userId}/assignment`);
   
   // Get the current date and ignore time components
   const currentDate = new Date();
@@ -72,12 +73,11 @@ export const cleanupExpiredAssignments = async (userId) => {
       const assignment = data[id];
 
       // Parse the due date of the assignment and ignore time components
-      const dueDate = new Date(assignment.dueDate);
+      const dueDate = new Date(assignment.date);
       dueDate.setHours(0, 0, 0, 0);
-
       // If the due date of the assignment is before the current date, delete it
       if (dueDate < currentDate) {
-        const assignmentRef = ref(db, `Users/${userId}/assignments/${id}`);
+        const assignmentRef = ref(db, `Users/${userId}/assignment/${id}`);
         await remove(assignmentRef);
       }
     }
@@ -114,6 +114,22 @@ export const Assignments = (callback) => {
   };
 };
 
+export const completeAssignmentForKid = async (assignmentId, kidName) => {
+  const userId = auth.currentUser.uid;
+  const db = getDatabase();
+  const assignmentRef = ref(db, `Users/${userId}/assignment/${assignmentId}`);
+
+  // Get the current assignment data
+  const snapshot = await get(assignmentRef);
+  const assignment = snapshot.val();
+  if (assignment && assignment.kids && assignment.kids.includes(kidName)) {
+    // Remove the kid's name from the kids array
+    const updatedKids = assignment.kids.filter(kid => kid !== kidName);
+
+    // Update the assignment with the new kids array
+    await update(assignmentRef, { kids: updatedKids });
+  }
+}
 
 
 
@@ -143,41 +159,41 @@ export function Tasks(tasks, setTasks) {
 
   // ...
 }
-export async function updateRequest(kidName, reqMinutes, taskName) {
+export async function updateRequest(kidName, reqMinutes, taskName, assignmentId) {
   // Current userId
   const userId = firebase.auth().currentUser.uid;
-  
+
   // Point to the correct reference
   const db = getDatabase();
- 
   const kidRef = ref(db, `Users/${userId}/kids/${kidName}`);
 
   // Get the current state of the 'requests' field
   const snapshot = await get(kidRef);
 
   if (snapshot.exists()) {
-    // If the document exists, get the current 'names', 'reqMinutes', and 'signs' arrays
+    // If the document exists, get the current arrays
     let currentNames = Array.isArray(snapshot.val().names) ? snapshot.val().names : [];
     let currentReqMinutes = Array.isArray(snapshot.val().reqMinutes) ? snapshot.val().reqMinutes : [];
+    let currentAssignments = Array.isArray(snapshot.val().isAssignment) ? snapshot.val().isAssignment : [];
 
     // Prepend the new values to each array
     let updatedNames = [taskName, ...currentNames];
     let updatedReqMinutes = [reqMinutes, ...currentReqMinutes];
+    let updatedAssignments = [assignmentId, ...currentAssignments]; // Add assignmentId, can be 'false' or actual ID
 
     // Update the fields in the reference
-    await update(kidRef, { names: updatedNames, reqMinutes: updatedReqMinutes});
+    await update(kidRef, { names: updatedNames, reqMinutes: updatedReqMinutes, isAssignment: updatedAssignments });
     const tokenRef = ref(db, `Users/${userId}/token`)
     const token =  await get(tokenRef);
-    // console.log(token)
     let message = kidName + " did " + taskName + " for " + reqMinutes + " minutes!"
-    sendPushNotification(token, "Task Completed!",message)
+    sendPushNotification(token, "Task Completed!", message);
   } else {
     // If the document does not exist, set each field to an array containing the new value
-    await set(kidRef, { names: [taskName], reqMinutes: [reqMinutes]});
+    await set(kidRef, { names: [taskName], reqMinutes: [reqMinutes], isAssignment: [assignmentId] });
   }
-  
 }
-export function getRequests(setNames, setMins, kidName) {
+
+export function getRequests(setNames, setMins, setIsAssignment, kidName) {
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
   const kidRef = ref(db, `Users/${userId}/kids/${kidName}`);
@@ -187,11 +203,14 @@ export function getRequests(setNames, setMins, kidName) {
     if (snapshot.exists()) {
       let currentNames = Array.isArray(snapshot.val().names) ? snapshot.val().names : [];
       let currentReqMinutes = Array.isArray(snapshot.val().reqMinutes) ? snapshot.val().reqMinutes : [];
+      let curIsAssignment = Array.isArray(snapshot.val().isAssignment) ? snapshot.val().isAssignment : [];
       setNames([...currentNames]);
       setMins([...currentReqMinutes]);
+      setIsAssignment([...curIsAssignment]);
     } else {
       setNames([]);
       setMins([]);
+      setIsAssignment([]);
     }
   });
  
@@ -282,7 +301,6 @@ export async function createRecordWithUserId(userId,display) {
     // Get a reference to the database service
     const db = getDatabase();
     const userRef = ref(db, `Users/${userId}`);
-    console.log(userId)
     // Check if the user exists
     get(userRef).then((snapshot) => {
       if (!snapshot.exists()) {
@@ -376,6 +394,35 @@ export async function useKids() {
 
   return { kids, loading };
 }
+
+export function kidData(tasks, setTasks, name) {
+  const [loading, setLoading] = useState(true);
+  const userId = auth.currentUser.uid;
+  const tasksRef = ref(getDatabase(), `Users/${userId}/kids`);
+
+  useEffect(() => {
+    const unsubscribe = onValue(tasksRef, (snapshot) => {
+      tasks = [];
+      snapshot.forEach((childSnapshot) => {
+        if (childSnapshot.val().name == name) {
+          tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
+        }
+      });
+
+      setTasks(tasks);
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup function
+  }, []); 
+
+  if (loading) {
+    return <ActivityIndicator />;
+  }
+
+  // ...
+}
+
 export function Kids(tasks, setTasks) {
   const [loading, setLoading] = useState(true);
   const userId = auth.currentUser.uid;
@@ -469,82 +516,106 @@ export async function addKids(kid ,url) {
   const routineSnapshot = await get(routineRef);
   const routines = Object.values(routineSnapshot.val() || {});
 
+  const now = new Date();
+  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+  
+  // Find the end (Saturday) of the current week
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(endOfWeek.getDate() + 6);
+
+  // Format the dates as 'YYYY|MM|DD'
+  const format = date => [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'), // JavaScript months are 0-indexed
+    String(date.getDate()).padStart(2, '0')
+  ].join('|');
+
+  const weeklyArrayKey = `${format(startOfWeek)}__${format(endOfWeek)}`;
+
   const data = {
     name: kid,
     minutes: 0,
     MinutesAccumulated: 0,
     WeeklyMinutesEarned: 0,
     MinutesSpent: 0,
-    WeeklyArray: [],
+    WeeklyArray: {
+      [weeklyArrayKey]: 0, // Default entry for the current week
+    },
     profilePic: url
   };
 
   await set(kidRef, data);
 
-  for (const routine of routines) {
-    const routineData = {
-      timesCompleted: 0,
-      averageTime: 0,
-      lastCompleted: "",
-      times: [],
-    };
-    const routineRef2 = ref(db, `Users/${userId}/kids/${kid}/${routine.title}`);
-    await set(routineRef2, routineData);
-  };
+  // add stats for all routines
+  // for (const routine of routines) {
+  //   const routineData = {
+  //     timesCompleted: 0,
+  //     averageTime: 0,
+  //     lastCompleted: "",
+  //     times: [],
+  //   };
+  //   const routineRef2 = ref(db, `Users/${userId}/kids/${kid}/${routine.title}`);
+  //   await set(routineRef2, routineData);
+  // };
 }
 
 
 export async function addMins(total, name) {
   const userId = firebase.auth().currentUser.uid;
   const database = getDatabase();
-  
 
   const minsRef = ref(database, `Users/${userId}/kids/${name}`);
 
-  function getWeekStartDate(d) {
+  // Helper functions to get start and end dates of the week
+  const getWeekStartDate = (d) => {
     const t = new Date(d);
     const day = t.getDay();
     const diff = t.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(t.setDate(diff));
-  }
+  };
 
-  function getWeekEndDate(d) {
+  const getWeekEndDate = (d) => {
     const t = new Date(d);
     const day = t.getDay();
     const diff = t.getDate() - day + (day === 0 ? -6 : 1) + 6;
     return new Date(t.setDate(diff));
-  }
+  };
 
+  // Construct the key for the current week
   const startDate = getWeekStartDate(new Date());
   const endDate = getWeekEndDate(new Date());
 
-  const startMonth = startDate.getMonth() + 1;
-  const startDay = startDate.getDate();
-  const endMonth = endDate.getMonth() + 1;
-  const endDay = endDate.getDate();
+  const formatKey = (date) => `${date.getFullYear()}|${date.getMonth() + 1}|${date.getDate()}`;
 
-  const currentWeekKey = `${startMonth}|${startDay}__${endMonth}|${endDay}`;
+  const currentWeekKey = `${formatKey(startDate)}__${formatKey(endDate)}`;
 
-  async function noCap() {
+  const updateWeeklyArray = async () => {
     const snapshot = await get(minsRef);
 
     if (snapshot.exists()) {
       const data = snapshot.val();
-      let minutes = data.minutes
+      let minutes = data.minutes;
       let accum = data.MinutesAccumulated;
       let spen = data.MinutesSpent;
       let week = data.WeeklyMinutesEarned;
-      let weeklyArray = data.WeeklyArray || {}; 
+      let weeklyArray = data.WeeklyArray || {};
 
-      let newWeekTotal = (weeklyArray[currentWeekKey] || 0) + parseInt(total);
-      weeklyArray[currentWeekKey] = newWeekTotal;
+      // Update the minutes for the current week
+      weeklyArray[currentWeekKey] = (weeklyArray[currentWeekKey] || 0) + parseInt(total, 10);
 
-      const minutesUpdate = parseInt(minutes) + parseInt(total);
-      accum = parseInt(accum) + parseInt(total);
-      spen = parseInt(spen) - parseInt(total);
-      week = parseInt(week) + parseInt(total);
-      console.log(minutesUpdate)
-      if (parseInt(total) > 0) {
+      // Keep only the latest 10 weeks
+      const sortedKeys = Object.keys(weeklyArray).sort().reverse(); // Sort keys in descending order
+      if (sortedKeys.length > 10) {
+        delete weeklyArray[sortedKeys[10]]; // Remove the oldest week
+      }
+
+      // Update database
+      const minutesUpdate = parseInt(minutes, 10) + parseInt(total, 10);
+      accum = parseInt(accum, 10) + parseInt(total, 10);
+      spen = parseInt(spen, 10) - parseInt(total, 10);
+      week = weeklyArray[currentWeekKey];
+
+      if (parseInt(total, 10) > 0) {
         await update(minsRef, {
           minutes: minutesUpdate,
           MinutesAccumulated: accum,
@@ -561,8 +632,10 @@ export async function addMins(total, name) {
       console.log("No such document!");
     }
   }
-  noCap();
+
+  await updateWeeklyArray();
 }
+
 
 export function getWeekly(name) {
   const [loading, setLoading] = useState(true);
@@ -573,7 +646,6 @@ export function getWeekly(name) {
   const weeklyPath = `Users/${userId}/kids/${name}`;
 
   useEffect(() => {
-    console.log('Running getWeekly useEffect');
     const weeklyRef = ref(realtimeDb, weeklyPath);
 
     const unsubscribe = onValue(weeklyRef, (snapshot) => {
@@ -620,7 +692,6 @@ export function useRoutines() {
   const userId = firebase.auth().currentUser.uid;
   
   useEffect(() => {
-    console.log('Running useRoutines useEffect');
     const db = getDatabase();
     const routinesRef = ref(db, `Users/${userId}/routines`);
     
@@ -637,8 +708,32 @@ export function useRoutines() {
 
   return { store, loading };
 }
+export function useRoutineTitles() {
+  const [titles, setTitles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const userId = firebase.auth().currentUser.uid;
 
-export async function finishRoutine(minutesEarly, childName, routineName, et) {
+  useEffect(() => {
+    const db = getDatabase();
+    const routinesRef = ref(db, `Users/${userId}/routines`);
+
+    const unsubscribe = onValue(routinesRef, snapshot => {
+      const routinesData = snapshot.val();
+      const routineTitles = routinesData ? Object.keys(routinesData).map(key => routinesData[key].title) : [];
+      
+      setTitles(routineTitles);
+      setLoading(false);
+    });
+
+    // Cleanup function
+    return () => off(routinesRef);
+
+  }, []);
+
+  return { titles, loading };
+}
+
+export async function finishRoutine(minutesEarly, childName, routineName, st, et) {
   const formattedRoutineName = routineName.replace(/\s+/g, '-'); // This will replace all spaces with dashes
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
@@ -653,14 +748,12 @@ export async function finishRoutine(minutesEarly, childName, routineName, et) {
 
     if (snapshot.exists()) {
       data = snapshot.val();
-      console.log('Data after get:', data); 
     } else {
       data = {
         timesCompleted: 0,
         averageTime: 0,
         lastCompleted: "",
       };
-      console.log('Data after initialization:', data);
     }
 
     data.timesCompleted += 1;
@@ -680,13 +773,14 @@ export async function finishRoutine(minutesEarly, childName, routineName, et) {
       timesData.shift();
     }
 
-    console.log('Data before update:', data); 
-    console.log('Times data before update:', timesData);
+    
 
     await update(routineRef, {
       timesCompleted: data.timesCompleted,
       averageTime: data.averageTime,
       lastCompleted: data.lastCompleted,
+      st: st,
+      et: et,
     });
 
     await set(timesRef, timesData);
@@ -744,7 +838,7 @@ export function Routines(tasks, setTasks) {
   // ...
 }
 
-export function getRoutineLength(collections, id) {
+export function getRoutineLength(id) {
   const [isLoading, setIsLoading] = useState(false);
   const [x, setX] = useState(0)
 
@@ -753,7 +847,7 @@ export function getRoutineLength(collections, id) {
     setIsLoading(true);
 
     const db = getDatabase();
-    const routinesRef = ref(db, `Users/${userId}/routines/${id}/${collections}`);
+    const routinesRef = ref(db, `Users/${userId}/routines/${id}/steps`);
     
     const unsubscribe = onValue(routinesRef, snapshot => {
       const routinesData = snapshot.val();
@@ -775,18 +869,17 @@ export function getRoutineLength(collections, id) {
 
 
 
-export function rearrangeRoutine(collections, title, colID, id, im, up) {
+export function rearrangeRoutine(title, colID, id, im, up) {
   let x = up ? im - 1 : im + 1;
-  console.log(`im: ${im}, x: ${x}, up: ${up}`);
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
-  const routineRef = ref(db, `Users/${userId}/routines/${colID}/${collections}`);
-  const routineDocRef = ref(db, `Users/${userId}/routines/${colID}/${collections}/${id}`);
+  
+  const routineRef = ref(db, `Users/${userId}/routines/${colID}/steps`);
+  const routineDocRef = ref(db, `Users/${userId}/routines/${colID}/steps/${id}`);
   const data = {
     indx: x,
     title: title,
   };
-
   get(routineRef).then(snapshot => {
     const routines = [];
     snapshot.forEach(childSnapshot => {
@@ -796,10 +889,8 @@ export function rearrangeRoutine(collections, title, colID, id, im, up) {
     // Sort routines array by indx property
     routines.sort((a, b) => a.indx - b.indx);
 
-    console.log(routines);
     if (routines.length > 0 && x > 0 && x <= routines.length) {
       const swap = routines[x - 1]; // Here's the corrected part
-      console.log(swap);
 
       const data2 = {
         indx: im,  // updated
@@ -810,7 +901,7 @@ export function rearrangeRoutine(collections, title, colID, id, im, up) {
         console.log(error);
       });
     
-      const routineDocRef2 = ref(db, `Users/${userId}/routines/${colID}/${collections}/${swap.id}`);
+      const routineDocRef2 = ref(db, `Users/${userId}/routines/${colID}/steps/${swap.id}`);
       set(routineDocRef2, data2).catch(error => {
         console.log(error);
       });
@@ -823,10 +914,10 @@ export function rearrangeRoutine(collections, title, colID, id, im, up) {
 
 
 
-export async function RoutinesCollections(setRoutines, collections, id) {
+export async function RoutinesCollections(setRoutines, id) {
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
-  const routineRef = ref(db, `Users/${userId}/routines/${id}/${collections}`);
+  const routineRef = ref(db, `Users/${userId}/routines/${id}/steps`);
   onValue(routineRef, (snapshot) => {
     const routines = [];
     snapshot.forEach(childSnapshot => {
@@ -876,7 +967,7 @@ export async function kidsRoutine(routineName) {
     console.error("Error fetching kids: ", error);
   });
 }
-
+  
 export async function deleteKidsRoutine(routineName) {
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
@@ -917,14 +1008,16 @@ export async function removeRequest(kidName, index) {
     // If the document exists, get the current 'names' and 'reqMinutes' arrays
     let currentNames = snapshot.val().names || [];
     let currentReqMinutes = snapshot.val().reqMinutes || [];
+    let curIsAssignment = snapshot.val().isAssignment || [];
     // Check if index is valid
-    if (index < currentNames.length && index < currentReqMinutes.length && index >= 0) {
+    if (index < currentNames.length && index < currentReqMinutes.length && index >= 0 && index < curIsAssignment.length) {
       // Remove the item at the specified index from both arrays
       currentNames.splice(index, 1);
       currentReqMinutes.splice(index, 1);
+      curIsAssignment.splice(index, 1);
 
       // Update the fields in the reference
-      await update(kidRef, { names: currentNames, reqMinutes: currentReqMinutes });
+      await update(kidRef, { names: currentNames, reqMinutes: currentReqMinutes, isAssignment: curIsAssignment });
     }
   }
 }
@@ -953,6 +1046,8 @@ export default {
   signoutUser,
   createRecordWithUserId,
   Assignments,
-  useKids
+  useKids,
+  useRoutineTitles,
+  kidData
   
 };

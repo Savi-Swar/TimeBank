@@ -4,10 +4,12 @@ import BubbleText from '../Components_v2/BubbleText';
 import BlankButton from '../Components_v2/BlankButton';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome
 import { createRecordWithUserId } from '../firebase';
+import { playSound } from '../audio';
+import { scale, verticalScale, moderateScaleFont } from '../scaling';
 function PrivacyPolicy({ navigation, route }) {
     const [agree, setAgree] = useState(false);
 
-    const handleAgree = () => setAgree(!agree);
+    const handleAgree = () => {setAgree(!agree), playSound("select")};
 
     const navigateToPrivacyPolicy = () => {
         if (agree) {
@@ -15,6 +17,7 @@ function PrivacyPolicy({ navigation, route }) {
             const display = route.params.displayName; // Adjust this value as needed
             createRecordWithUserId(userId, display)
             .then(() => {
+                playSound("transition")
                 navigation.navigate('ParentHome', { userId: userId });
             })
             .catch((error) => {
@@ -22,35 +25,36 @@ function PrivacyPolicy({ navigation, route }) {
                 // You may also want to show an error message to the user
             });
                 } else {
+            playSound("alert")
             alert('You must agree to the terms and conditions before proceeding.');
         }
     };
 
     return (
         <ImageBackground style={styles.background} source={require("../assets/backgrounds/terms_conditions.png")}>
-            <View style={{alignItems:"center", bottom: 75}}>
-                <BubbleText text={"Privacy Policy"} size={28}/>
-                <View style={{width: '90%', top: 15}}>
-                <BubbleText text={"Welcome to TimeBank, a mobile application designed to instill the habit of time-saving in young children. Before using TimeBank, please read these Terms and Conditions carefully. By accessing or using the TimeBank mobile application, you agree to be bound by these Terms and Conditions. If you do not agree to these Terms and Conditions, please do not use TimeBank."} lineSpacing={5} size={20}/>
-                <View style = {{top: 20}}>
-                    <BubbleText text={"1. Information We Collect"} size={28} color='#650000'/>
-                    <View style = {{top:10}}>
-                        <BubbleText text={"Registration Information: When you create an account for your child, we may collect their first name and email address. We do not collect personally identifiable information from children under the age of [Specify the age limit] without parental consent. "} lineSpacing={5} size={20}/>
+            <View style={{alignItems:"center", bottom: verticalScale(30)}}>
+                <BubbleText text={"Privacy Policy"} size={moderateScaleFont(28,1)}/>
+                <View style={{width: '90%', top: verticalScale(15)}}>
+                <BubbleText text={"Welcome to TimeBank, a mobile application designed to instill the habit of time-saving in young children. Before using TimeBank, please read these Terms and Conditions carefully. By accessing or using the TimeBank mobile application, you agree to be bound by these Terms and Conditions. If you do not agree to these Terms and Conditions, please do not use TimeBank."} lineSpacing={5} size={moderateScaleFont(20,1)}/>
+                <View style = {{top: verticalScale(20)}}>
+                    <BubbleText text={"1. Information We Collect"} size={moderateScaleFont(28,1)} color='#650000'/>
+                    <View style = {{top:verticalScale(10)}}>
+                        <BubbleText text={"Registration Information: When you create an account for your child, we may collect their first name and email address. We do not collect personally identifiable information from children under the age of [Specify the age limit] without parental consent. "} lineSpacing={5} size={moderateScaleFont(20,1)}/>
                     </View>
-                    <View style = {{top:20}}>
-                        <BubbleText text={"Usage Information: We collect information about how your child uses TimeBank, such as the features they access, the content they create, and the duration of their sessions."} lineSpacing={5} size={20}/>
+                    <View style = {{top:verticalScale(20)}}>
+                        <BubbleText text={"Usage Information: We collect information about how your child uses TimeBank, such as the features they access, the content they create, and the duration of their sessions."} lineSpacing={5} size={moderateScaleFont(20,1)}/>
                     </View>
                 </View>
             </View>
             </View>
-            <View style ={{top: 35}}>
+            <View style ={{top: verticalScale(35)}}>
                 <View style={styles.checkboxContainer}>
                         <TouchableOpacity onPress={handleAgree} style={styles.checkbox}>
                         {agree && (
-                            <FontAwesome name="check" size={20} color="#28bc74" /> // Render the FontAwesome check icon
+                            <FontAwesome name="check" size={moderateScaleFont(20,1)} color="#28bc74" /> // Render the FontAwesome check icon
                         )}
                         </TouchableOpacity>
-                        <BubbleText text="Yes, I read and I agree." size={16} />
+                        <BubbleText text="Yes, I read and I agree." size={moderateScaleFont(16,1)} />
                     </View>
                 <View style ={{alignItems: "center"}}>
                     <BlankButton text={"Continue"} onPress={navigateToPrivacyPolicy}/>
@@ -68,35 +72,37 @@ const styles = StyleSheet.create({
     checkboxContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 20, // Adjust as needed
-        marginLeft: 20, // Adjust as needed
-        left: 90
+        marginTop: verticalScale(20), // Adjust as needed
+        marginLeft: scale(20), // Adjust as needed
+        left: scale(90)
     },
     checkbox: {
-        width: 24,
-        height: 24,
-        marginRight: 8,
-        borderWidth: 1,
+        height: verticalScale(24),
+        width: scale(24),
+        marginRight: scale(8),
+        borderWidth: scale(1),
+        bottom: verticalScale(5),
         borderColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 2, // Adjust padding to fit the check icon nicely
+        paddingHorizontal: scale(2), // Adjust padding to fit the check icon nicely
       },
     checkboxInner: {
-        width: 12,
-        height: 12,
+        width: scale(12),
+        height: verticalScale(12),
         backgroundColor: '#000',
     },
     button: {
         backgroundColor: '#000', // Choose your button color
-        padding: 15,
-        marginTop: 20, // Adjust as needed
-        borderRadius: 5,
+        paddingHorizontal: scale(15),
+        paddingVertical: verticalScale(15),
+        marginTop: verticalScale(20), // Adjust as needed
+        borderRadius: scale(5),
         alignItems: 'center',
     },
     buttonText: {
         color: '#fff', // Choose your text color
-        fontSize: 16,
+        fontSize: moderateScaleFont(16,1),
     },
     // ... other styles you might have ...
 });

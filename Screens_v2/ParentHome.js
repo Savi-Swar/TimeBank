@@ -11,8 +11,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {signInWithEmailAndPassword } from "firebase/auth";
 import BlankButton from '../Components_v2/BlankButton';
 import { ScrollView } from 'react-native-gesture-handler';
-import ImagePickerExample from '../components/ImagePicker';
+import ImagePickerExample from '../Components_v2/ImagePicker';
 import BubbleText from '../Components_v2/BubbleText';
+import { playSound, sounds, toggleSoundEffects } from '../audio';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Example
+import { scale, verticalScale, moderateScale,moderateScaleFont } from '../scaling';
+
 function ParentHome({ navigation, route }) {
   const [users, setUsers] = useState([]);
   const [kids, setKids] = useState([]);
@@ -46,7 +50,6 @@ function ParentHome({ navigation, route }) {
     try {
     const nameSnapshot = await get(nameRef);
     const name = nameSnapshot.val();
-    
     const codeSnapshot = await get(codeRef);
     const code = codeSnapshot.val();
 
@@ -91,10 +94,12 @@ function ParentHome({ navigation, route }) {
   const handleDeleteKid = async () => {
     const success = await firebase.deleteKid(deleteKidName);
     if (success) {
+      playSound('pop');
       alert('Kid deleted successfully.');
       setIsDeleteKidModalVisible(false);
       fetchUsers(); // Refresh the user list
     } else {
+      playSound("alert")
       alert('Kid not found.');
     }
   };
@@ -108,6 +113,7 @@ function ParentHome({ navigation, route }) {
   };
 
   const handleAddKids = () => {
+    playSound("maximise")
     setIsAddKidModalVisible(true);
   };
 
@@ -116,12 +122,15 @@ function ParentHome({ navigation, route }) {
     await firebase.addKids(kidName, url); // Add the kid to Firebase
     setKidName(''); // Clear the kidName from state
     setIsAddKidModalVisible(false); // Close the modal
+    playSound("minimise")
+
   
     // Now refetch users to update the list with the new kid
     await fetchUsers(); // Fetch the updated list of kids and users
   };
 
   const handleUserPress = (user) => {
+    playSound("click")
     if (user === users[0]) { 
       setCodeInput('');
       if (codeUsed) {
@@ -136,6 +145,7 @@ function ParentHome({ navigation, route }) {
   };
   const handleCodeInput = async () => {
     if (!codeSetup && codeInput.length === 6) {
+      playSound("click")
       const userId = firebase.auth.currentUser.uid;
       await set(ref(getDatabase(), `/Users/${userId}/pass`), codeInput);
       await set(ref(getDatabase(), `/Users/${userId}/codeUsed`), true);
@@ -144,6 +154,7 @@ function ParentHome({ navigation, route }) {
       setIsAccessCodeModalVisible(false);
       setCodeUsed(true);
     } else if (codeSetup && codeInput === accessCode) {
+      playSound("approve")
       navigation.navigate('ParentMenu');
       setIsAccessCodeModalVisible(false);
     } else if (!codeSetup && codeInput === '') {
@@ -152,12 +163,14 @@ function ParentHome({ navigation, route }) {
       await set(ref(getDatabase(), `/Users/${userId}/codeUsed`), false);
       setCodeUsed(false);
     } else {
+      playSound("deny")
       alert('Invalid code input!');
     }
   };
 
   const handleResetCode = async () => {
     if (newCode.length !== 6) {
+      playSound("deny")
       alert('New code must be 6 digits long.');
       return;
     }
@@ -169,23 +182,70 @@ function ParentHome({ navigation, route }) {
       setResetModalVisible(false);
       setCodeUsed(true)
       alert('Code reset successful.');
+      playSound("approve")
     } catch (error) {
+      playSound("deny")
       alert('Invalid credentials. Please try again.');
     }
   };
   const handleSkipCode = async () => {
+    playSound("click")
     setIsAccessCodeModalVisible(false)
     console.log("hey")
     const userId = firebase.auth.currentUser.uid;
     await set(ref(getDatabase(), `Users/${userId}/codeUsed`), false);
   }
   
+  const [isMusicOn, setIsMusicOn] = useState(true);
+  const [isSoundEffectsOn, setIsSoundEffectsOn] = useState(true);
+  // Toggle music
+  const toggleMusic = () => {
+    setIsMusicOn(!isMusicOn);
+    playSound('select');
+    // Logic to play/pause music
+    if (isMusicOn) {
+      sounds['happyMusic'].pauseAsync();
+    } else {
+      sounds['happyMusic'].playAsync();
+    }
+  };
+
+  // Toggle sound effects
+  const toggleSound = () => {
+    if (isSoundEffectsOn) {
+      playSound('select');
+      setIsSoundEffectsOn(!isSoundEffectsOn);
+      toggleSoundEffects();
+
+    } else {
+      toggleSoundEffects();
+      setIsSoundEffectsOn(!isSoundEffectsOn);
+      playSound('select');
+
+    }
+   
+
+    // Add logic if needed to handle sound effects globally
+  };
   // console.log(route.params.userId)
+  const TextButton = ({ title, onPress, style }) => (
+    <TouchableOpacity onPress={onPress} style={style}>
+      <Text style={styles.textButton}>{title}</Text>
+    </TouchableOpacity>
+  );
   return (
     <ImageBackground  style={styles.background} source={require("../assets/backgrounds/terms_conditions.png")}>
       <ScrollView>
         <View>
-            <View style={{alignItems: "center", top: 100}}>
+          <View style={styles.soundControlContainer}>
+            <TouchableOpacity onPress={toggleMusic}>
+              <Icon name={isMusicOn ? 'music' : 'music-off'} size={scale(30)} color="black" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={toggleSound} style={styles.soundEffectIcon}>
+              <Icon name={isSoundEffectsOn ? 'volume-high' : 'volume-off'} size={scale(30)} color="black" />
+            </TouchableOpacity>
+          </View>
+            <View style={{alignItems: "center", top: verticalScale(100)}}>
                 <Text style={styles.title}>Who's using the app?</Text>
                 {users.map((user, index) => (
                     <TouchableOpacity key={index} style={styles.userBox} onPress={() => handleUserPress(user)}>
@@ -193,13 +253,15 @@ function ParentHome({ navigation, route }) {
                     </TouchableOpacity>
                 ))}
         </View>
-        <View style = {{padding: 20, alignItems: "center", top: 80}}>
+        <View style = {{paddingHorizontal: scale(20), paddingVertical: verticalScale(20), alignItems: "center", top: verticalScale(80)}}>
 
             <BlankButton text="Add Kid" onPress={handleAddKids} />
             <BlankButton text="Delete Kid" onPress={() => setIsDeleteKidModalVisible(true)} />
 
             <BlankButton text="Reset Code" onPress={() => setResetModalVisible(true)} />
-            <BlankButton text="Log Out" onPress={() => { navigation.navigate("Login"), firebase.signoutUser()}} />
+            <View style={{marginBottom: verticalScale(80)}}>
+              <BlankButton text="Log Out" onPress={() => { navigation.navigate("Login"), firebase.signoutUser()}} />
+            </View>
         </View>
       </View>
       {/* Access Code Modal */}
@@ -219,8 +281,8 @@ function ParentHome({ navigation, route }) {
               keyboardType="numeric"
               maxLength={6}
             />
-            <Button title="Confirm" onPress={handleCodeInput} />
-            <Button title="Skip" onPress={handleSkipCode} />
+            <TextButton title="Confirm" onPress={handleCodeInput} />
+            <TextButton title="Skip" onPress={handleSkipCode} />
           </View>
         </View>
       </Modal>
@@ -241,8 +303,8 @@ function ParentHome({ navigation, route }) {
               keyboardType="numeric"
               maxLength={6}
             />
-            <Button title="Confirm" onPress={handleCodeInput} />
-            <Button title="Back" onPress={() => setIsParentModalVisible(false)} />
+            <TextButton title="Confirm" onPress={handleCodeInput} />
+            <TextButton title="Back" onPress={() => {setIsParentModalVisible(false), playSound("minimise")}} />
           </View>
         </View>
       </Modal>
@@ -256,8 +318,8 @@ function ParentHome({ navigation, route }) {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalViewBig}>
-            <BubbleText size = {24} text = {"Input Kid Name"}/>
-            <View style ={{bottom:210}}>
+            <BubbleText size = {moderateScaleFont(24,1)} text = {"Input Kid Name"}/>
+            <View style ={{bottom:verticalScale(210)}}>
               <TextInput
                 style={styles.textInput}
                 onChangeText={setKidName}
@@ -265,9 +327,9 @@ function ParentHome({ navigation, route }) {
                 placeholder="Kid Name"
               />
             </View>
-            <View style = {{bottom: 350}}>
-              <BubbleText size = {24} text = {"Set Profile Image"}/>
-              <View style={{bottom:100, right:110}}>
+            <View style = {{bottom: verticalScale(350)}}>
+              <BubbleText size = {moderateScaleFont(24,1)} text = {"Set Profile Image"}/>
+              <View style={{bottom:verticalScale(100), right:scale(110)}}>
               <ImagePickerExample
                 setImage={setImageLink}
                 image={imageLink}
@@ -277,9 +339,9 @@ function ParentHome({ navigation, route }) {
               />
             </View>
             </View>
-            <View style = {{bottom: 300}}>
-            <Button title="Create Kid" onPress={handleAddKid} />
-            <Button title="Back" onPress={() => setIsAddKidModalVisible(false)} />
+            <View style = {{bottom: verticalScale(300)}}>
+            <TextButton title="Create Kid" onPress={handleAddKid} />
+            <TextButton title="Back" onPress={() => {setIsAddKidModalVisible(false), playSound("minimise")}} />
             </View>
           </View>
         </View>
@@ -317,8 +379,8 @@ function ParentHome({ navigation, route }) {
               maxLength={6}
             />
 
-            <Button title="Reset Code" onPress={handleResetCode} />
-            <Button title="Back" onPress={() => setResetModalVisible(false)} />
+            <TextButton title="Reset Code" onPress={handleResetCode} />
+            <TextButton title="Back" onPress={() => {setResetModalVisible(false), playSound("minimise")}} />
           </View>
         </View>
       </Modal>
@@ -336,8 +398,8 @@ function ParentHome({ navigation, route }) {
                     value={deleteKidName}
                     placeholder="Enter Kid's Name to Delete"
                   />
-                  <Button title="Delete Kid" onPress={handleDeleteKid} />
-                  <Button title="Cancel" onPress={() => setIsDeleteKidModalVisible(false)} />
+                  <TextButton title="Delete Kid" onPress={handleDeleteKid} />
+                  <TextButton title="Cancel" onPress={() => {setIsDeleteKidModalVisible(false), playSound("minimise")}} />
                 </View>
               </View>
             </Modal>
@@ -347,79 +409,98 @@ function ParentHome({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    container: {
-      flex: 1,
-      padding: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    userBox: {
-      width: '80%',
-      height: 100,
-      borderWidth: 1,
-      borderColor: '#000',
-      borderRadius: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 20,
-    },
-    userName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-    },
-    centeredView: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 22
-    },
-    modalView: {
-        backgroundColor: "white",
-        borderRadius: 20,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-          width: 0,
-          height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-        height: 300,
-        width: 300,
-    },
-    modalViewBig: {
-      margin: 20,
-      backgroundColor: "white",
-      borderRadius: 20,
-      padding: 35,
-      alignItems: "center",
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
-      height: 500,
-      width: '95%',
+  title: {
+    fontSize: moderateScaleFont(24),
+    fontWeight: 'bold',
+    marginBottom: verticalScale(20),
   },
-    textInput: {
-        flex: 1,
-        marginTop: Platform.OS === "ios" ? 0 : -12,
-        paddingLeft: 10,
-        color: "#05375a",
-        bottom: -30
+  container: {
+    flex: 1,
+    padding: scale(20),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textButton: {
+    fontSize: moderateScaleFont(16),
+    color: '#007AFF',
+    textAlign: 'center',
+    paddingVertical: verticalScale(10),
+  },
+  userBox: {
+    width: '80%',
+    height: verticalScale(100),
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: scale(10),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: verticalScale(20),
+  },
+  userName: {
+    fontSize: moderateScaleFont(18),
+    fontWeight: 'bold',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: verticalScale(22),
+  },
+  soundControlContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    padding: scale(10),
+    position: 'absolute',
+    top: verticalScale(35),
+    right: scale(20),
+  },
+  soundEffectIcon: {
+    marginLeft: scale(15),
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderRadius: scale(20),
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
     },
-    background: {
-        flex: 1
-      },
+    shadowOpacity: 0.25,
+    shadowRadius: scale(4),
+    elevation: 5,
+    height: verticalScale(300),
+    width: scale(300),
+  },
+  modalViewBig: {
+    marginHorizontal: scale(20),
+    marginVertical: verticalScale(20),
+    backgroundColor: "white",
+    borderRadius: scale(20),
+    paddingHorizontal: scale(35),
+    paddingVertical: verticalScale(35),
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: scale(4),
+    elevation: 5,
+    height: verticalScale(500),
+    width: '95%', 
+  },
+  textInput: {
+    flex: 1,
+    marginTop: Platform.OS === "ios" ? 0 : verticalScale(-12),
+    paddingLeft: scale(10),
+    color: "#05375a",
+    bottom: verticalScale(-30),
+  },
+  background: {
+    flex: 1,
+  },
 });
 
 

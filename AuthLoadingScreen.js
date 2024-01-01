@@ -9,6 +9,7 @@ function AuthLoadingScreen({ navigation }) {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user && user.emailVerified) {
         // User is signed in and email is verified
+        // change back to ParentHome
         navigation.replace('ParentHome');
       } else if (user && !user.emailVerified) {
         // User is signed in but email is not verified
