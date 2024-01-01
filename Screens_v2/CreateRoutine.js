@@ -13,7 +13,6 @@ import * as firebase from "../firebase";
 import { ScrollView } from 'react-native-gesture-handler';
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
-import { format } from 'date-fns'; // Make sure to install date-fns if not already installed
 
 
 function CreateRoutine({ navigation }) {

@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, Image, TouchableOpacity, TextInput, Alert, ImageBackground } from "react-native";
-import AppButton from "../components/AppButton";
-import Card from "../components/Card";
-import { AntDesign } from "@expo/vector-icons";
-import Minutes from "../components/Minutes";
+import { View, StyleSheet, Text, Image, Alert, ImageBackground } from "react-native";
 import colors from "../config/colors";
 import * as firebase from "../firebase";
-import { getDownloadURL, ref, getStorage } from "firebase/storage";
-import Logo from "../components/Logo";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import RNPickerSelect from 'react-native-picker-select'; // Import the Picker component
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BlankButton from "../Components_v2/BlankButton";
 import BubbleText from "../Components_v2/BubbleText";
 import { playSound } from "../audio";
-import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { scale, verticalScale, moderateScaleFont } from '../scaling';
 
 function FinishRoutine({ navigation, route }) {
   const [finishedTime, setFinishedTime] = useState(new Date());

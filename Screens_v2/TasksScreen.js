@@ -1,10 +1,8 @@
 import React, {useState} from 'react';
 import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity } from 'react-native';
-import MediumButton from '../Components_v2/MediumButton';
-import CustomButton from '../Components_v2/CustomButton';
+
 import Card from '../Components_v2/Card';
 import * as firebase from '../firebase'
-import { ScrollView } from 'react-native-gesture-handler';
 import Minutes from '../Components_v2/Minutes';
 import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
 function TaskScreen({ navigation }) {

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import colors from "../config/colors";
-import BubbleText from "./BubbleText";
 import { playSound } from "../audio";
-import { scale, verticalScale, moderateScaleFont } from "../scaling";
+import { scale, verticalScale } from "../scaling";
 function MultiSelect ({ options, onSelection }) {
   const [selectedItems, setSelectedItems] = useState([]);
 

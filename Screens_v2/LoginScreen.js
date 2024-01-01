@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ImageBackground, Image, TextInput, TouchableOpacity, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, StyleSheet, ImageBackground, Image, ActivityIndicator, Alert } from 'react-native';
 import BigButton from '../Components_v2/BigButton';
 import AppTextInput from '../Components_v2/AppTextInput';
 import MediumButton from '../Components_v2/MediumButton';

@@ -3,10 +3,9 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Button, ImageBackground
 } from 'react-native';
 import {
-  getDatabase, ref, onValue, set, get
+  getDatabase, ref, set, get
 } from 'firebase/database';
 import * as firebase from '../firebase';
-import AppButton from '../components/AppButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {signInWithEmailAndPassword } from "firebase/auth";
 import BlankButton from '../Components_v2/BlankButton';

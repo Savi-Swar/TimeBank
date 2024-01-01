@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  Button,
   Image,
   View,
-  Platform,
   TouchableWithoutFeedback,
   Alert,
   TouchableOpacity,
-  StyleSheet,
   Text
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";

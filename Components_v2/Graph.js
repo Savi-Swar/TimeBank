@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Dimensions, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { VictoryBar, VictoryChart, VictoryAxis } from 'victory-native';
 import BubbleText from './BubbleText';
 import { scale, verticalScale, moderateScaleFont, moderateScale } from '../scaling';

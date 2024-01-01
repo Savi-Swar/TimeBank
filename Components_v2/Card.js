@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
-import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import * as firebase from "../firebase";
 import { getDownloadURL, ref, getStorage, deleteObject } from "firebase/storage";
-import * as db from "firebase/database";
 import { playSound } from "../audio";
 import { getDatabase, ref as dbRef, remove } from 'firebase/database';
 import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';

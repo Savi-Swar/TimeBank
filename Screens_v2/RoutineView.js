@@ -1,11 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import { View, StyleSheet, ImageBackground,Image, FlatList, ScrollView } from 'react-native';
-import AppTextInput from '../Components_v2/AppTextInput';
+import { View, StyleSheet, ImageBackground,Image, FlatList } from 'react-native';
 import BigButton from '../Components_v2/BigButton';
-import MediumButton from '../Components_v2/MediumButton';
 import BackButton from '../Components_v2/BackButton';
 import BubbleText from '../Components_v2/BubbleText';
-import CustomButton from '../Components_v2/CustomButton';
 import * as firebase from "../firebase";
 import RoutineBar from '../Components_v2/RoutineBar';
 import BlankButton from '../Components_v2/BlankButton';

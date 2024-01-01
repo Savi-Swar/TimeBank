@@ -1,8 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { View, StyleSheet, ImageBackground,Image, Text } from 'react-native';
-import AppTextInput from '../Components_v2/AppTextInput';
-import BigButton from '../Components_v2/BigButton';
-import MediumButton from '../Components_v2/MediumButton';
+
 import SmallButton from '../Components_v2/SmallButton';
 import { useFonts } from "expo-font";
 import BackButton from '../Components_v2/BackButton';

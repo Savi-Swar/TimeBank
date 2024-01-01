@@ -9,7 +9,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getReactNativePersistence } from "firebase/auth/react-native"
 import { registerForPushNotificationsAsync, sendPushNotification } from "./notifications";
 import { getStorage, ref as storageRef, deleteObject } from "firebase/storage";
-// import * as Notifications from 'expo-notifications';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional

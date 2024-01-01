@@ -5,8 +5,6 @@ import BigButton from '../Components_v2/BigButton';
 import MediumButton from '../Components_v2/MediumButton';
 import { createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase"; // Make sure this path is correct
-import CustomButton from '../Components_v2/CustomButton';
-import BlankButton from '../Components_v2/BlankButton';
 import { playSound } from '../audio';
 import { scale, verticalScale } from '../scaling';
 

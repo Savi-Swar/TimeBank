@@ -3,9 +3,7 @@ import { View, StyleSheet, ImageBackground, Image, Alert } from 'react-native';
 import AppTextInput from '../Components_v2/AppTextInput';
 import BigButton from '../Components_v2/BigButton';
 import BubbleText from '../Components_v2/BubbleText';
-import MediumButton from '../Components_v2/MediumButton';
-import SmallButton from '../Components_v2/SmallButton';
-import CustomButton from '../Components_v2/CustomButton';
+
 import BackButton from '../Components_v2/BackButton';
 import ImagePickerExample from '../Components_v2/ImagePicker';
 import * as firebase from "../firebase"
@@ -13,7 +11,6 @@ import { getDatabase, ref, set } from 'firebase/database';
 import MultiSelectDropdown from '../Components_v2/MultiSelect';
 import BlankButton from '../Components_v2/BlankButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { format } from 'date-fns'; // Import format function from date-fns
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScaleFont } from '../scaling';
 

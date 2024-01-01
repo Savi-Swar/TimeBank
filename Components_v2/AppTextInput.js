@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet, ImageBackground, TextInput, Image } from 'react-native';
 import { useFonts } from "expo-font";
 import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling'; // Import scaling functions
-import { Dimensions } from 'react-native';
 function AppTextInput({ iconSource, placeholder, value, onChangeText, width=450 }) {
   const [loaded] = useFonts({
     BubbleBobble: require("../assets/fonts/BubbleBobble.ttf"),

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ImageBackground, TouchableOpacity, Text } from 'react-native';
 import BubbleText from '../Components_v2/BubbleText';
 import BlankButton from '../Components_v2/BlankButton';
-import FontAwesome from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome
+import { FontAwesome } from '@expo/vector-icons';
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScaleFont } from '../scaling';
 function Terms({ navigation, route }) {

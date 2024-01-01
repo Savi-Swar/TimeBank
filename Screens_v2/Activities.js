@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ImageBackground, Image, Text, FlatList } from 'react-native';
-import BackButton from '../Components_v2/BackButton';
 import Requests from '../Components_v2/Requests'; // Ensure this component can accept props and render a list
 import { useFonts } from 'expo-font';
 import * as firebase from "../firebase"; // ensure correct path
 import BlankButton from '../Components_v2/BlankButton';
 import { playSound } from '../audio';
-import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { scale, verticalScale, moderateScaleFont } from '../scaling';
 
 function Activities({ navigation, route }) {
   const [loaded] = useFonts({
@@ -85,9 +84,7 @@ function Activities({ navigation, route }) {
   };
 
   let empty = requests.length == 0;
-  // how do i make my title always on the top?
-  // right now it can spawn in the middle if there are no requests
-  // oh in styles you just say position: "absolute" and then top: 0
+
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/18_Max'sActivities.png")}>
       <View style = {{alignItems:"center", position: "absolute", top: verticalScale(40)}}>

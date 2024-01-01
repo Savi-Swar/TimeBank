@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, TextInput, Text, Alert, Keyboard, ImageBackground, Image } from "react-native";
-import AppButton from "../components/AppButton";
-import Logo from "../components/Logo";
-import Screen from "../components/Screen";
-import colors from "../config/colors";
 import AppTextInput from "../Components_v2/AppTextInput";
 import * as firebase from "../firebase";
-import { uploadBytes } from "firebase/storage";
 import { push, set, ref, getDatabase } from "firebase/database";
-import CustomButton from "../Components_v2/CustomButton";
 import BlankButton from "../Components_v2/BlankButton";
 import BubbleText from "../Components_v2/BubbleText";
 import { playSound } from "../audio";

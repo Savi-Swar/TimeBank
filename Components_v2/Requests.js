@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ImageBackground, Image, Text, Alert } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import CustomButton from './CustomButton';
 import {scale, verticalScale, moderateScale, moderateScaleFont} from '../scaling';
 // Import the ImageButton component

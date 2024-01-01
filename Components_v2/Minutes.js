@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import colors from "../config/colors";
 import { View, StyleSheet, Text } from "react-native";
 import { useFonts } from "expo-font";
 import * as firebase from "../firebase";

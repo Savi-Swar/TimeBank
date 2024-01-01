@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground, Image, Text, TouchableOpacity } from 'react-native';
-import { useFonts } from "expo-font";
 import { playSound } from "../audio";
 // Import the ImageButton component
 import ImageButton from '../Components_v2/ImageButton';

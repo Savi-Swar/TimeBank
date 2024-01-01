@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Animated, Image, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
 import colors from "../config/colors";
 import BubbleText from './BubbleText';
 import { Dimensions } from 'react-native';
-import { playSound } from '../audio';
-import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { scale, verticalScale, moderateScaleFont } from '../scaling';
 
 
 const carImage = require("../assets/icons/racing-car.png"); // Replace with the path to your car image asset

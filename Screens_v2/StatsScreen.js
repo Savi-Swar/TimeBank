@@ -4,7 +4,6 @@ import StatCard from '../Components_v2/StatCard';
 import BubbleText from '../Components_v2/BubbleText';
 import BlankButton from '../Components_v2/BlankButton';
 import Graphs from '../Components_v2/Graph';
-import AndroidGraph from '../Components_v2/AndroidGraph';
 import { ScrollView } from 'react-native-gesture-handler';
 import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
 import { Kids, useRoutineTitles, kidData } from "../firebase"; // Importing the Kids function

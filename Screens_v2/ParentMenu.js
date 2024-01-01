@@ -1,13 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList, Modal, Button, ImageBackground, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, FlatList, Modal, ImageBackground, TouchableOpacity } from "react-native";
 import { Kids, useRoutineTitles } from "../firebase";
-import colors from "../config/colors";
-import Screen from "../components/Screen";
 import KidsViewer from "../Components_v2/KidViewer";
-import Card from "../components/Card";
-import AppButton from "../components/AppButton";
-import * as firebase from "../firebase";
 import BlankButton from "../Components_v2/BlankButton";
 import BubbleText from "../Components_v2/BubbleText";
 import { playSound } from "../audio";

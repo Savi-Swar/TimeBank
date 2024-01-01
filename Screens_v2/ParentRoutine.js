@@ -1,9 +1,6 @@
 import React, {useState} from 'react';
 import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity } from 'react-native';
-import BigButton from '../Components_v2/BigButton';
 import MediumButton from '../Components_v2/MediumButton';
-import SmallButton from '../Components_v2/SmallButton';
-import BackButton from '../Components_v2/BackButton';
 import CustomButton from '../Components_v2/CustomButton';
 import RoutineHeader from '../Components_v2/RoutineHeader';
 import * as firebase from '../firebase'

@@ -5,7 +5,7 @@ import StatCard from './StatCard';
 import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome from react-native-vector-icons
 import Graphs from './Graph';
 import { playSound } from '../audio';
-import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { scale, verticalScale, moderateScaleFont } from '../scaling';
 
 function RoutineStat({name, st, et, times, timesCompleted, averageTime, lastCompleted}) {
     if (name.indexOf("Routine") == -1) {

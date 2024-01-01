@@ -5,7 +5,7 @@ import Card from '../Components_v2/Card';
 import * as firebase from '../firebase';
 import BubbleText from '../Components_v2/BubbleText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { scale, verticalScale, moderateScaleFont } from '../scaling';
 
 function KidHome({ navigation }) {
 

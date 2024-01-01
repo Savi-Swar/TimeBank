@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
-import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFonts } from "expo-font";
-import * as firebase from "../firebase";
 import { getDownloadURL, ref, getStorage, deleteObject } from "firebase/storage";
-import CustomButton from "./CustomButton";
-import MediumButton from "./MediumButton";
+
 import BubbleText from "./BubbleText";
 import Ticker from "./Ticker";
 import { playSound } from "../audio";

@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Alert, Image } from "react-native";
-import { MaterialCommunityIcons, FontAwesome, Entypo } from "@expo/vector-icons";
+import React from "react";
+import { View, StyleSheet, TouchableOpacity, Alert, Image } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import * as firebase from "../firebase";
 import { remove, getDatabase, ref, get, set } from "firebase/database";
-import colors from "../config/colors";
 import BubbleText from "./BubbleText";
 import { playSound } from "../audio";
-import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { scale, verticalScale, moderateScaleFont } from '../scaling';
 
 
 function RoutineBar({ title, id, colId, index, isAdult = true }) {

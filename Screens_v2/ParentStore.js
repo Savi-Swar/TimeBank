@@ -4,7 +4,6 @@ import MediumButton from '../Components_v2/MediumButton';
 import CustomButton from '../Components_v2/CustomButton';
 import Card from '../Components_v2/Card';
 import * as firebase from '../firebase'
-import { ScrollView } from 'react-native-gesture-handler';
 import {scale, verticalScale, moderateScaleFont} from '../scaling';
 
 function ParentStore({ navigation }) {
