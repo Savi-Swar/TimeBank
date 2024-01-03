@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useState} from "react";
 import { View, StyleSheet, TouchableOpacity, Alert, Image } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import * as firebase from "../firebase";
 import { remove, getDatabase, ref, get, set } from "firebase/database";
 import BubbleText from "./BubbleText";
@@ -21,11 +21,12 @@ function RoutineBar({ title, id, colId, index, isAdult = true }) {
         const db = getDatabase();
         const userId = firebase.auth.currentUser.uid;
         const colRef = ref(db, `Users/${userId}/routines/${colId}/steps`);
-      
+        let im = index;
         // Get the snapshot of the collection
         get(colRef).then((snapshot) => {
           const data = snapshot.val();
           const keys = Object.keys(data);
+
       
           // Loop through each step
           keys.forEach((key) => {
@@ -73,7 +74,10 @@ function RoutineBar({ title, id, colId, index, isAdult = true }) {
     // Adjust font size based on card height
     fontSize = fontSize * (barHeight / 100);
     iconSize = iconSize * (barHeight / 100);
-
+    const [isChecked, setIsChecked] = useState(false);
+    const toggleCheckbox = () => {
+        setIsChecked(!isChecked);
+    };
     return (
         <View style={styles.card}>
             <View style={styles.arrowContainer}>
@@ -84,20 +88,35 @@ function RoutineBar({ title, id, colId, index, isAdult = true }) {
                     <FontAwesome name="arrow-down" size={fontSize} color="#FFCD01" />
                 </TouchableOpacity>
             </View>
-            <View>
-                <BubbleText text={title} size = {moderateScaleFont(32)} />
+            <View style = {{marginRight: scale(100)}}>
+                <BubbleText text={title} size = {moderateScaleFont(24)} 
+                  strikeThrough={isChecked ? styles.strikeThrough : null}
+                  color = {isChecked ? "#A9A9A9" : "#000000"}/>
             </View>
+            <TouchableOpacity onPress={toggleCheckbox} style={{position: "absolute", right: scale(20)}}>
+                    {isChecked ? (
+                        <FontAwesome5 name="check-square" size={iconSize/1.5} color="#000000" />
+                    ) : (
+                        <FontAwesome5 name="square" size={iconSize/1.5} color="#000000" />
+                    )}
+            </TouchableOpacity>
             {/* <Text style={[styles.text, { fontSize: fontSize }]}>"S"</Text> */}
             {isAdult && (
             <TouchableOpacity style={styles.pos} onPress={handlePress}>
                 <Image source={require("../assets/icons/x.png")} style={styles.x} />
             </TouchableOpacity>
             )}
+
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+
+  strikeThrough: {
+      textDecorationLine: 'line-through',
+      textDecorationStyle: 'solid',
+  },
     card: {
         width: scale(350),
         height: verticalScale(125),

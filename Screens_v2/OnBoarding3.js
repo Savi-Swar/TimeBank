@@ -14,7 +14,7 @@ function OnBoarding3({ navigation }) {
       </TouchableOpacity>
       {/* <Image style={styles.image} source={require("../assets/Text/BubbleText3.png")} /> */}
       <View style = {{right: scale(25), bottom: verticalScale(280)}}>
-          <BubbleText text = "Reward your Kids" size = {moderateScaleFont(40)}/>
+          <BubbleText text = "Create Your Store" size = {moderateScaleFont(40)}/>
           <View style={{top: verticalScale(30)}}>
             <BubbleText text = "Time Saved is Time Earned;" size = {moderateScaleFont(24)} color="#650000"/>
           </View>

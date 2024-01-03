@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity, Text } from 'react-native';
 import MediumButton from '../Components_v2/MediumButton';
 import CustomButton from '../Components_v2/CustomButton';
 import Card from '../Components_v2/Card';
 import * as firebase from '../firebase';
-import {scale, verticalScale} from '../scaling';
+import {scale, verticalScale, moderateScaleFont} from '../scaling';
 
 function ParentAssignment({ navigation }) {
   const [assignments, setAssignments] = useState([]);
@@ -19,6 +19,7 @@ function ParentAssignment({ navigation }) {
       unsubscribe();
     };
   }, []);
+  let empty = assignments.length === 0;
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/16_parent_dashboard.png")}>
     <View style={styles.bigButtonContainer}>
@@ -31,14 +32,24 @@ function ParentAssignment({ navigation }) {
     <View style={styles.mediumButtonContainer}>
       <CustomButton onPress={() => navigation.navigate("CreateAssignment")} width={scale(54)} height = {verticalScale(54)} imageUrl={require("../assets/buttons/add.png")} />
     </View>
-  
+    {empty ? ( 
+          <View style= {{alignItems: "center", bottom: verticalScale(-400)}}>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
+            There are no Assignments 
+          </Text>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
+          Add Using the + Button
+        </Text>
+        </View>
+         ) : (
     <FlatList 
       style={styles.flatList}
       data={assignments}
       renderItem={({ item }) => (
-        <TouchableOpacity style={styles.cardContainer} onPress={() => {
-          // Handle navigation and passing data to detail screen
-        }}>
+        <TouchableOpacity style={styles.cardContainer} 
+          onPress={() => navigation.navigate("EditAssignment", {
+            assignmentData: item,
+          })}>
           <Card 
             image={item.image} 
             title={item.title} 
@@ -52,7 +63,7 @@ function ParentAssignment({ navigation }) {
         </TouchableOpacity>
       )}
       keyExtractor={item => item.id}
-    />
+    />)}
   </ImageBackground>
   
   );

@@ -15,7 +15,7 @@ function Requests({ navigation, name, minutes, kid, onApprove, onDeny }) {
     <View style={styles.card}>
          <View style = {{ flexDirection: "row"}}>
            
-            <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(25), color: "#00000", bottom: verticalScale(20), left: scale(15)}}>{text}</Text>
+            <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(25), color: "#000000", bottom: verticalScale(20), left: scale(15)}}>{text}</Text>
 
         </View>
         <View style = {{ flexDirection: "row", position: "absolute", top: verticalScale(95), left: scale(110)}}>

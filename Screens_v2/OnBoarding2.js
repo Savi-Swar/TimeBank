@@ -14,13 +14,13 @@ function OnBoarding2({ navigation }) {
         <Image style={styles.skip} source={require("../assets/skip.png")} />
       </TouchableOpacity>      
       {/* <Image style={styles.image} source={require("../assets/Text/BubbleText2.png")} /> */}
-      <View style = {{right: scale(40), bottom: verticalScale(280)}}>
-          <BubbleText text = "Build Habits" size = {moderateScaleFont(40)}/>
+      <View style = {{right: scale(5), bottom: verticalScale(280)}}>
+          <BubbleText text = "Set Up Routines & Tasks" size = {moderateScaleFont(40)}/>
           <View style={{top: verticalScale(30)}}>
-            <BubbleText text = "Help Children be on Time in a" size = {moderateScaleFont(24)} color="#650000"/>
+            <BubbleText text = "Help Children Build Habits" size = {moderateScaleFont(24)} color="#650000"/>
           </View>
           <View style={{top: verticalScale(35)}}>
-            <BubbleText text = "Healthy and Happy Way!" size = {moderateScaleFont(24)} color="#650000"/>
+            <BubbleText text = "in a Healthy and Happy Way!" size = {moderateScaleFont(24)} color="#650000"/>
           </View>
         </View>
       {/* Place the ImageButton 100px below the BubbleText image */}

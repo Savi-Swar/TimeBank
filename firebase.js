@@ -3,7 +3,7 @@ import "firebase/compat/auth";
 import "firebase/compat/storage";
 import { getDatabase, ref, set, get, onValue, update, off, remove } from "firebase/database";
 import { useState, useEffect } from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Alert } from "react-native";
 import { initializeAuth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getReactNativePersistence } from "firebase/auth/react-native"
@@ -449,6 +449,7 @@ export async function deleteKid(kidName) {
   const snapshot = await get(kidRef);
   if (!snapshot.exists()) {
     console.log('The kid does not exist!');
+    Alert.alert("Error", "The kid does not exist!")
     return { success: false, message: 'Kid not found' };
   }
 
@@ -498,6 +499,13 @@ export async function addKids(kid ,url) {
     console.log('The kid already exists!');
     return;
   }
+  const format = (date) => {
+    return [
+      date.getFullYear(),
+      date.getMonth() + 1, // JavaScript months are 0-indexed
+      date.getDate()
+    ].join('|');
+  };
 
   const routineRef = ref(db, `Users/${userId}/routines`);
   const routineSnapshot = await get(routineRef);

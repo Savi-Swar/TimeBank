@@ -41,10 +41,13 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
         if (location === "assignments") {
           location = "assignment"
         }
+        console.log(location)
         const taskRef = dbRef(database, `Users/${userId}/${location}/${id}`);
       
         // Only proceed with deleting the image if it's not the default image
-        if (image !== defaultImageUrl) {
+        if (image !== defaultImageUrl && image !== "WaffleSundae.jpeg" && image !== "HappyMeal.jpeg"
+        && image !== "Starbucks.webp" && image !== "Monopoly.jpeg" && image !== "table.jpeg"
+        && image !== "Room.jpeg" && image !== "bed.jpeg") {
           const storage = getStorage();
       
           // Create a reference to the file to delete
@@ -91,12 +94,13 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
     let r = Math.min(scale(98), verticalScale(98))
     let top = 10;
     if (location === "assignments") {
-        top = 5;
+        top = 8;
     }
     let top2 = 0;
     if (location === "assignments") {
         top2 = -5;
     }
+    
     return (
         <View style={[styles.card, {height: r}]}>
             <Image source={{uri: url}} style={[styles.image, {height: r, width: r}]} />

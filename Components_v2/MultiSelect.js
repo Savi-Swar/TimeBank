@@ -1,10 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { playSound } from "../audio";
 import { scale, verticalScale } from "../scaling";
-function MultiSelect ({ options, onSelection }) {
+function MultiSelect ({ options, onSelection, selected = [] }) {
   const [selectedItems, setSelectedItems] = useState([]);
 
+  let filteredSelected = [];
+  if (selected.length !== 0) {
+   filteredSelected = selected.filter(item => options.includes(item));
+   useEffect(() => {
+    // Update the selected items state whenever the selected prop changes
+    setSelectedItems(filteredSelected);
+  }, [options]);
+  } 
+  
+ 
   const handleItemPress = (item) => {
     playSound("select"); // Play the click sound
     let newSelectedItems = [...selectedItems];

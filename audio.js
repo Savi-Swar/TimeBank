@@ -36,7 +36,7 @@ async function loadSounds() {
     }
     console.log('Sounds loaded successfully');
   } catch (error) {
-    console.error('Error loading sounds:', error);
+    console.log('Error loading sounds:', error);
   }
 }
 
@@ -61,7 +61,7 @@ async function playSound(soundKey) {
   try {
     await sounds[soundKey].replayAsync();
   } catch (error) {
-    console.error(`Error playing ${soundKey}:`, error);
+    console.log(`Error playing ${soundKey}:`, error);
   }
 }
 

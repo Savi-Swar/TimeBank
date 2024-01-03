@@ -15,8 +15,6 @@ function RoutineStats({ route, navigation }) {
       ...routineStats[key]
     }));
 
-
-
   return (
     <ImageBackground style={styles.container} source={require("../assets/backgrounds/15_morning_routine.png")}>
       <View style={styles.header}>
@@ -24,24 +22,32 @@ function RoutineStats({ route, navigation }) {
           Routine Stats
         </Text>
       </View>
-      <FlatList
-        data={routinesArray}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.listItem}>
-            <RoutineStat 
-              name={item.id} 
-              st={item.st} 
-              et={item.et} 
-              times={item.times} 
-              timesCompleted={item.timesCompleted}
-              averageTime={item.averageTime} 
-              lastCompleted={item.lastCompleted}
-            />
-          </View>
-        )}
-        contentContainerStyle={styles.listContent}
-      />
+
+      {routinesArray.length === 0 ? (
+        <View style={styles.noRoutinesContainer}>
+          <Text style={styles.noRoutinesText}>No routines to display</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={routinesArray}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.listItem}>
+              <RoutineStat 
+                name={item.id} 
+                st={item.st} 
+                et={item.et} 
+                times={item.times} 
+                timesCompleted={item.timesCompleted}
+                averageTime={item.averageTime} 
+                lastCompleted={item.lastCompleted}
+              />
+            </View>
+          )}
+          contentContainerStyle={styles.listContent}
+        />
+      )}
+
       <View style={styles.footer}>
         <BlankButton text={"Back to Menu"} onPress={() => navigation.navigate("ParentMenu")} />
       </View>
@@ -59,22 +65,33 @@ const styles = StyleSheet.create({
   headerText: {
     fontFamily: "BubbleBobble",
     fontSize: moderateScaleFont(45),
-    color: "#00000",
+    color: "#000000",
   },
   listItem: {
-    marginHorizontal: scale(20), // Margin on sides for each item
+    marginHorizontal: scale(20),
     marginVertical: verticalScale(10),
     paddingHorizontal: scale(10),
     paddingVertical: verticalScale(10),
     alignItems: 'center',
   },
   listContent: {
-    paddingHorizontal: scale(20), // Padding on sides for the entire list
-    paddingBottom: verticalScale(80), // Extra padding for the bottom
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(80),
   },
   footer: {
     paddingVertical: verticalScale(20),
     paddingHorizontal: scale(30),
+  },
+  noRoutinesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noRoutinesText: {
+    fontFamily: "BubbleBobble",
+    fontSize: moderateScaleFont(30),
+    color: "#000000",
+    textAlign: 'center',
   },
 });
 

@@ -13,18 +13,19 @@ function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
+    setEmail("");
+    setPassword("");
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setLoading(false);
       navigation.navigate("ParentHome"); // Adjust this to the screen you want to navigate to upon success
     } catch (error) {
-      console.error(error);
-      playSound("alert")
+      playSound("alert");
       Alert.alert("Login Failed", "Invalid login credentials", [{ text: "OK" }]);
       setLoading(false);
     }
-  };
+};
 
   if (loading) {
     return <ActivityIndicator />;

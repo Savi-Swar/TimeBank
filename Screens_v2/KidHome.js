@@ -63,7 +63,7 @@ const closestAssignment = assignments
         </View>
         <BubbleText style={styles.welcomeText} text={"You have " + kidMinutes + " minutes"} size={moderateScaleFont(25)}/>
       </View>
-      <View style = {{bottom: verticalScale(90)}}>
+      <View style = {{bottom: verticalScale(90), alignItems: "center"}}>
           <Image style={styles.logo} source={require("../assets/icons/Logo.png")} />
           <Image style={styles.tagLine} source={require("../assets/icons/Tagline.png")} />
         </View>
@@ -97,6 +97,7 @@ const closestAssignment = assignments
             image={closestStoreItem.image} 
             title={closestStoreItem.title} 
             minutes={closestStoreItem.minutes}
+            isAdult = {false}
           />
         </View>
       ) : (

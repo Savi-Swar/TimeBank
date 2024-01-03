@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Image,
   View,
@@ -18,12 +18,24 @@ import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scali
 export default function ImagePickerExample({
   setImage,
   image,
-  bytes,
   url,
   setUrl,
   source
 }) {
   const [pickedImagePath, setPickedImagePath] = useState("");
+
+  useEffect(() => {
+    const fetchImageUrl = async () => {
+      if (url) {
+        const storage = getStorage();
+        const reference = ref(storage, url);
+        const imageURL = await getDownloadURL(reference);
+        setPickedImagePath(imageURL);
+      }
+    };
+
+    fetchImageUrl();
+  }, [url]);
 
 
   const takePhoto = async () => {
@@ -62,45 +74,45 @@ export default function ImagePickerExample({
 
   
 
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      playSound("alert")
-      Alert.alert("Permissions required", "You need to grant gallery access to use this feature.");
-      return;
-    }
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.5,
-      });
-  
-      if (!result.canceled) {
-        const uri = result.assets[0].uri;
-        const type = result.assets[0].type;
-  
-        const extension = mime.getExtension(type) || 'jpg';
-        let link = makeid(15) + "." + extension;
-    
-        const storage = getStorage();
-        const refer = ref(storage, link);
-        const img = await fetch(uri);
-        const bytes = await img.blob();
-        await uploadBytes(refer, bytes);
+const pickImage = async () => {
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== 'granted') {
+    playSound("alert")
+    Alert.alert("Permissions required", "You need to grant gallery access to use this feature.");
+    return;
+  }
+  try {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.2,
+    });
 
-        const uploadedFileURL = await getDownloadURL(refer);
-        console.log(uploadedFileURL)
-        setPickedImagePath(uploadedFileURL);
-        setUrl(link)
-        playSound("pop")
-      }
-    } catch (error) {
-      console.error("Error picking and uploading image: ", error);
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      const type = result.assets[0].type;
+
+      const extension = mime.getExtension(type) || 'jpg';
+      setPickedImagePath(uri);
+
+      let link = makeid(15) + "." + extension;
+  
+      const storage = getStorage();
+      const refer = ref(storage, link);
+      const img = await fetch(uri);
+      const bytes = await img.blob();
+      await uploadBytes(refer, bytes);
+
+      const uploadedFileURL = await getDownloadURL(refer);
+      console.log(uploadedFileURL)
+      setPickedImagePath(uploadedFileURL);
+      setUrl(link)
     }
+  } catch (error) {
+    console.error("Error picking and uploading image: ", error);
+  }
 };
-
 
   
   
@@ -108,7 +120,7 @@ export default function ImagePickerExample({
   const handlePress = () => {
     playSound('alert'); // Play the click sound
     Alert.alert("Delete", "Are you sure you want to delete this image?", [
-      { text: "Yes", onPress: () => {setPickedImagePath(""), playSound("pop")} },
+      { text: "Yes", onPress: () => {setPickedImagePath(""), setUrl(""), playSound("pop")} },
       { text: "No", onPress: () => playSound("minimise")},
     ]);
   };

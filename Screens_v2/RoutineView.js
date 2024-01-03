@@ -27,6 +27,9 @@ function RoutineView({ navigation, route }) {
   let timeText = route.params.startTime + " - " + route.params.endTime;
   let active = route.params.isActive;
   let margin = active ? 10: 40;
+
+  let empty = routines.length == 0;
+  let text = isAdult ? "No Steps, Add Some Below!" : "No Steps, Ask your Parent to Add Some!";
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/15_morning_routine.png")}>
 
@@ -59,6 +62,9 @@ function RoutineView({ navigation, route }) {
       </View>
 
       <View style={styles.listContainer}>
+        {empty ? (
+          <BubbleText size={moderateScaleFont(24)} text={text} />
+        ) : (
         <FlatList 
           data={routines}
           renderItem={({ item }) => (
@@ -72,6 +78,7 @@ function RoutineView({ navigation, route }) {
           )}
           keyExtractor={item => item.id}
         />
+        )}
       </View>
 
       <View style={styles.footer}>
@@ -128,7 +135,7 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: verticalScale(40),
+    top: verticalScale(70),
     left: scale(20),
   },
   progressBarContainer: {

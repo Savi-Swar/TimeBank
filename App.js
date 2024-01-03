@@ -32,8 +32,14 @@ import StatsScreen from "./Screens_v2/StatsScreen";
 import CreateRoutineStep from "./Screens_v2/CreateRoutineStep";
 import FinishRoutine from "./Screens_v2/FinishRoutine";
 import RoutineStats from "./Screens_v2/RoutineStats";
+import EditItem from "./Screens_v2/EditItem";
+import EditAssignment from "./Screens_v2/EditAssignment";
+import EditKid from "./Screens_v2/EditKid";
 import { loadSounds } from './audio'; 
 import { playSound } from './audio'; 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import EditRoutine from "./Screens_v2/EditRoutine";
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -72,144 +78,51 @@ export default function App() {
     );
   }
     return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }} >
-          {/* {!isSignedIn ? ( */}
-          {/* <> */}
-          <Stack.Screen name="AuthLoading" component={AuthLoadingScreen} />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }} >
+            {/* {!isSignedIn ? ( */}
+            {/* <> */}
+            <Stack.Screen name="AuthLoading" component={AuthLoadingScreen} />
 
-         <Stack.Screen name="OnBoarding1" component={OnBoarding1} />
-          <Stack.Screen name = "RoutineStats" component = {RoutineStats}/>
-          <Stack.Screen name="OnBoarding2" component={OnBoarding2} />
-          <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
-          <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="ParentMenu" component={ParentMenu} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-         <Stack.Screen name="ParentRoutine" component={ParentRoutine} />
-         <Stack.Screen name="Terms" component={Terms} />
-         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
-
-        <Stack.Screen name="StoreDetails" component={StoreDetails} />
-        <Stack.Screen name="Create" component={CreateItem} />
-        <Stack.Screen name="StatsScreen" component={StatsScreen} />
-        <Stack.Screen name="RoutineSteps" component={RoutineView} />
-        <Stack.Screen name="FinishRoutine" component={FinishRoutine} />
-
-        <Stack.Screen name="CreateRout" component={CreateRoutine2} />
-        <Stack.Screen name="CreateRoutineStep" component={CreateRoutineStep} />
-
-        <Stack.Screen name="ParentHome" component={ParentHome} />
-        <Stack.Screen name="ParentStore" component={ParentStore} />
-        <Stack.Screen name="ParentTask" component={ParentTask} />
-        <Stack.Screen name="ParentAssignment" component={ParentAssignment} />
-        <Stack.Screen name="CreateAssignment" component={CreateAssignment} />
-        <Stack.Screen name="KidsNav" component={kidsNav} />
-        <Stack.Screen name="TaskDetails" component={TaskDetails} />
-        <Stack.Screen name="Activities" component={Activities} />
-
-        {/* </>
-       ) : emailVerified ? (
-
-        <>
-          <Stack.Screen name="ParentMenu" component={ParentMenu} />
-          <Stack.Screen name="OnBoarding1" component={OnBoarding1} />
-          <Stack.Screen name="OnBoarding2" component={OnBoarding2} />
-          <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
-          <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="ParentRoutine" component={ParentRoutine} />
-          <Stack.Screen name="Terms" component={Terms} />
-          <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
-
-          <Stack.Screen name="StoreDetails" component={StoreDetails} />
-          <Stack.Screen name="Create" component={CreateItem} />
-
-          <Stack.Screen name="CreateRout" component={CreateRoutine2} />
-          <Stack.Screen name="ParentHome" component={ParentHome} />
-          {/* ... other main app screens ... */}
-        {/* </>
-
-        ) : (
-          // If signed in but email is NOT verified, redirect to a verification screen
-          <>
-            <Stack.Screen name="Register" component={RegisterScreen} />
-
-            <Stack.Screen name="ParentMenu" component={ParentMenu} />
             <Stack.Screen name="OnBoarding1" component={OnBoarding1} />
+            <Stack.Screen name = "RoutineStats" component = {RoutineStats}/>
             <Stack.Screen name="OnBoarding2" component={OnBoarding2} />
             <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
             <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
             <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="ParentMenu" component={ParentMenu} />
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="ParentRoutine" component={ParentRoutine} />
             <Stack.Screen name="Terms" component={Terms} />
             <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
 
             <Stack.Screen name="StoreDetails" component={StoreDetails} />
             <Stack.Screen name="Create" component={CreateItem} />
+            <Stack.Screen name="StatsScreen" component={StatsScreen} />
+            <Stack.Screen name="RoutineSteps" component={RoutineView} />
+            <Stack.Screen name="FinishRoutine" component={FinishRoutine} />
 
             <Stack.Screen name="CreateRout" component={CreateRoutine2} />
+            <Stack.Screen name="CreateRoutineStep" component={CreateRoutineStep} />
+
             <Stack.Screen name="ParentHome" component={ParentHome} />
-          </>
-        )} */} 
-          {/* <Stack.Screen name="TabsNav" component={TabsNav} />
-
-          <Stack.Screen name="OnBoarding1" component={OnBoarding1} />
-          <Stack.Screen name="Create" component={CreateItem} />
-        <Stack.Screen name="Activities" component={Activities} />
-          <Stack.Screen name="CreateRout" component={CreateRoutine} />
-
-          <Stack.Screen name="OnBoarding2" component={OnBoarding2} />
-          <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
-          <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="TaskDetails" component={TaskDetails} />
-          <Stack.Screen name="RoutineView" component={RoutineView} />
-          <Stack.Screen name="ParentStore" component={ParentStore} />
-          <Stack.Screen name="ParentTask" component={ParentTask} />
-          <Stack.Screen name="ParentRoutine" component={ParentRoutine} />
-
-          <Stack.Screen name="AuthLoadingScreen" component={AuthLoadingScreen} />
-          <Stack.Screen name="AssignmentScreen" component={AssignmentScreen} />
-          <Stack.Screen name="SignInScreen" component={SignInScreen} />
-          <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-          <Stack.Screen name="LinkAccountScreen" component={LinkAccountScreen} />
-          <Stack.Screen name="EnterScreen" component={EnterScreen} />
-          <Stack.Screen name="EditScreen" component={EditTask} />
-          <Stack.Screen name="StoreDetails" component={StoreDetails} />
-
-          <Stack.Screen name="CreateAssignment" component={CreateAssignment} />
-          <Stack.Screen name="KidsScreen" component={KidsScreen} />
-          <Stack.Screen name="HomeFile" component={Tabs} />
-          <Stack.Screen name="ActivityScreen" component={ActivityScreen}/>
-          <Stack.Screen name="SplashScreen" component={SplashScreen} />
-          <Stack.Screen name="CompleteTaskScreen" component={CompleteTaskScreen} />
-          <Stack.Screen name="RoutineViewScreen" component={RoutineViewScreen} />
-
-          <Stack.Screen name="CreateTask" component={CreateTask} />
-          <Stack.Screen name="Stats" component={KidsStats} />
-          <Stack.Screen name="Routines" component={RoutinesScreen} />
-          <Stack.Screen name="FinishedRoutineScreen" component={FinishRoutineScreen}/>
-          <Stack.Screen name="TermsAndConditionsScreen" component={TermsAndConditionsScreen}/>
-
-          <Stack.Screen name="Home" component={AccountScreen}/>
-          <Stack.Screen name="Store" component={StoreScreen} />
-          <Stack.Screen name="Tasks" component={TasksScreen} />
-          <Stack.Screen name="Assignments" component={KidAssignScreen} />
-          <Stack.Screen name="CompleteAssignment" component={CompleteAssignment} />
-
-          <Stack.Screen name="ResetPassword" component={ResetPassword} />
-          <Stack.Screen name="CreateRoutine" component={CreateRoutine} />
-          <Stack.Screen name="CreateRoutineSet" component={CreateRoutineSet} />
-          <Stack.Screen name="BuyScreen" component={BuyScreen} /> */}
-        </Stack.Navigator>
-      </NavigationContainer>
+            <Stack.Screen name="ParentStore" component={ParentStore} />
+            <Stack.Screen name="ParentTask" component={ParentTask} />
+            <Stack.Screen name="ParentAssignment" component={ParentAssignment} />
+            <Stack.Screen name="CreateAssignment" component={CreateAssignment} />
+            <Stack.Screen name="KidsNav" component={kidsNav} />
+            <Stack.Screen name="TaskDetails" component={TaskDetails} />
+            <Stack.Screen name="Activities" component={Activities} />
+            <Stack.Screen name = "EditItem" component = {EditItem}/>
+            <Stack.Screen name = "EditAssignment" component = {EditAssignment}/>
+            <Stack.Screen name = "EditRoutine" component = {EditRoutine}/>
+            <Stack.Screen name = "EditKidScreen" component = {EditKid}/>
+          
+          </Stack.Navigator>
+        </NavigationContainer>
+      </GestureHandlerRootView>
     );
   }
 

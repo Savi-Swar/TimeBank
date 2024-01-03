@@ -42,6 +42,7 @@ function CreateRoutine({ navigation }) {
       "November",
       "December",
     ];
+    let defaultImage = "GuZ6IdnQPdkKaRn.jpg";
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [showStartTimePicker, setShowStartTimePicker] = useState(false);
@@ -75,7 +76,39 @@ function CreateRoutine({ navigation }) {
 
       if (!routineName) {
         playSound("alert")
-        Alert.alert('Validation Error', 'Please enter a routine name');
+        Alert.alert('Error', 'Please enter a routine name');
+        return;
+      }
+      if (!url) {
+        playSound("deny");
+        Alert.alert(
+          'No Image Selected',
+          'Do you want to use the default image?',
+          [
+            { text: 'Yes', onPress: () => setUrl(defaultImage) },
+            { text: 'No', style: 'cancel' }
+          ]
+        );
+        return;
+      }
+      if (daysOfWeek.length == 0) {
+        playSound("alert")
+        Alert.alert('Error', 'Please select at least one day of the week');
+        return;
+      }
+      if (monthsOfYear.length == 0) {
+        playSound("alert")
+        Alert.alert('Error', 'Please select at least one month of the year');
+        return;
+      }
+      if (startTime >= endTime) {
+        playSound("alert")
+        Alert.alert('Error', 'Start time must be before end time');
+        return;
+      }
+      if (selectedKids.length == 0) {
+        playSound("alert")
+        Alert.alert('Error', 'Please select at least one kid. If you have none, then go back and create one in the Parents Home.');
         return;
       }
       const routineData = {
@@ -114,7 +147,13 @@ function CreateRoutine({ navigation }) {
       let minutes = time.getMinutes().toString().padStart(2, '0');
       return `${hours}:${minutes}`;
     };
-    let top = showEndTimePicker || showStartTimePicker ? verticalScale(-230) : verticalScale(-200);
+    let top = showEndTimePicker || showStartTimePicker ? verticalScale(-235) : verticalScale(-200);
+    let t2 = top - verticalScale(5);
+    if (Platform.OS === 'android') {
+      top = verticalScale(-250)
+      t2 = top+verticalScale(5);
+    }
+
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/21_add-routine.png")}>
        <ScrollView >
@@ -171,20 +210,20 @@ function CreateRoutine({ navigation }) {
               onChange={onChangeEndTime}
             />
           )}
-            <View style={{left: scale(38)}}>
+            <View style={{left: scale(48)}}>
               {Platform.OS === 'android' && <Text style={styles.timeText}>End: {formatTime(endTime)}</Text>}
             </View>
           </View>
           </View>
         </View>
         
-        <View style = {{top:verticalScale(top-verticalScale(5)), right: scale(-20)}}>
+        <View style = {{top: t2, right: scale(-20)}}>
           <BubbleText size = {moderateScaleFont(24)} text = {"Enter Name"}/>
         </View>
-        <View style = {{top: verticalScale(top), zIndex: 0}}> 
+        <View style = {{top: top, zIndex: 0}}> 
           <AppTextInput 
 
-            placeholder="Name" 
+            placeholder="Name (e.g. Morning Routine)" 
             iconSource={require("../assets/icons/email.png")}
             onChangeText={(text) => setRoutineName(text)}
             value={routineName}
@@ -194,6 +233,8 @@ function CreateRoutine({ navigation }) {
         <View style = {{top: verticalScale(100), left: scale(10)}}>
           <BubbleText size = {24} text = {"Select Days of the Week"}/>
           <MultiSelectDropdown
+              selected={[]}
+
             options={daysOptions}
             onSelection={setDaysOfWeek}
             />
@@ -204,6 +245,7 @@ function CreateRoutine({ navigation }) {
           </View>
             
             <MultiSelectDropdown
+            selected={[]}
             options={monthsOptions}
             onSelection={setMonthsOfYear}
             />
@@ -213,6 +255,7 @@ function CreateRoutine({ navigation }) {
                 <BubbleText size={moderateScaleFont(24)} text={"Select Kids for Routine"} />
             </View>
                 <MultiSelectDropdown
+                    selected={[]}
                     options={kidsName}
                     onSelection={setSelectedKids}
                 />

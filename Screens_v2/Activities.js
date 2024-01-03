@@ -89,17 +89,17 @@ function Activities({ navigation, route }) {
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/18_Max'sActivities.png")}>
       <View style = {{alignItems:"center", position: "absolute", top: verticalScale(40)}}>
 
-        <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(35), color: "#00000"}}>
+        <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(35), color: "#000000"}}>
           {route.params.name}'s Activities
         </Text>
       </View>
       <View style={{top: verticalScale(100), marginBottom: verticalScale(200)}}>
         {empty ? ( 
           <View style= {{alignItems: "center", bottom: verticalScale(140)}}>
-          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#00000"}}>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
             There are no Requests from 
           </Text>
-          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#00000"}}>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
           {route.params.name}
         </Text>
         </View>

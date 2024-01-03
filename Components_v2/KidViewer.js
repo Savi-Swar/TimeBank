@@ -4,9 +4,9 @@ import { getDownloadURL, ref, getStorage, deleteObject } from "firebase/storage"
 import BubbleText from "./BubbleText";
 import { playSound } from "../audio";
 import { scale, verticalScale, moderateScaleFont } from "../scaling";
+import { AntDesign } from '@expo/vector-icons'; 
 
-function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned, minutes, weeklyArray, routineStats }) {
-   
+function KidsViewer({ navigation, image, name, profilePic, minutes }) {
     const [url, setUrl] = useState();
     // if theres no url, set url to default image
     const defaultImageUrl = "GuZ6IdnQPdkKaRn.jpg"; // if the user doesnt set a photo
@@ -25,7 +25,7 @@ function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned
             });
         };
         fetchImageUrl();
-    }, [image]);
+    }, [profilePic]);
 
     
 
@@ -37,7 +37,16 @@ function KidsViewer({ navigation, image, name, profilePic, weekly, spent, earned
     return (
 
         <View style={[styles.card, {height:r}]}>
+            
             <View style = {styles.miniCard}>
+                <TouchableOpacity style={{position: "absolute", top: verticalScale(7), right: scale(10)}} onPress={() => {navigation.navigate("EditKidScreen", {
+                    name: name,
+                    profilePic: profilePic,
+                    minutes: minutes,
+
+                })}}>
+                    <AntDesign name="edit" size={scale(24)} color="#A74A29" />
+                </TouchableOpacity>
                 <View style={{ top: verticalScale(30), left: scale(10) }}>
                     <Text style={styles.name}>{name}</Text>
                 

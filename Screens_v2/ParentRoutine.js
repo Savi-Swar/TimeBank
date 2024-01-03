@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity, Text } from 'react-native';
 import MediumButton from '../Components_v2/MediumButton';
 import CustomButton from '../Components_v2/CustomButton';
 import RoutineHeader from '../Components_v2/RoutineHeader';
@@ -9,7 +9,7 @@ import {scale, verticalScale, moderateScale, moderateScaleFont} from '../scaling
 function ParentRoutine({ navigation }) {
   const [routines, setRoutines] = useState([]);
   firebase.Routines(routines, setRoutines);
-
+  let empty = routines.length === 0;
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/20_parent's-routine.png")}>
       
@@ -26,6 +26,16 @@ function ParentRoutine({ navigation }) {
       </View>
 
       <View style={styles.listContainer}>
+      {empty ? ( 
+          <View style= {{alignItems: "center", bottom: verticalScale(-100)}}>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
+            There are no Routines 
+          </Text>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
+          Add Using the + Button
+        </Text>
+        </View>
+         ) : (
         <FlatList 
           data={routines}
           renderItem={({ item }) => (
@@ -40,12 +50,14 @@ function ParentRoutine({ navigation }) {
               endTime={item.endTime}
               navigation = {navigation}
               id = {item.id}
+              kids = {item.kids}
               isAdult={true}
+              steps = {item.steps}
             />
             </View>
           )}
           keyExtractor={item => item.id}
-        />
+        />)}
       </View>
 
     </ImageBackground>

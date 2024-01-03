@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ImageBackground, FlatList, TouchableOpacity, Alert, Text } from 'react-native';
 import MediumButton from '../Components_v2/MediumButton';
 import CustomButton from '../Components_v2/CustomButton';
 import Card from '../Components_v2/Card';
@@ -10,6 +10,7 @@ function ParentTask({ navigation }) {
   const [store, setStore] = useState([]);
   firebase.Tasks(store, setStore);
   // console.log(store);
+  let empty = store.length === 0;
   return (
     <ImageBackground style={styles.backgroundImage} source={require("../assets/backgrounds/16_parent_dashboard.png")}>
       <View style={styles.topContainer}>
@@ -25,22 +26,36 @@ function ParentTask({ navigation }) {
           })} imageUrl={require("../assets/buttons/add.png")} />
         </View>
       </View>
-      
+      {empty ? ( 
+          <View style= {{alignItems: "center", bottom: verticalScale(-100)}}>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
+            There are no Tasks 
+          </Text>
+          <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
+          Add Using the + Button
+        </Text>
+        </View>
+         ) : (
       <FlatList 
         style={styles.flatList}  // Use style instead of contentContainerStyle here
         data={store}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.cardContainer}>
+          <TouchableOpacity style={styles.cardContainer} 
+          onPress={() => { navigation.navigate("EditItem", {
+            itemData: item,
+            location: "tasks"
+          })}}>
             <Card 
               image={item.image} 
               title={item.title} 
               minutes={item.minutes}
               id = {item.id}
+              location = "tasks"
             />
           </TouchableOpacity>
         )}
         keyExtractor={item => item.id}
-      />
+      />)}
     </ImageBackground>
   );
 }

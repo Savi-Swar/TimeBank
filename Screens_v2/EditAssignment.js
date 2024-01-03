@@ -3,7 +3,7 @@ import { View, StyleSheet, ImageBackground, Image, Alert } from 'react-native';
 import AppTextInput from '../Components_v2/AppTextInput';
 import BigButton from '../Components_v2/BigButton';
 import BubbleText from '../Components_v2/BubbleText';
-
+import { deleteObject, ref as StoreRef, getStorage } from "firebase/storage";
 import BackButton from '../Components_v2/BackButton';
 import ImagePickerExample from '../Components_v2/ImagePicker';
 import * as firebase from "../firebase"
@@ -14,15 +14,21 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScaleFont } from '../scaling';
 
-function CreateAssignment({ navigation }) {
+function EditAssignment({ navigation, route }) {
+  // Assuming the data is passed via route.params
+  const { assignmentData } = route.params;
+  const [initialImageUrl, setInitialImageUrl] = useState(assignmentData.image);
 
-  const [nameInputValue, setNameInputValue] = useState("");
-  const [minutesInputValue, setMinutesInputValue] = useState("");
-  const [imageLink, setImageLink] = useState(null);
+  // Initialize your state with assignmentData
+  const [nameInputValue, setNameInputValue] = useState(assignmentData.title);
+  const [minutesInputValue, setMinutesInputValue] = useState(assignmentData.minutes.toString());
+  const [selectedKids, setSelectedKids] = useState(assignmentData.kids);
+  const [date, setDate] = useState(new Date(assignmentData.date));
+  const [url, setUrl] = useState(assignmentData.image);
+  const [imageLink, setImageLink] = useState(assignmentData.image);
+
+  const id = assignmentData.id; 
   const defaultImageUrl = "GuZ6IdnQPdkKaRn.jpg";
-  const [url, setUrl] = useState("");
-  let bytes;
-  let id = firebase.makeid(20);
 
   function addField() {
     if (
@@ -48,7 +54,7 @@ function CreateAssignment({ navigation }) {
       if (!url) {
         playSound("deny");
         Alert.alert(
-          'No Image Selected',
+          'Image Changed',
           'Do you want to use the default image?',
           [
             { text: 'Yes', onPress: () => setUrl(defaultImageUrl) },
@@ -60,6 +66,16 @@ function CreateAssignment({ navigation }) {
       const formattedDate = date.toISOString(); // Convert date to ISO string format
 
       if (url) {
+        if (url !== initialImageUrl && initialImageUrl !== defaultImageUrl) {
+          // Delete the previous image from storage
+          const storage = getStorage();
+          const prevImageRef = StoreRef(storage, initialImageUrl);
+          deleteObject(prevImageRef).then(() => {
+            console.log("Previous image deleted successfully.");
+          }).catch((error) => {
+            console.error("Error deleting previous image: ", error);
+          });
+        }
         const data = {
           image: url,
           minutes: minutesInputValue,
@@ -93,7 +109,6 @@ function CreateAssignment({ navigation }) {
     }
   }
   const [kids, setKids] = useState([]);
-  const [selectedKids, setSelectedKids] = useState([]);
 
     firebase.Kids(kids, setKids);
     let kidsName = []
@@ -101,8 +116,7 @@ function CreateAssignment({ navigation }) {
         kidsName.push(kids[i].name);
     }
 
-  const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
 
   // Function to format and set date
 
@@ -116,10 +130,9 @@ function CreateAssignment({ navigation }) {
 
   // Function to show date picker
   const showDatePicker = () => {
-    setShow(true);
+    setShow(!show);
   };
   return (
-    console.log(url),
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
         
         <View style = {{top: verticalScale(10), alignItems: "center"}}>
@@ -150,18 +163,18 @@ function CreateAssignment({ navigation }) {
         </View>
         
         <View style = {{bottom: verticalScale(-5)}}>
-          <AppTextInput placeholder = "Name (e.g. Pack Suitcase)" value={nameInputValue} onChangeText={(text) => setNameInputValue(text)}
+          <AppTextInput placeholder = "Name" value={nameInputValue} onChangeText={(text) => setNameInputValue(text)}
               iconSource = {require("../assets/icons/email.png")}/>
         </View>
         <View style = {{bottom: verticalScale(-5)}}>
-          <AppTextInput placeholder = "Minutes (e.g. 10)" value={minutesInputValue} onChangeText={(text) => setMinutesInputValue(text)}
-          iconSource = {require("../assets/icons/lock.png")}/>
+          <AppTextInput placeholder = "Minutes" value={minutesInputValue} onChangeText={(text) => setMinutesInputValue(text)}
+          iconSource = {require("../assets/icons/Timer2.png")}/>
         </View>
         <View style = {{bottom: verticalScale(-10), alignItems: "center"}}>
             <BubbleText size = {moderateScaleFont(24)} text = {"Select Kids for Assignment"}/>
             <MultiSelectDropdown
-                selected={[]}
                 options={kidsName}
+                selected = {selectedKids}
                 onSelection={setSelectedKids}
                 />
         </View>
@@ -220,4 +233,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateAssignment;
+export default EditAssignment;

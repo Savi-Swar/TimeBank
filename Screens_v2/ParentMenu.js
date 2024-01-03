@@ -7,10 +7,14 @@ import BlankButton from "../Components_v2/BlankButton";
 import BubbleText from "../Components_v2/BubbleText";
 import { playSound } from "../audio";
 import { scale, verticalScale, moderateScaleFont } from "../scaling";
-function ParentMenu({ navigation }) {
+function ParentMenu({ navigation, route }) {
   const [kids, setKids] = useState([]);
+
   const [modalVisible, setModalVisible] = useState(false);
 
+  // Effect for setting modal visibility based on route params
+  
+  
   Kids(kids, setKids); 
   const { titles, loading } = useRoutineTitles();
  
@@ -66,26 +70,26 @@ function ParentMenu({ navigation }) {
   
   return (
       <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
-        <TouchableOpacity onPress={handleEditContents} style={{top: verticalScale(50), left: scale(1), marginBottom: verticalScale(50), alignItems: "center"}}>
-          <BubbleText text={"Edit Contents"} size={moderateScaleFont(30)} underline= {true} color="#21BF73"/>
+        <TouchableOpacity onPress={handleEditContents} style={{top: verticalScale(90), left: scale(1), marginBottom: verticalScale(50), alignItems: "center"}}>
+          <BlankButton text="Set Up App" onPress={handleEditContents} />  
         </TouchableOpacity>
         <Modal animationType="slide" visible={modalVisible}>
           <View style={{width:'80%', alignItems: "center", justifyContent:"center", flex:1, left: scale(40), marginVertical: verticalScale(100)}}>
-          
+            <BlankButton
+              text="Set Up Store"
+              onPress={() => handleButtonPress("ParentStore")}
+            />
           <BlankButton
-            text="Routines"
+            text="Set Up Routines"
             onPress={() => handleButtonPress("ParentRoutine")}
           />
+          
           <BlankButton
-            text="Store"
-            onPress={() => handleButtonPress("ParentStore")}
-          />
-          <BlankButton
-            text="Task"
+            text="Set Up Tasks"
             onPress={() => handleButtonPress("ParentTask")}
           />
           <BlankButton
-            text="Assignments"
+            text="Set Up Assignments"
             onPress={() => handleButtonPress("ParentAssignment")}
             />
           <BlankButton text="Close" onPress={() => setModalVisible(false)} />
@@ -96,12 +100,13 @@ function ParentMenu({ navigation }) {
           data={organizedKids}
           keyExtractor={(kids) => kids.id}
           renderItem={({ item }) => (
-            <View style={{marginVertical: verticalScale(10), left: scale(10)}}>
+            <View style={{marginVertical: verticalScale(60), left: scale(10)}}>
               <KidsViewer 
               name={item.name} 
-              // minutes={item.minutes}
+              minutes={item.minutes}
               profilePic={item.profilePic}
               navigation={navigation}
+              id={item.id}
               // weekly={item.WeeklyMinutesEarned} 
               // spent = {item.MinutesSpent}
               // earned = {item.MinutesAccumulated}

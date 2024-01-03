@@ -7,15 +7,22 @@ import Ticker from "./Ticker";
 import { playSound } from "../audio";
 import { scale, verticalScale, moderateScaleFont } from "../scaling";
 import CustomSwitch from './CustomSwitch'; // import the custom switch component
+import { deleteKidsRoutine } from "../firebase";
+import { getDatabase, ref as dbRef, remove } from 'firebase/database';
+import * as firebase from "../firebase";
+import { AntDesign } from '@expo/vector-icons'; 
 
 
-function RoutineHeader({ isAdult, image, title, days, startTime,months, endTime, id, navigation}) {
+
+function RoutineHeader({ isAdult, image, title, days, startTime,months, endTime, id, navigation, kids, steps}) {
     // const [loaded] = useFonts({
     //     BubbleBobble: require("../assets/fonts/BubbleBobble.ttf"),
     // });
     // if (!loaded) {
     //     return null;
     // }
+
+    let defaultImageUrl = "GuZ6IdnQPdkKaRn.jpg"
     const [url, setUrl] = useState();
     useEffect(() => {
         const fetchImageUrl = async () => {
@@ -31,19 +38,32 @@ function RoutineHeader({ isAdult, image, title, days, startTime,months, endTime,
     const handlePress = () => {
         const storage = getStorage();
         const desertRef = ref(storage, image);
-        
+        if (image != defaultImageUrl) {
         // Delete the file
         deleteObject(desertRef).then(() => {
             console.log("DELETED IMAGE")
         }).catch(error => {
             console.log(error);
         });
-        
-    };
+    }
+        // Delete routine data under each kid's profile
+    deleteKidsRoutine(title);
 
+    // Delete the routine itself
+    const db = getDatabase();
+    const routineRef = dbRef(db, `Users/${firebase.auth.currentUser.uid}/routines/${id}`);
+    remove(routineRef).then(() => {
+        console.log(`Routine ${id} deleted successfully`);
+    }).catch(error => {
+        console.error(`Error deleting routine: `, error);
+    });
+
+    // Navigate back or update the UI as needed
+    };
     // if (title.length > 22) {
     //     title = title.substring(0,22) + "..."
     // }
+
     const week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const theMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let dayOfWeek = week[new Date().getDay()];
@@ -80,6 +100,8 @@ function RoutineHeader({ isAdult, image, title, days, startTime,months, endTime,
       tickerText = "NOT TODAY";
       tickerColor = "#fe669f";
     }
+
+    
     const handleSwitch = (value) => {
         playSound('alert')
         if (value) {
@@ -139,6 +161,27 @@ function RoutineHeader({ isAdult, image, title, days, startTime,months, endTime,
                     <View style={{ left: scale(8)}}>
                             <Ticker text={tickerText} color={tickerColor} />
                         </View>
+                    
+                    {isAdult && (
+                        <TouchableOpacity style={{left: scale(20), top: verticalScale(2)}} onPress={() => {
+                            navigation.navigate("EditRoutine", {
+                                id: id,
+                                title: title,
+                                startTime: startTime,
+                                endTime: endTime,
+                                image: url,
+                                isAdult: isAdult,
+                                isActive: isActiveForToday && activeNow,
+                                days: days,
+                                months: months,
+                                kids: kids,
+                                steps: steps
+
+                            }), playSound('transition')
+                        }}>
+                            <AntDesign name="edit" size={24} color="black" />                        
+                        </TouchableOpacity>
+                    )}
                         
                     </View>
 
@@ -158,7 +201,7 @@ function RoutineHeader({ isAdult, image, title, days, startTime,months, endTime,
                 isAdult: isAdult,
                 isActive: isActiveForToday && activeNow
             }), playSound('transition')}}>
-                        <BubbleText text={"View Details ->"} color={"#21BF73"} size={moderateScaleFont(18)} />
+                        <BubbleText text={"View Steps ->"} color={"#21BF73"} size={moderateScaleFont(18)} />
             </TouchableOpacity>
             {isAdult && (
             <TouchableOpacity style={styles.pos} onPress={handlePress}>

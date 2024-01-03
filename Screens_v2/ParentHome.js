@@ -80,7 +80,6 @@ function ParentHome({ navigation, route }) {
 
     let tasks = [];
     tasksSnapshot.forEach((childSnapshot) => {
-      console.log(userId)
       if (childSnapshot.val().name != 'def') {
         tasks.push({ ...childSnapshot.val(), id: childSnapshot.key });
       }
@@ -98,7 +97,8 @@ function ParentHome({ navigation, route }) {
   };
 
   const handleDeleteKid = async () => {
-    const success = await firebase.deleteKid(deleteKidName);
+    let name = deleteKidName.trim();
+    const success = await firebase.deleteKid(name);
     if (success) {
       playSound('pop');
       alert('Kid deleted successfully.');
@@ -124,8 +124,9 @@ function ParentHome({ navigation, route }) {
   };
 
   const handleAddKid = async () => {
+    let kid = kidName.trim();
     // Assuming firebase.addKids(kidName) returns a Promise after completing the add operation
-    await firebase.addKids(kidName, url); // Add the kid to Firebase
+    await firebase.addKids(kid, url); // Add the kid to Firebase
     setKidName(''); // Clear the kidName from state
     setIsAddKidModalVisible(false); // Close the modal
     playSound("minimise")
@@ -161,7 +162,9 @@ function ParentHome({ navigation, route }) {
       setCodeUsed(true);
     } else if (codeSetup && codeInput === accessCode) {
       playSound("approve")
-      navigation.navigate('ParentMenu');
+      navigation.navigate('ParentMenu', {
+        showModal: false,
+      });
       setIsAccessCodeModalVisible(false);
     } else if (!codeSetup && codeInput === '') {
       setIsAccessCodeModalVisible(false);
@@ -197,7 +200,6 @@ function ParentHome({ navigation, route }) {
   const handleSkipCode = async () => {
     playSound("click")
     setIsAccessCodeModalVisible(false)
-    console.log("hey")
     const userId = firebase.auth.currentUser.uid;
     await set(ref(getDatabase(), `Users/${userId}/codeUsed`), false);
   }
@@ -233,7 +235,6 @@ function ParentHome({ navigation, route }) {
 
     // Add logic if needed to handle sound effects globally
   };
-  // console.log(route.params.userId)
   const TextButton = ({ title, onPress, style }) => (
     <TouchableOpacity onPress={onPress} style={style}>
       <Text style={styles.textButton}>{title}</Text>
@@ -288,7 +289,7 @@ function ParentHome({ navigation, route }) {
 
             <BlankButton text="Reset Code" onPress={() => setResetModalVisible(true)} />
             <View style={{marginBottom: verticalScale(80)}}>
-              <BlankButton text="Log Out" onPress={() => { navigation.navigate("Login"), resetData(), firebase.signoutUser()}} />
+              <BlankButton text="Log Out" onPress={() => { resetData(),navigation.navigate("Login"),  firebase.signoutUser()}} />
             </View>
         </View>
       </View>
@@ -353,6 +354,10 @@ function ParentHome({ navigation, route }) {
                 onChangeText={setKidName}
                 value={kidName}
                 placeholder="Kid Name"
+                autoCorrect = {false}
+                autoCapitalize='none'
+                autoComplete='off'
+                spellCheck={false}
               />
             </View>
             <View style = {{bottom: verticalScale(350)}}>
@@ -425,6 +430,10 @@ function ParentHome({ navigation, route }) {
                     onChangeText={setDeleteKidName}
                     value={deleteKidName}
                     placeholder="Enter Kid's Name to Delete"
+                    autoCorrect = {false}
+                    autoCapitalize='none'
+                    autoComplete='off'
+                    spellCheck={false}
                   />
                   <TextButton title="Delete Kid" onPress={handleDeleteKid} />
                   <TextButton title="Cancel" onPress={() => {setIsDeleteKidModalVisible(false), playSound("minimise")}} />

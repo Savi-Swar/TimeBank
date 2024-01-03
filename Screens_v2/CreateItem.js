@@ -70,6 +70,9 @@ function CreateItem({ navigation, route}) {
         Alert.alert('Error', error.message);
       });
   };
+
+  let text1 = location == "store" ? "Name (e.g. Trip to the Movies)" : "Name (e.g. Set Dinner Table)";
+  let text2 = location == "store" ? "Minutes (e.g. 120)" : "Minutes (e.g. 5)";
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
         
@@ -101,11 +104,11 @@ function CreateItem({ navigation, route}) {
         </View>
         
         <View style = {{bottom: verticalScale(50)}}>
-          <AppTextInput placeholder = "Name" value={nameInputValue} onChangeText={(text) => setNameInputValue(text)}
+          <AppTextInput placeholder = {text1} value={nameInputValue} onChangeText={(text) => setNameInputValue(text)}
               iconSource = {require("../assets/icons/email.png")}/>
         </View>
         <View style = {{bottom: verticalScale(50)}}>
-          <AppTextInput placeholder = "Minutes" value={minutesInputValue} onChangeText={(text) => setMinutesInputValue(text)}
+          <AppTextInput placeholder = {text2} value={minutesInputValue} onChangeText={(text) => setMinutesInputValue(text)}
           iconSource = {require("../assets/icons/lock.png")}/>
         </View>
         <View style = {{ bottom: verticalScale(10)}}>
