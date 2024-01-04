@@ -19,7 +19,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.JiroAI.TimeBank",
-      "supportsTablet": true
+      "supportsTablet": false
     },
     "android": {
       "adaptiveIcon": {
