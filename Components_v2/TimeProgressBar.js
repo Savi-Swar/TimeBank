@@ -54,7 +54,7 @@ function TimeProgressBar({ startTime, endTime }) {
   
   const carLeftInterpolate = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, containerWidth - scale(80)], // 50 is the width of the car image
+    outputRange: [0, containerWidth - scale(130)], // 50 is the width of the car image
   });
 
   return (
