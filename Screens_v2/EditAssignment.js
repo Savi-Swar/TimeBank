@@ -43,7 +43,13 @@ function EditAssignment({ navigation, route }) {
         Alert.alert('Invalid Input', 'Minutes should be an integer');
         return;
       }
-  
+      if (kids.length === 0) {
+        playSound("deny");
+        Alert.alert(
+          'No Kids Selected',
+        );
+        return;
+      }
       // Check if the nameInputValue is a string
       if(typeof nameInputValue !== 'string'){
         Alert.alert('Invalid Input', 'Name should be a string');

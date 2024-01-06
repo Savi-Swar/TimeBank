@@ -43,7 +43,13 @@ function CreateAssignment({ navigation }) {
         Alert.alert('Invalid Input', 'Name should be a string');
         return;
       }
-    
+      if (kids.length === 0) {
+        playSound("deny");
+        Alert.alert(
+          'No Kids Selected',
+        );
+        return;
+      }
       // Check if image url is not null
       if (!url) {
         playSound("deny");
@@ -56,6 +62,7 @@ function CreateAssignment({ navigation }) {
           ]
         );
       }
+      
 
       const formattedDate = date.toISOString(); // Convert date to ISO string format
 
