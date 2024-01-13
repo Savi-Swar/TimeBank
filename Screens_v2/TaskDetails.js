@@ -71,7 +71,6 @@ useEffect(() => {
     // Optionally add more logic if needed
   };
   let assignment = route.params?.assignment || false;
-  let left = assignment ? scale(-20): scale(30);
     return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/12_complete.png")}>
       <View style = {{bottom: verticalScale(80), left: scale(25)}}>
@@ -89,26 +88,22 @@ useEffect(() => {
         <Image style={styles.monkey} source={require("../assets/Monkey2.png")} />
         </View>
         </View>
-        <View style = {{left: left, top: verticalScale(590), position: "absolute"}}>
+        <View style = {{left: scale(30), top: verticalScale(560), position: "absolute"}}>
           <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(47), color: "#FFE57B"}}>{route.params.title}</Text>
         </View>
         <View style = {{alignItems: "center", top: verticalScale(10), right: scale(90)}}>
           
         <View style = {{flexDirection: "row", left: scale(40), top: verticalScale(50)}}>
-          {!assignment && (
           <View style = {{left: scale(25), top: verticalScale(15)}}>
             <CustomButton onPress={() => setMinutes(minutes > 0 ? minutes-1 : minutes)} imageUrl={require("../assets/buttons/Minus.png")} width={scale(40)} height={verticalScale(40)}/>
           </View>
-          )}
           <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(24), color: "#9b8da2", top: verticalScale(8), left: scale(29), paddingHorizontal:scale(3)}}>Time Taken</Text>
           <View style = {{flexDirection: "row", top: verticalScale(30), right: scale(105)}}>
             <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(24), color: "#21bf73", top: verticalScale(8), left: scale(29), paddingHorizontal:scale(3)}}>{minutes} Minutes</Text>
           </View>
-          {!assignment && (
           <View style = {{right: scale(60), top: verticalScale(15)}}>
             <CustomButton onPress={() => setMinutes(minutes- -1)} imageUrl={require("../assets/buttons/add.png")} width={scale(40)} height={verticalScale(40)} />
           </View>   
-          )}     
         </View>
 
         <View style = {{right: scale(3), bottom: verticalScale(-100)}}>

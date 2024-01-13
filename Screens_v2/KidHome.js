@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ImageBackground, Text, FlatList, Image } from 'react-native';
+import { View, StyleSheet, ImageBackground, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import BlankButton from '../Components_v2/BlankButton';
 import Card from '../Components_v2/Card';
 import * as firebase from '../firebase';
 import BubbleText from '../Components_v2/BubbleText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scale, verticalScale, moderateScaleFont } from '../scaling';
+import { playSound } from '../audio';
 
 function KidHome({ navigation }) {
 
@@ -72,6 +73,14 @@ const closestAssignment = assignments
         <BubbleText style={styles.welcomeText} text={"Next Assignment Due"} size={moderateScaleFont(28)}/>
       </View>
       {closestAssignment ? (
+        <TouchableOpacity onPress={() => {navigation.navigate("TaskDetails", {
+          title: closestAssignment.title,
+          minutes: closestAssignment.minutes,
+          imageUri: closestAssignment.image,
+          assignment: true,
+          id: closestAssignment.id,
+          isAdult: false,
+      }), playSound("transition")}}>
         <Card 
           image={closestAssignment.image} 
           title={closestAssignment.title} 
@@ -82,6 +91,7 @@ const closestAssignment = assignments
           kids = {closestAssignment.kids}
           isAdult = {false}
         />
+        </TouchableOpacity>
       ) : (
         <BubbleText style={styles.welcomeText} text={"No Assignments due; Great Job!"} size={20}/>
       )}
@@ -92,14 +102,28 @@ const closestAssignment = assignments
       </View>
 
       {closestStoreItem ? (
-        <View style = {{width: '100%'}}>
+        <TouchableOpacity 
+        onPress={() => {
+          if (minutes >= closestStoreItem.minutes) {
+          playSound("transition")
+          navigation.navigate('StoreDetails', {
+          title: closestStoreItem.title,
+          imageUri: closestStoreItem.image,
+          minutes: closestStoreItem.minutes
+        })
+          } else {
+            playSound("alert")
+            Alert.alert("You don't have enough minutes to buy this item!")
+          }}}
+        style={styles.cardContainer}
+      >
           <Card 
             image={closestStoreItem.image} 
             title={closestStoreItem.title} 
             minutes={closestStoreItem.minutes}
             isAdult = {false}
           />
-        </View>
+        </TouchableOpacity>
       ) : (
         <BubbleText style={styles.welcomeText} text={"No Items in store; Ask a parent to add them!"} size={20}/>
       )}

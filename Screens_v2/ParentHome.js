@@ -15,6 +15,7 @@ import BubbleText from '../Components_v2/BubbleText';
 import { playSound, sounds, toggleSoundEffects } from '../audio';
 import { scale, verticalScale, moderateScale,moderateScaleFont } from '../scaling';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
+import HomeViewer from '../Components_v2/HomeViewer';
 
 function ParentHome({ navigation, route }) {
   const [users, setUsers] = useState([]);
@@ -86,11 +87,16 @@ function ParentHome({ navigation, route }) {
     });
 
     setKids(tasks);
-    let names = [];
+    let usersArray = [];
+        // Adding primary user with a default profile image
+    usersArray.push({ name: name, profilePic: 'logo2.png' });
     for (let i = 0; i < tasks.length; i++) {
-      names.push(tasks[i].name);
+      usersArray.push({ 
+        name: tasks[i].name, 
+        profilePic: tasks[i].profilePic || 'GuZ6IdnQPdkKaRn.jpg' // Use a default image if profilePic is not available
+    });
     }
-    setUsers([name, ...names]);
+    setUsers(usersArray);
   } catch (error) {
     console.error("Error fetching user data:", error);
   }
@@ -138,7 +144,7 @@ function ParentHome({ navigation, route }) {
 
   const handleUserPress = (user) => {
     playSound("click")
-    if (user === users[0]) { 
+    if (user === users[0].name) { 
       setCodeInput('');
       if (codeUsed) {
         setIsAccessCodeModalVisible(true);
@@ -277,9 +283,9 @@ function ParentHome({ navigation, route }) {
             <View style={{alignItems: "center", top: verticalScale(100)}}>
                 <Text style={styles.title}>Who's using the app?</Text>
                 {users.map((user, index) => (
-                    <TouchableOpacity key={index} style={styles.userBox} onPress={() => handleUserPress(user)}>
-                    <Text style={styles.userName}>{user}</Text>
-                    </TouchableOpacity>
+                  <TouchableOpacity key={index} style = {{marginBottom: verticalScale(25), right: scale(40)}} onPress={() => handleUserPress(user.name)}>
+                    <HomeViewer name={user.name} profilePic={user.profilePic}/>
+                  </TouchableOpacity>
                 ))}
         </View>
         <View style = {{paddingHorizontal: scale(20), paddingVertical: verticalScale(20), alignItems: "center", top: verticalScale(80)}}>
@@ -464,10 +470,8 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(10),
   },
   userBox: {
-    width: '80%',
-    height: verticalScale(100),
-    borderWidth: 1,
-    borderColor: '#000',
+    height: verticalScale(80),
+    width: scale(380),
     borderRadius: scale(10),
     alignItems: 'center',
     justifyContent: 'center',

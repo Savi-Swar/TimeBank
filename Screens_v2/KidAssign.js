@@ -5,6 +5,7 @@ import * as firebase from '../firebase';
 import Minutes from '../Components_v2/Minutes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
+import { playSound } from '../audio';
 function KidAssign({ navigation }) {
   const [assignments, setAssignments] = useState([]);
   const [kidName, setKidName] = useState("");
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     height: verticalScale(500),
-    top: verticalScale(70),
+    top: verticalScale(150),
 
   }
 

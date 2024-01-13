@@ -70,9 +70,7 @@ function ParentMenu({ navigation, route }) {
   
   return (
       <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
-        <TouchableOpacity onPress={handleEditContents} style={{top: verticalScale(90), left: scale(1), marginBottom: verticalScale(50), alignItems: "center"}}>
-          <BlankButton text="Set Up App" onPress={handleEditContents} />  
-        </TouchableOpacity>
+        
         <Modal animationType="slide" visible={modalVisible}>
           <View style={{width:'80%', alignItems: "center", justifyContent:"center", flex:1, left: scale(40), marginVertical: verticalScale(100)}}>
             <BlankButton
@@ -95,12 +93,11 @@ function ParentMenu({ navigation, route }) {
           <BlankButton text="Close" onPress={() => setModalVisible(false)} />
           </View>
         </Modal>
-
         <FlatList
           data={organizedKids}
           keyExtractor={(kids) => kids.id}
           renderItem={({ item }) => (
-            <View style={{marginVertical: verticalScale(60), left: scale(10)}}>
+            <View style={{marginVertical: verticalScale(25), left: scale(10), top: verticalScale(30)}}>
               <KidsViewer 
               name={item.name} 
               minutes={item.minutes}
@@ -116,6 +113,9 @@ function ParentMenu({ navigation, route }) {
               </View>
           )}
         />
+        <TouchableOpacity onPress={handleEditContents} style={{top: verticalScale(20), left: scale(1), marginBottom: verticalScale(50), alignItems: "center"}}>
+          <BlankButton text="Set Up App" onPress={handleEditContents} />  
+        </TouchableOpacity>
         <View style={{alignItems: "center", bottom: verticalScale(20)}}>
           <BlankButton text="Back" 
           onPress={()=> {navigation.navigate("ParentHome");

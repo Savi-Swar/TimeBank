@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "timebank-410409",
+  "private_key_id": "dd5139e263dcbc94ca09daee59330ea341307c82",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDCwQlu4zwhLLGB\nfBtQQ5CPBISYlqSd3kRKqLxblauuU++1Jj3TeySQQOexrrbEamAfrxgrmGoy1gka\njx8a8DRRG09m8KawHOBVXeqT6qdtyzhiOYGBpiqC///1EstaXtXTRMhcpVMwuF2K\ncXrw+EKQtTzVwKLwWZ/+nrJBu2RBTOzY2y4SxSd6s7fwD1908VjttAUsdwew8BNe\nSHqUcUzQFN85b0bqCZPIzIgWBK9Z7P4gj9Z/rTUr37oDvTCPaLxKIhXrxuMkzhef\nFNH59wHB1bKCLTHQjrNx1GNKnXzGPyH7MM1gtLG9uoO39yoO5+fjX4+JslHFz8of\nE9VYU/35AgMBAAECggEAAIAcFOVC+34KTrmrUExI8mhU9uQ1za0+iHqUHiAgus5Y\naImN0YQYsFsAvWiKuHwVfYwm1PKlUANT+3XjfJKiPJS3YlC7MB5C4IIUEjrUh05+\nxjHW1VoNJ4NrSVpTaQrWJDhvBpEeL5sQEngylEZVbw3BxELXqFc/amYTl/ulSRp3\nJlCqs3zHed7Hlh/MXMMiCpcIqaWF4T384ztzpxSvbq+Uw2vy6B1KOX5DnXJwedOO\nxfoP4pGHbuithRrzFO988Xg0kRHLnPjy7FQw9gZFekVWgBx+6cn9+f4tzazEr6TA\n6bqcTLskefwWmw99KnwlzpWrmQel6DbDvfq2/JTl6QKBgQDsHgutLvMhvyGSoYx0\npUY1Lg53Il2ttkM5xhlz5wrItuZrokUbKf8ijJMJL7s6hxOT5TPWvvJmAwGl1ZVN\nJk7Yla/99ABFIylQ8Z+HtZ7AGUyUSE/3L/uKoaOX9BP2zrw83as5xlwZUxLCCO87\nAkb6hhzT1EKxe3icGtt+xmEu9wKBgQDTJ1O8Pza26WVdsyvUrSrUgwdgAels4fH5\nLxQkRYOIGD+09FV0A9isPoWlChSrwSn8RQjnFFGcBgnRA3wgZJYfDoTjjz6WJn1o\n6mVX7LuFi+613b8XiLMiwVxG/+3qSAVkr5OEyztlcur2qgXD6mdTBA9gpioY5jP6\nakpT/cDOjwKBgQDnKO8jiKBtPHLA3DnnBNt8Ou/cgJ+X7qVYDXJjvyEWqcFiRMZF\nNtNaXqegycMSJKXtF+qtZdloN69ITJbTphpw/fMDu/r7tNXBMhyNvyiBRwNq9HSd\nOrOX4HGJ1WIqMfGl4Rq+AE2wWV0264pSigM1R1E3rUnx+kB1C/Ix5kPEtwKBgQCU\n+WQspnTV7ClmSGkeLebP9HoZlH+6IFd2NW8CgEDinikkZFZ9+dC/BYWJAWnAHBKh\nN5umXUGO0PvQCaNjv1PjKX08h+3iRdmpUeaaeB19hVKv4XlXA01PshiGxz52UsXr\nWay8vh5z3vZDfYV/yjuH6I9o4xNEafY2MROr2pZTpQKBgQDTuZh2YyPKc+MimGYe\nrg9NjQIhwJiwvqWK2uwEcTgX2F2GAaNW79uoQ99kpaYMMcA5Raiqse1438sCr4pW\nOHZh1NqL7iib8JxpicRhDBTJ2JFV9Bt/oNo++X40D5dGGsllJtSMWudl7KnosGeL\nzOF87GUGliRyi9TQjVTUt+dSww==\n-----END PRIVATE KEY-----\n",
+  "client_email": "play-store-service-account@timebank-410409.iam.gserviceaccount.com",
+  "client_id": "110500890850587089793",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/play-store-service-account%40timebank-410409.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
