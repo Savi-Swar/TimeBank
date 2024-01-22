@@ -126,14 +126,13 @@ function CreateAssignment({ navigation }) {
     setShow(true);
   };
   return (
-    console.log(url),
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
         
         <View style = {{top: verticalScale(10), alignItems: "center"}}>
           <Image style={styles.logo} source={require("../assets/icons/Logo.png")} />
           <Image style={styles.tagLine} source={require("../assets/icons/Tagline.png")} />
         </View>
-        <View style = {{bottom:verticalScale(215), right: scale(170)}}>
+        <View style = {{bottom:verticalScale(185), right: scale(170)}}>
           <BackButton  onPress={() => navigation.navigate("ParentAssignment")}
             imageUrl={require("../assets/buttons/Back.png")}/>
         </View>
@@ -170,6 +169,7 @@ function CreateAssignment({ navigation }) {
                 selected={[]}
                 options={kidsName}
                 onSelection={setSelectedKids}
+                kids = {true}
                 />
         </View>
         <View style={{ bottom: verticalScale(-10) }}>

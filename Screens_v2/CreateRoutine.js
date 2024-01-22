@@ -231,7 +231,7 @@ function CreateRoutine({ navigation }) {
         </View> 
         <View style = {{alignItems: "center"}}>   
         <View style = {{top: verticalScale(100), left: scale(10)}}>
-          <BubbleText size = {24} text = {"Select Days of the Week"}/>
+          <BubbleText size = {moderateScaleFont(24)} text = {"Select Days of the Week"}/>
           <MultiSelectDropdown
               selected={[]}
 
@@ -240,7 +240,7 @@ function CreateRoutine({ navigation }) {
             />
         </View>
         <View style = {{top: verticalScale(110), left: scale(0)}}>
-          <View style = {{left: 10}}>
+          <View style = {{left: scale(10)}}>
              <BubbleText size = {moderateScaleFont(24)} text = {"Select Months of the Year"}/>
           </View>
             
@@ -251,7 +251,7 @@ function CreateRoutine({ navigation }) {
             />
         </View>
         <View style={{top: verticalScale(125)}}>
-            <View style = {{marginRight: scale(145)}}>
+            <View style = {{right: scale(-10)}}>
                 <BubbleText size={moderateScaleFont(24)} text={"Select Kids for Routine"} />
             </View>
                 <MultiSelectDropdown

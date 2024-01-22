@@ -35,7 +35,7 @@
         "buildConfiguration": "Release"
       },
       "channel": "production"
-    }
+    }    
   },
   "submit": {
     "development": {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ImageBackground, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, ImageBackground, TouchableOpacity, Text, ScrollView } from 'react-native';
 import BubbleText from '../Components_v2/BubbleText';
 import BlankButton from '../Components_v2/BlankButton';
 import { createRecordWithUserId } from '../firebase';
@@ -18,7 +18,7 @@ function PrivacyPolicy({ navigation, route }) {
             createRecordWithUserId(userId, display)
             .then(() => {
                 playSound("transition")
-                navigation.navigate('ParentHome', { userId: userId });
+                navigation.navigate('ParentHome', { userId: userId, canFetchUserData: true });
             })
             .catch((error) => {
                 console.error("Error signing in: ", error);
@@ -32,22 +32,26 @@ function PrivacyPolicy({ navigation, route }) {
 
     return (
         <ImageBackground style={styles.background} source={require("../assets/backgrounds/terms_conditions.png")}>
-            <View style={{alignItems:"center", bottom: verticalScale(30)}}>
-                <BubbleText text={"Privacy Policy"} size={moderateScaleFont(28,1)}/>
-                <View style={{width: '90%', top: verticalScale(15)}}>
-                <BubbleText text={"Welcome to TimeBank, a mobile application designed to instill the habit of time-saving in young children. Before using TimeBank, please read these Terms and Conditions carefully. By accessing or using the TimeBank mobile application, you agree to be bound by these Terms and Conditions. If you do not agree to these Terms and Conditions, please do not use TimeBank."} lineSpacing={5} size={moderateScaleFont(20,1)}/>
+            <ScrollView>
+            <View style={{alignItems:"center", bottom: verticalScale(-60)}}>
+                <BubbleText text={"Privacy Policy"} size={moderateScaleFont(28,1)}  color='#650000'/>
+                <View style={{width: '90%', top: verticalScale(20)}}>
+                 <BubbleText text={"Welcome to TimeBank, an app dedicated to providing a personalized and engaging experience for children. This privacy policy outlines how we handle the personal information we collect and receive from our users."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
                 <View style = {{top: verticalScale(20)}}>
-                    <BubbleText text={"1. Information We Collect"} size={moderateScaleFont(28,1)} color='#650000'/>
-                    <View style = {{top:verticalScale(10)}}>
-                        <BubbleText text={"Registration Information: When you create an account for your child, we may collect their first name and email address. We do not collect personally identifiable information from children under the age of [Specify the age limit] without parental consent. "} lineSpacing={5} size={moderateScaleFont(20,1)}/>
-                    </View>
-                    <View style = {{top:verticalScale(20)}}>
-                        <BubbleText text={"Usage Information: We collect information about how your child uses TimeBank, such as the features they access, the content they create, and the duration of their sessions."} lineSpacing={5} size={moderateScaleFont(20,1)}/>
-                    </View>
+                    
+                    {/* Details of Information Collection and Use */}
+                    <BubbleText text={"1. Collection of Information\nTimeBank collects the following personal information when voluntarily submitted by users:\n- Email Address: To manage user accounts and communicate important updates.\n- User-Specified Information: Including names, nicknames of children, and other identifiers to personalize the user experience.\n- Photographs: Users may upload photographs to enhance their experience with the app.\nWe may also collect non-personal information such as usage data, device information, and user preferences."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
+                    <BubbleText text={"2. Use of Information\nThe collected information is used to enhance user experience, provide personalized content, manage user accounts, and improve our app.\nWe do not share or sell personal information with third parties for their marketing purposes."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
+                    <BubbleText text={"3. Data Storage and Security\nTimeBank implements standard security measures to protect the information we collect.\nHowever, we cannot guarantee absolute security as no electronic storage is 100% secure."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
+                    <BubbleText text={"4. User Responsibility\nThe submission of personal information on JiroAi is done at the user's own risk.\nUsers are encouraged to monitor and supervise their children's use of the app."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
+                    <BubbleText text={"5. No Liability\nTimeBank is not liable for any breach of data or unauthorized access to personal information.\nUsers acknowledge that they use the app and submit information at their own risk."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
+                    <BubbleText text={"6. Changes to the Privacy Policy\nWe reserve the right to modify this privacy policy at any time. Users are encouraged to review it periodically."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
+                    <BubbleText text={"7. Contact Us\nIf you have any questions about this privacy policy, please contact us at JiroAISolutions@gmail.com."} lineSpacing={5} size={moderateScaleFont(16,1)}/>
+
                 </View>
             </View>
             </View>
-            <View style ={{top: verticalScale(35)}}>
+            <View style ={{top: verticalScale(100), paddingBottom: verticalScale(150)}}>
                 <View style={styles.checkboxContainer}>
                         <TouchableOpacity onPress={handleAgree} style={styles.checkbox}>
                         {agree && (
@@ -60,6 +64,7 @@ function PrivacyPolicy({ navigation, route }) {
                     <BlankButton text={"Continue"} onPress={navigateToPrivacyPolicy}/>
                 </View>
             </View>
+            </ScrollView>
         </ImageBackground>
     );
 }

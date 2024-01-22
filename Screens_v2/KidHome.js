@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ImageBackground, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ImageBackground, Text, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
 import BlankButton from '../Components_v2/BlankButton';
 import Card from '../Components_v2/Card';
 import * as firebase from '../firebase';
@@ -50,19 +50,22 @@ function KidHome({ navigation }) {
 
   // Sort assignments by due date and find the closest one
   // Assuming kidName holds the name of the active kid
-const closestAssignment = assignments
-.filter(assignment => assignment.kids.includes(kidName)) // Filter assignments that include the active kid's name
-.sort((a, b) => new Date(a.due) - new Date(b.due))[0]; // Sort by due date and get the first item
+  const closestAssignment = assignments
+  .filter(assignment => Array.isArray(assignment.kids) && assignment.kids.includes(kidName))
+  .sort((a, b) => new Date(a.due) - new Date(b.due))[0];
+  let name = kidName.replace(/_/g, ' ');
 
-
+  if (name.length > 20) {
+    name = name.substring(0, 20) + "...";
+  }
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/17_add.png")}>
       
-      <View style = {{bottom: verticalScale(110), alignItems: "center"}}>
+      <View style = {{bottom: verticalScale(100), alignItems: "center"}}>
         <View style ={{top: verticalScale(-10)}}>
-          <BubbleText style={styles.welcomeText} text={"Welcome " + kidName + "!"}  size={moderateScaleFont(40)}/>
+          <BubbleText style={styles.welcomeText} text={"Welcome " + name + "!"}  size={moderateScaleFont(40)}/>
         </View>
-        <BubbleText style={styles.welcomeText} text={"You have " + kidMinutes + " minutes"} size={moderateScaleFont(25)}/>
+        <BubbleText style={styles.welcomeText} text={"You have " + minutes + " minutes"} size={moderateScaleFont(25)}/>
       </View>
       <View style = {{bottom: verticalScale(90), alignItems: "center"}}>
           <Image style={styles.logo} source={require("../assets/icons/Logo.png")} />
@@ -129,7 +132,7 @@ const closestAssignment = assignments
       )}
       </View>
       <View style = {{position: "absolute", bottom: verticalScale(125)}}>
-      <BlankButton onPress={() => navigation.navigate("ParentHome")} text="Log Out" />
+      <BlankButton onPress={() => navigation.replace('ParentHome', {canFetchUserData: true})} text="Log Out" />
       </View>
     </ImageBackground>
   );
@@ -142,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   welcomeText: {
-    // Add your styles for welcome text
+ 
   },
   noItemsText: {
     // Add your styles for no items text

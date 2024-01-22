@@ -10,8 +10,9 @@ import { Kids, useRoutineTitles, kidData } from "../firebase"; // Importing the 
 
 
 function StatsScreen({navigation, route}) {
-  let title = route.params.name + "'s Stats";
-  let t2 = route.params.name + "'s Activity";
+
+  let title = route.params.name.replace(/_/g, ' ') + "'s Stats";
+  let t2 = route.params.name.replace(/_/g, ' ') + "'s Activity";
   const [kids, setKids] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

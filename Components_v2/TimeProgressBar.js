@@ -33,6 +33,7 @@ function TimeProgressBar({ startTime, endTime }) {
     const duration = end.getTime() - start.getTime();
     const elapsed = currentTime.getTime() - start.getTime();
     const progressValue = elapsed > 0 ? Math.min(elapsed / duration, 1) : 0;
+    
 
     Animated.timing(progress, {
       toValue: progressValue,
@@ -42,7 +43,7 @@ function TimeProgressBar({ startTime, endTime }) {
 
     // Calculate minutes left
     const remaining = end.getTime() - currentTime.getTime();
-    const minutes = Math.floor(remaining / 60000);
+    const minutes = Math.round(remaining / 60000);
     setMinutesLeft(minutes > 0 ? `${minutes} min` : 'Time is up!');
   };
 
@@ -52,9 +53,12 @@ function TimeProgressBar({ startTime, endTime }) {
   });
 
   
+  const carWidth = scale(140); // Update this to match your car image's actual width
+
   const carLeftInterpolate = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, containerWidth - scale(130)], // 50 is the width of the car image
+    outputRange: [-carWidth / 2, containerWidth - carWidth / 2], // Adjusted to center the car
+    extrapolate: 'clamp',
   });
 
   return (

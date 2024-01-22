@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View, StyleSheet, ImageBackground,Image, Text } from 'react-native';
+import { View, StyleSheet, ImageBackground,Image, Text, Alert } from 'react-native';
 
 import SmallButton from '../Components_v2/SmallButton';
 import { useFonts } from "expo-font";
@@ -68,6 +68,7 @@ useEffect(() => {
     }
     
     navigation.navigate("KidsNav");
+    Alert.alert("Completed, Ask Your parent to approve your minutes!")
     // Optionally add more logic if needed
   };
   let assignment = route.params?.assignment || false;

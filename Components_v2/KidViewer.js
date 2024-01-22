@@ -13,9 +13,7 @@ function KidsViewer({ navigation, image, name, profilePic, minutes }) {
     if (!profilePic) { 
         profilePic = defaultImageUrl;
     }
-    if (name.length > 10) {
-        name = name.substring(0,9) + "..."
-    }
+  
     useEffect(() => {
         const fetchImageUrl = async () => {
             const storage = getStorage();
@@ -27,27 +25,32 @@ function KidsViewer({ navigation, image, name, profilePic, minutes }) {
         fetchImageUrl();
     }, [profilePic]);
 
-    
+    const setName = name;
 
-    if (name.length > 22) {
-        name = name.substring(0,22) + "..."
+    if (name.length > 13) {
+        name = name.substring(0,13) + "..."
     }
     
     let r = Math.min(scale(135), verticalScale(135))
+    name = name.replace(/_/g, ' ');
+    let left = 0;
+    if (name.length > 10) {
+        left += (name.length-9) * 5;
+    }
     return (
 
         <View style={[styles.card, {height:r}]}>
             
             <View style = {styles.miniCard}>
                 <TouchableOpacity style={{position: "absolute", top: verticalScale(7), right: scale(10)}} onPress={() => {navigation.navigate("EditKidScreen", {
-                    name: name,
+                    name: setName,
                     profilePic: profilePic,
                     minutes: minutes,
 
                 })}}>
                     <AntDesign name="edit" size={scale(24)} color="#A74A29" />
                 </TouchableOpacity>
-                <View style={{ top: verticalScale(30), left: scale(10) }}>
+                <View style={{ top: verticalScale(30), left: scale(10+left) }}>
                     <Text style={styles.name}>{name}</Text>
                 
                 </View>
@@ -56,7 +59,7 @@ function KidsViewer({ navigation, image, name, profilePic, minutes }) {
             <Image source={{uri: url}} style={[styles.image, {width: r, height: r}]} />
             <TouchableOpacity style={styles.detailsButton} onPress={() => {navigation.navigate("StatsScreen",
             {
-                name: name,
+                name: setName,
                 // weekly: weekly,
                 // spent: spent,
                 // earned: earned,
@@ -65,7 +68,7 @@ function KidsViewer({ navigation, image, name, profilePic, minutes }) {
                 // routineStats: routineStats
             }
             ), playSound('transition')}}>
-                        <BubbleText text={"View Stats ->"} color={"#21BF73"} size={moderateScaleFont(19)} />
+                        <BubbleText text={"View Activity ->"} color={"#21BF73"} size={moderateScaleFont(19)} />
             </TouchableOpacity>
         </View>
     );
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
     detailsButton: {
         position: "absolute",
         bottom: verticalScale(10),   // Adjust this value to move the label closer to the bottom edge
-        right: scale(90), 
+        right: scale(70), 
         fontSize: moderateScaleFont(22)   // Adjust this value to move the label closer to the right edge
         // Add any other necessary styles
     },

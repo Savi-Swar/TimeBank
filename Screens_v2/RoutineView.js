@@ -23,7 +23,7 @@ function RoutineView({ navigation, route }) {
     );
   }, [route.params.title, route.params.id]);
   const isAdult = route.params.isAdult; // If isAdult is not passed or is undefined, it will default to false
-  let titleText = route.params.title + " Steps";
+  let titleText = route.params.title
   let timeText = route.params.startTime + " - " + route.params.endTime;
   let active = route.params.isActive;
   let margin = active ? 10: 40;
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: verticalScale(70),
+    top: verticalScale(50),
     left: scale(20),
   },
   progressBarContainer: {
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: verticalScale(2),
-    right: scale(10)
+    right: scale(10),
   },
   listContainer: {
     flex: 1,

@@ -21,19 +21,20 @@ function StoreScreen({ route, navigation }) {
     try {
       const storedName = await AsyncStorage.getItem('@active_kid');
       if (storedName !== null) {
-        // We have data!!
         setKidName(storedName);
+        firebase.Mins(minutes => setKidMinutes(minutes), storedName);
       }
     } catch (error) {
-      // Error retrieving data
       console.log(error);
     }
   };
-
+  
   useEffect(() => {
     fetchKidDetails();
-    // Add any other logic that needs to run on component mount
-  }, []); 
+    const unsubscribeAssignments = firebase.Assignments(setAssignments);
+  
+    return () => unsubscribeAssignments();
+  }, []); // Add dependencies if needed
   useEffect(() => {
       const fetchImageUrl = async () => {
           const storage = getStorage();
@@ -52,6 +53,8 @@ function StoreScreen({ route, navigation }) {
     const itemName = title; // The item name
     playSound("complete")
     await updateRequest(kidName, -1*minutes, itemName, "false");
+    Alert.alert("Item Bought, Ask Your parent to approve your purchase!")
+
     navigation.navigate("KidsNav"); // or wherever you need to navigate after buying
     // Optionally add more logic if needed
   };

@@ -81,7 +81,7 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
     }
     let kidsString = "";
     for (let i = 0; i < kids.length; i++) { 
-        kidsString += kids[i]
+        kidsString += kids[i].replace(/_/g, ' ');
         if (i!= kids.length-1) {
          kidsString +=  ", "
         }
@@ -94,13 +94,19 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
     let r = Math.min(scale(98), verticalScale(98))
     let top = 10;
     if (location === "assignments") {
+      if(isAdult) {
+        top = 4;
+      } else {
         top = 8;
+      }
     }
     let top2 = 0;
     if (location === "assignments") {
         top2 = -5;
     }
-    
+    if (kidsString.length > 30) {
+        kidsString = kidsString.substring(0,30) + "..."
+    } 
     return (
         <View style={[styles.card, {height: r}]}>
             <Image source={{uri: url}} style={[styles.image, {height: r, width: r}]} />
@@ -109,7 +115,7 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
                 <View style={styles.minutesContainer}>
                   <View style = {{ top: verticalScale(top), flexDirection: "row"}}>
                     <Image source={require("../assets/icons/Timer.png")} style={styles.timer} />
-                    <View style = {{right: scale(3), top: verticalScale(5)}}>
+                    <View style = {{right: scale(3), top: verticalScale(7)}}>
                       <Text style={styles.minutes}>{minutes} minutes</Text>
                     </View>
                   </View>
@@ -119,8 +125,10 @@ function Card({ image, id, title, minutes, location = "store", kids = [], due, i
                     {location === "assignments" && (
                     <>
                         {isAdult ? (
-                        <Text style={styles.subtitle}>Kids: {kidsString}, Due: {due}</Text>
-                        
+                          <>
+                        <Text style={styles.subtitle}>Kids: {kidsString}</Text>
+                        <Text style={styles.subtitle}>Due: {due}</Text>
+                        </>
                             ) :
                             (
                                 <Text style={styles.subtitle}>Due: {due}</Text>

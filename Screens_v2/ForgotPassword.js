@@ -18,7 +18,7 @@ function ForgotPassword({ navigation }) {
       Alert.alert("Check your email", "A link to reset your password has been sent to your email.", [{ text: "OK" }]);
     } catch (error) {
       playSound("alert")
-      Alert.alert("Error", error.message, [{ text: "OK" }]);
+      Alert.alert("Error", "User not found", [{ text: "OK" }]);
     }
   };
 

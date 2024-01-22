@@ -19,7 +19,6 @@ function ParentMenu({ navigation, route }) {
   const { titles, loading } = useRoutineTitles();
  
   const handleEditContents = () => {
-    playSound("click")
     setModalVisible(true);
   };
 
@@ -118,7 +117,7 @@ function ParentMenu({ navigation, route }) {
         </TouchableOpacity>
         <View style={{alignItems: "center", bottom: verticalScale(20)}}>
           <BlankButton text="Back" 
-          onPress={()=> {navigation.navigate("ParentHome");
+          onPress={()=> { navigation.replace('ParentHome', {canFetchUserData: true});
           }}/>
         </View>
       </ImageBackground>

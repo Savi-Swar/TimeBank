@@ -145,7 +145,7 @@ function EditAssignment({ navigation, route }) {
           <Image style={styles.logo} source={require("../assets/icons/Logo.png")} />
           <Image style={styles.tagLine} source={require("../assets/icons/Tagline.png")} />
         </View>
-        <View style = {{bottom:verticalScale(215), right: scale(170)}}>
+        <View style = {{bottom:verticalScale(185), right: scale(170)}}>
           <BackButton  onPress={() => navigation.navigate("ParentAssignment")}
             imageUrl={require("../assets/buttons/Back.png")}/>
         </View>

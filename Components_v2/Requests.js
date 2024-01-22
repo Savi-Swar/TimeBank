@@ -4,18 +4,21 @@ import CustomButton from './CustomButton';
 import {scale, verticalScale, moderateScale, moderateScaleFont} from '../scaling';
 // Import the ImageButton component
 
-function Requests({ navigation, name, minutes, kid, onApprove, onDeny }) {
+function Requests({ navigation, name, minutes, kid, onApprove, onDeny, time }) {
   let text ="";
+  kid = kid.replace(/_/g, ' ');
   if (minutes > 0) {
     text = kid + " is requesting " + minutes + " minutes for \"" + name + "\"";
   } else {
     text = kid + " wants to \"" + name + "\" for " + minutes + " minutes";
   }
+  time = time.substring(0, time.length - 3);
   return (
     <View style={styles.card}>
-         <View style = {{ flexDirection: "row"}}>
+         <View style>
            
             <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(25), color: "#000000", bottom: verticalScale(20), left: scale(15)}}>{text}</Text>
+            <Text style = {{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(20), color: "#808080", bottom: verticalScale(20), left: scale(15)}}>{time}</Text>
 
         </View>
         <View style = {{ flexDirection: "row", position: "absolute", top: verticalScale(95), left: scale(110)}}>

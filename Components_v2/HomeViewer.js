@@ -29,13 +29,23 @@ function HomeViewer({ navigation, image, name, profilePic, minutes }) {
 
    
     let r = Math.min(scale(135), verticalScale(135))
+    // replace _ with spaces
+    name = name.replace(/_/g, ' ');
+    if (name.length > 12) {
+        name = name.substring(0,12) + "..."
+    }
+    let left = 0;
+    if (name.length > 10) {
+        left += (name.length-9) * 5;
+    }
+
     return (
 
         <View style={[styles.card, {height:r}]}>
             
             <View style = {styles.miniCard}>
                 
-                <View style={{ top: verticalScale(45), left: scale(10) }}>
+                <View style={{ top: verticalScale(45), left: scale(left+10) }}>
                     <Text style={styles.name}>{name}</Text>
                 
                 </View>

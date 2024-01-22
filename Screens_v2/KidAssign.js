@@ -29,7 +29,8 @@ function KidAssign({ navigation }) {
     
     return () => unsubscribeAssignments();
   }, []);
-  const correctAssignments = assignments.filter(assignment => assignment.kids.includes(kidName)) // Filter assignments that include the active kid's name
+  const correctAssignments = assignments.filter(assignment => Array.isArray(assignment.kids) && assignment.kids.includes(kidName))
+
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/10_tasks.png")}>
    <View style={{top: verticalScale(80)}}>

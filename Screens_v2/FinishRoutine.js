@@ -29,7 +29,8 @@ function FinishRoutine({ navigation, route }) {
 }
   useEffect(() => {  
     getData()
-    // console.log(name)
+    handleEndChange(null, new Date());
+
   }, []);
   const [minutes, setMinutes] = useState(0);
 
@@ -73,7 +74,7 @@ function FinishRoutine({ navigation, route }) {
     let minutes = time.getMinutes();
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
-  let titleText = route.params.name + " Routine";
+  let titleText = route.params.name;
   let timeText = route.params.st + " - " + route.params.et;
   return (
     <ImageBackground style={styles.background}  source={require("../assets/backgrounds/17_add.png")}>

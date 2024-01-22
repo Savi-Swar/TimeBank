@@ -10,6 +10,7 @@ import { getReactNativePersistence } from "firebase/auth/react-native"
 import { registerForPushNotificationsAsync, sendPushNotification } from "./notifications";
 import { getStorage, ref as storageRef, deleteObject } from "firebase/storage";
 
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -169,30 +170,47 @@ export async function updateRequest(kidName, reqMinutes, taskName, assignmentId)
   // Get the current state of the 'requests' field
   const snapshot = await get(kidRef);
 
+  const getFormattedTime = () => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${month}/${day} - ${hours}:${minutes}:${seconds}`;
+  };
   if (snapshot.exists()) {
     // If the document exists, get the current arrays
     let currentNames = Array.isArray(snapshot.val().names) ? snapshot.val().names : [];
     let currentReqMinutes = Array.isArray(snapshot.val().reqMinutes) ? snapshot.val().reqMinutes : [];
     let currentAssignments = Array.isArray(snapshot.val().isAssignment) ? snapshot.val().isAssignment : [];
+    let currentTimes = Array.isArray(snapshot.val().times) ? snapshot.val().times : [];
 
-    // Prepend the new values to each array
+    // Generate the timestamp
+    let timestamp = getFormattedTime();
+
+    // Update arrays
     let updatedNames = [taskName, ...currentNames];
     let updatedReqMinutes = [reqMinutes, ...currentReqMinutes];
-    let updatedAssignments = [assignmentId, ...currentAssignments]; // Add assignmentId, can be 'false' or actual ID
+    let updatedAssignments = [assignmentId, ...currentAssignments];
+    let updatedTimes = [timestamp, ...currentTimes];
 
-    // Update the fields in the reference
-    await update(kidRef, { names: updatedNames, reqMinutes: updatedReqMinutes, isAssignment: updatedAssignments });
+    await update(kidRef, { names: updatedNames, reqMinutes: updatedReqMinutes, isAssignment: updatedAssignments, times: updatedTimes });
+
     const tokenRef = ref(db, `Users/${userId}/token`)
     const token =  await get(tokenRef);
+    kidName = kidName.replace(/_/g, ' ');
     let message = kidName + " did " + taskName + " for " + reqMinutes + " minutes!"
     sendPushNotification(token, "Task Completed!", message);
   } else {
     // If the document does not exist, set each field to an array containing the new value
-    await set(kidRef, { names: [taskName], reqMinutes: [reqMinutes], isAssignment: [assignmentId] });
+    let timestamp = getFormattedTime();
+    console.log("timestamp: ", timestamp);
+    await set(kidRef, { names: [taskName], reqMinutes: [reqMinutes], isAssignment: [assignmentId], times: [timestamp] });
   }
 }
 
-export function getRequests(setNames, setMins, setIsAssignment, kidName) {
+export function getRequests(setNames, setMins, setIsAssignment, kidName, setTimes) {
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
   const kidRef = ref(db, `Users/${userId}/kids/${kidName}`);
@@ -203,13 +221,16 @@ export function getRequests(setNames, setMins, setIsAssignment, kidName) {
       let currentNames = Array.isArray(snapshot.val().names) ? snapshot.val().names : [];
       let currentReqMinutes = Array.isArray(snapshot.val().reqMinutes) ? snapshot.val().reqMinutes : [];
       let curIsAssignment = Array.isArray(snapshot.val().isAssignment) ? snapshot.val().isAssignment : [];
+      let currentTimes = Array.isArray(snapshot.val().times) ? snapshot.val().times : [];
       setNames([...currentNames]);
       setMins([...currentReqMinutes]);
       setIsAssignment([...curIsAssignment]);
+      setTimes([...currentTimes]);
     } else {
       setNames([]);
       setMins([]);
       setIsAssignment([]);
+      setTimes([]);
     }
   });
  
@@ -443,6 +464,7 @@ export async function deleteKid(kidName) {
   const db = getDatabase();
 
   // Reference to the kid's data
+  kidName = kidName.replace(/\s+/g, '_');
   const kidRef = ref(db, `Users/${userId}/kids/${kidName}`);
   
   // Check if the kid exists
@@ -490,6 +512,7 @@ export async function deleteKid(kidName) {
 export async function addKids(kid ,url) {
   const userId = firebase.auth().currentUser.uid;
   const db = getDatabase();
+  kid = kid.replace(/\s+/g, '_'); 
 
   const kidRef = ref(db, `Users/${userId}/kids/${kid}`);
   
@@ -1002,15 +1025,17 @@ export async function removeRequest(kidName, index) {
     let currentNames = snapshot.val().names || [];
     let currentReqMinutes = snapshot.val().reqMinutes || [];
     let curIsAssignment = snapshot.val().isAssignment || [];
+    let currentTimes = snapshot.val().times || [];
     // Check if index is valid
-    if (index < currentNames.length && index < currentReqMinutes.length && index >= 0 && index < curIsAssignment.length) {
+    if (index < currentNames.length && index < currentReqMinutes.length && index >= 0 && index < curIsAssignment.length && index < currentTimes.length) {
       // Remove the item at the specified index from both arrays
       currentNames.splice(index, 1);
       currentReqMinutes.splice(index, 1);
       curIsAssignment.splice(index, 1);
+      currentTimes.splice(index, 1);
 
       // Update the fields in the reference
-      await update(kidRef, { names: currentNames, reqMinutes: currentReqMinutes, isAssignment: curIsAssignment });
+      await update(kidRef, { names: currentNames, reqMinutes: currentReqMinutes, isAssignment: curIsAssignment, times: currentTimes });
     }
   }
 }

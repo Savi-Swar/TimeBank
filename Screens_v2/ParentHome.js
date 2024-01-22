@@ -36,16 +36,25 @@ function ParentHome({ navigation, route }) {
   const [url, setUrl] = useState(null);
   const [isDeleteKidModalVisible, setIsDeleteKidModalVisible] = useState(false);
   const [deleteKidName, setDeleteKidName] = useState('');
-
   useEffect(() => {
+    // Setup the listener inside useEffect
     const unsubscribe = firebase.auth.onAuthStateChanged((user) => {
-      if (user) {
+      if (user && route.params?.canFetchUserData) {
         fetchUsers(); // Fetch data for the current user
       }
     });
-
-    return () => unsubscribe(); // Cleanup subscription
-  }, []);
+  
+    // Return the cleanup function
+    return () => {
+      // Ensure unsubscribe is called if it's defined
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [route.params?.canFetchUserData]); // Add dependencies here
+  
+  
+  
   
   const fetchUsers = async () => {
     const userId = firebase.auth.currentUser.uid;
@@ -54,8 +63,26 @@ function ParentHome({ navigation, route }) {
     const codeRef = ref(db, `/Users/${userId}/pass`);
     const useRef = ref(db, `/Users/${userId}/codeUsed`);
     try {
-    const nameSnapshot = await get(nameRef);
-    const name = nameSnapshot.val();
+      let name = null;
+      let attempts = 0;
+      const maxAttempts = 5;
+  
+      while (!name && attempts < maxAttempts) {
+        const nameSnapshot = await get(nameRef);
+        name = nameSnapshot.val();
+        attempts++;
+  
+        if (!name) {
+          // Wait for 1 second before next attempt
+          await new Promise(resolve => setTimeout(resolve, 400));
+        }
+      }
+  
+      if (!name) {
+        console.error("Failed to fetch name after several attempts.");
+        return;
+      }
+
     const codeSnapshot = await get(codeRef);
     const code = codeSnapshot.val();
 

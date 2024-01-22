@@ -10,7 +10,7 @@ function AuthLoadingScreen({ navigation }) {
       if (user && user.emailVerified) {
         // User is signed in and email is verified
         // change back to ParentHome
-        navigation.replace('ParentHome');
+        navigation.replace('ParentHome', {canFetchUserData: true});
       } else if (user && !user.emailVerified) {
         // User is signed in but email is not verified
         navigation.replace('VerifyEmail'); // Replace with your verification screen

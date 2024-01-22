@@ -19,7 +19,7 @@ function LoginScreen({ navigation }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setLoading(false);
-      navigation.navigate("ParentHome"); // Adjust this to the screen you want to navigate to upon success
+      navigation.navigate("ParentHome", {canFetchUserData: true}); // Adjust this to the screen you want to navigate to upon success
     } catch (error) {
       playSound("alert");
       Alert.alert("Login Failed", "Invalid login credentials", [{ text: "OK" }]);

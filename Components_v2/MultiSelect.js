@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { playSound } from "../audio";
 import { scale, verticalScale } from "../scaling";
-function MultiSelect ({ options, onSelection, selected = [] }) {
+function MultiSelect ({ options, onSelection, selected = [], kids = false }) {
   const [selectedItems, setSelectedItems] = useState([]);
 
   let filteredSelected = [];
@@ -61,7 +61,7 @@ function MultiSelect ({ options, onSelection, selected = [] }) {
           ]}
           onPress={() => handleItemPress(item)}
         >
-          <Text style = {styles.itemText}>{item}</Text>
+          <Text style = {styles.itemText}>{item.replace(/_/g, ' ')}</Text>
         </TouchableOpacity>
       ))} 
    

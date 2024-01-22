@@ -17,90 +17,94 @@ function Activities({ navigation, route }) {
   const [names, setNames] = useState([]);
   const [mins, setMins] = useState([]);
   const [isAssignment, setIsAssignment] = useState(false);
+  const [times, setTimes] = useState([]);
+
   // Fetch requests when the component mounts or the route.params.name changes
-  const combineData = (names, minutes, assignments) => {
+  const combineData = (names, minutes, assignments, times) => {
     return names.map((name, index) => {
-      return { name: name, minutes: minutes[index], isAssignment: assignments[index] };
+      return { 
+        name: name, 
+        minutes: minutes[index], 
+        isAssignment: assignments[index], 
+        time: times[index]  // Add the time here
+      };
     });
   };
+  
   
   // ...
   useEffect(() => {
     // Fetch the requests once component mounts
-    const unsubscribe = firebase.getRequests(setNames, setMins, setIsAssignment, route.params.name);
+    const unsubscribe = firebase.getRequests(setNames, setMins, setIsAssignment, route.params.name, setTimes);
   
     return () => unsubscribe(); // Unsubscribe when the component unmounts
   }, []);
   
   useEffect(() => {
-    // Combine names and minutes into a single array of objects when either updates
-    const combinedData = combineData(names, mins, isAssignment);
+    // Combine names, minutes, assignments, and times into a single array of objects
+    const combinedData = combineData(names, mins, isAssignment, times);
     setRequests(combinedData);
-  }, [names, mins, isAssignment]);
+  }, [names, mins, isAssignment, times]); // Include times in the dependency array
+  
   
 
   if (!loaded) {
     return null;
   }
 
-  const removeRequestFromState = (index) => {
-    setRequests((currentRequests) => currentRequests.filter((_, i) => i !== index));
-  };
+  
+const removeRequestFromState = (identifier) => {
+  setRequests((currentRequests) => currentRequests.filter(request => request.time !== identifier));
+};
 
-  const handleApprove = (index, kid, minutes) => {
-    // Convert minutes to a number if it's a string
+  const handleApprove = async (index, kid, minutes) => {
     const numericMinutes = parseInt(minutes, 10);
-    playSound('approve')
-    // Check if numericMinutes is a valid number
+    playSound('approve');
     if (isNaN(numericMinutes)) {
       console.error("Invalid minutes value:", minutes);
-      return; // Exit the function if numericMinutes is not valid
+      return;
     }
-    
-    firebase.addMins(numericMinutes, kid)
-
-    if (!(requests[index].isAssignment == "false")) {
-      firebase.completeAssignmentForKid(requests[index].isAssignment, kid)
+    try {
+      await firebase.addMins(numericMinutes, kid);
+      if (requests[index].isAssignment !== "false") {
+        await firebase.completeAssignmentForKid(requests[index].isAssignment, kid);
+      }
+      await firebase.removeRequest(kid, index);
+      removeRequestFromState(requests[index].time);
+    } catch (error) {
+      console.error('Error handling approve:', error);
     }
-    firebase.removeRequest(kid, index)
+};
 
-      .then(() => {
-        removeRequestFromState(index);
-      })
-      .catch((error) => {
-        console.error('Error adding minutes:', error);
-      });
-  };
+const handleDeny = async (index, kid) => {
+    playSound('deny');
+    try {
+      await firebase.removeRequest(kid, index);
+      removeRequestFromState(requests[index].time);
+    } catch (error) {
+      console.error('Error handling deny:', error);
+    }
+};
 
-  const handleDeny = (index, kid) => {
-    firebase.removeRequest(kid, index)
-    playSound('deny')
-      .then(() => {
-        removeRequestFromState(index);
-      })
-      .catch((error) => {
-        console.error('Error denying request:', error);
-      });
-  };
 
   let empty = requests.length == 0;
-
+  let name = route.params.name.replace(/_/g, ' ');
   return (
     <ImageBackground style={styles.background} source={require("../assets/backgrounds/18_Max'sActivities.png")}>
       <View style = {{alignItems:"center", position: "absolute", top: verticalScale(40)}}>
 
         <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(35), color: "#000000"}}>
-          {route.params.name}'s Activities
+          {name}'s Activity
         </Text>
       </View>
-      <View style={{top: verticalScale(100), marginBottom: verticalScale(200)}}>
+      <View style={{top: verticalScale(130), marginBottom: verticalScale(200)}}>
         {empty ? ( 
           <View style= {{alignItems: "center", bottom: verticalScale(140)}}>
           <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
             There are no Requests from 
           </Text>
           <Text style={{fontFamily: "BubbleBobble", fontSize: moderateScaleFont(30), color: "#000000"}}>
-          {route.params.name}
+          {name}
         </Text>
         </View>
          ) : (
@@ -114,6 +118,7 @@ function Activities({ navigation, route }) {
               kid={route.params.name}
               minutes={item.minutes}
               isAssignment = {item.isAssignment}
+              time = {item.time}
               onApprove={() => handleApprove(index, route.params.name, item.minutes)}
               onDeny={() => handleDeny(index, route.params.name)}
             />
