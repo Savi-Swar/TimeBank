@@ -7,8 +7,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "android": {
-        "buildType": "app-bundle",
-        "gradleCommand": ":app:assembleDebug"
+        "buildType": "app-bundle"
       },
       "ios": {
         "buildConfiguration": "Release"
@@ -18,8 +17,7 @@
     "preview": {
       "distribution": "store",
       "android": {
-        "buildType": "app-bundle",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "app-bundle"
       },
       "ios": {
         "buildConfiguration": "Release"
@@ -28,17 +26,23 @@
     },
     "production": {
       "android": {
-        "buildType": "app-bundle",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "app-bundle"
       },
       "ios": {
         "buildConfiguration": "Release"
       },
       "channel": "production"
-    }    
+    }
   },
   "submit": {
     "development": {
+      "ios": {
+        "appleId": "anantswarup@yahoo.com",
+        "ascAppId": "6475390566",
+        "appleTeamId": "UZ8HC2UF95"
+      }
+    },
+    "production": {
       "ios": {
         "appleId": "anantswarup@yahoo.com",
         "ascAppId": "6475390566",

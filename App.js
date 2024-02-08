@@ -39,6 +39,8 @@ import { loadSounds } from './audio';
 import { playSound } from './audio'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import EditRoutine from "./Screens_v2/EditRoutine";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -69,6 +71,27 @@ export default function App() {
       };
     }
   }, [areSoundsLoaded]); // Depend on areSoundsLoaded
+
+  useEffect(() => {
+    const initializeSoundSettings = async () => {
+      // Check if the settings already exist
+      const musicSetting = await AsyncStorage.getItem('music');
+      const audioSetting = await AsyncStorage.getItem('audio');
+
+      if (musicSetting === null) {
+        // Set default to true if not yet initialized
+        await AsyncStorage.setItem('music', 'true');
+      }
+
+      if (audioSetting === null) {
+        // Set default to true if not yet initialized
+        await AsyncStorage.setItem('audio', 'true');
+      }
+    };
+
+    initializeSoundSettings();
+  }, [areSoundsLoaded]);
+
 
   if (!isFontLoaded || !areSoundsLoaded) {
     return (

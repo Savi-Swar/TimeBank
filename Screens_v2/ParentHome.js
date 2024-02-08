@@ -169,8 +169,11 @@ function ParentHome({ navigation, route }) {
     await fetchUsers(); // Fetch the updated list of kids and users
   };
 
-  const handleUserPress = (user) => {
+  const handleUserPress = async (user) => {
+    await updateSoundSettings();
+
     playSound("click")
+
     if (user === users[0].name) { 
       setCodeInput('');
       if (codeUsed) {
@@ -236,9 +239,22 @@ function ParentHome({ navigation, route }) {
     const userId = firebase.auth.currentUser.uid;
     await set(ref(getDatabase(), `Users/${userId}/codeUsed`), false);
   }
-  
+
   const [isMusicOn, setIsMusicOn] = useState(true);
   const [isSoundEffectsOn, setIsSoundEffectsOn] = useState(true);
+
+  useEffect(() => {
+    const fetchSoundSettings = async () => {
+      const musicSetting = await AsyncStorage.getItem('music');
+      const audioSetting = await AsyncStorage.getItem('audio');
+
+      // Set component state based on stored values or default to true
+      setIsMusicOn(musicSetting !== 'false'); // Stored as string, compare accordingly
+      setIsSoundEffectsOn(audioSetting !== 'false');
+    };
+
+    fetchSoundSettings();
+  }, []);
   // Toggle music
   const toggleMusic = () => {
     setIsMusicOn(!isMusicOn);
@@ -268,6 +284,16 @@ function ParentHome({ navigation, route }) {
 
     // Add logic if needed to handle sound effects globally
   };
+  const updateSoundSettings = async () => {
+    try {
+      // Update the music and audio settings in AsyncStorage
+      await AsyncStorage.setItem('music', String(isMusicOn));
+      await AsyncStorage.setItem('audio', String(isSoundEffectsOn));
+    } catch (e) {
+      console.log('Failed to update sound settings:', e);
+    }
+  };
+  
   const TextButton = ({ title, onPress, style }) => (
     <TouchableOpacity onPress={onPress} style={style}>
       <Text style={styles.textButton}>{title}</Text>
@@ -295,6 +321,11 @@ function ParentHome({ navigation, route }) {
     setDeleteKidName('');
     
   }
+  const handleLogout = async () => {
+    // Update sound settings before logging out
+    await updateSoundSettings();
+  
+  };
   return (
     <ImageBackground  style={styles.background} source={require("../assets/backgrounds/terms_conditions.png")}>
       <ScrollView>
@@ -322,7 +353,7 @@ function ParentHome({ navigation, route }) {
 
             <BlankButton text="Reset Code" onPress={() => setResetModalVisible(true)} />
             <View style={{marginBottom: verticalScale(80)}}>
-              <BlankButton text="Log Out" onPress={() => { resetData(),navigation.navigate("Login"),  firebase.signoutUser()}} />
+            <BlankButton text="Log Out" onPress={() => { resetData(), handleLogout, navigation.navigate("Login"),  firebase.signoutUser()}} />
             </View>
         </View>
       </View>

@@ -19,7 +19,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.JiroAI.TimeBank",
-      "buildNumber": "10"
+      "buildNumber": "11"
     },
     "android": {
       "adaptiveIcon": {
