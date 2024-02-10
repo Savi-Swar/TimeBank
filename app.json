@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Time_v2",
-    "slug": "Time_v2",
+    "name": "Time-Bank",
+    "slug": "time-bank",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icons/icon.png",
@@ -19,7 +19,12 @@
     ],
     "ios": {
       "bundleIdentifier": "com.JiroAI.TimeBank",
-      "buildNumber": "13"
+      "buildNumber": "14",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "TimeBank requires access to your photo library to allow you to select profile pictures for tasks and rewards. This helps personalize your experience and makes task management more engaging for children.",
+        "NSCameraUsageDescription": "TimeBank requests access to your camera to enable you to capture and upload photos directly for tasks, routines, or profile images, providing a seamless way to personalize your experience.",
+        "NSNotificationsUsageDescription": "TimeBank uses notifications to inform you when your child has finished their tasks, assignments, or routines, helping you manage your time effectively."
+      }
     },
     "android": {
       "adaptiveIcon": {
