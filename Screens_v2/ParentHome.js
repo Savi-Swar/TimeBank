@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Button, ImageBackground
 } from 'react-native';
+import { Platform } from 'react-native';
 import {
   getDatabase, ref, set, get
 } from 'firebase/database';
@@ -170,7 +171,6 @@ function ParentHome({ navigation, route }) {
   };
 
   const handleUserPress = async (user) => {
-    await updateSoundSettings();
 
     playSound("click")
 
@@ -256,43 +256,26 @@ function ParentHome({ navigation, route }) {
     fetchSoundSettings();
   }, []);
   // Toggle music
-  const toggleMusic = () => {
-    setIsMusicOn(!isMusicOn);
-    playSound('select');
-    // Logic to play/pause music
-    if (isMusicOn) {
-      sounds['happyMusic'].pauseAsync();
-    } else {
-      sounds['happyMusic'].playAsync();
-    }
-  };
+  // Toggle music setting
+const toggleMusic = async () => {
+  const newMusicState = !isMusicOn;
+  setIsMusicOn(newMusicState); // Update local state
+  await AsyncStorage.setItem('music', String(newMusicState)); // Update AsyncStorage
+  if (newMusicState) {
+      sounds['happyMusic'].playAsync(); // Play music if enabled
+  } else {
+      sounds['happyMusic'].pauseAsync(); // Pause music if disabled
+  }
+};
 
-  // Toggle sound effects
-  const toggleSound = () => {
-    if (isSoundEffectsOn) {
-      playSound('select');
-      setIsSoundEffectsOn(!isSoundEffectsOn);
-      toggleSoundEffects();
+// Toggle sound effects setting
+const toggleSound = async () => {
+  const newSoundEffectsState = !isSoundEffectsOn;
+  setIsSoundEffectsOn(newSoundEffectsState); // Update local state
+  await AsyncStorage.setItem('audio', String(newSoundEffectsState)); // Update AsyncStorage
+  toggleSoundEffects(); // Apply new sound effects setting
+};
 
-    } else {
-      toggleSoundEffects();
-      setIsSoundEffectsOn(!isSoundEffectsOn);
-      playSound('select');
-
-    }
-   
-
-    // Add logic if needed to handle sound effects globally
-  };
-  const updateSoundSettings = async () => {
-    try {
-      // Update the music and audio settings in AsyncStorage
-      await AsyncStorage.setItem('music', String(isMusicOn));
-      await AsyncStorage.setItem('audio', String(isSoundEffectsOn));
-    } catch (e) {
-      console.log('Failed to update sound settings:', e);
-    }
-  };
   
   const TextButton = ({ title, onPress, style }) => (
     <TouchableOpacity onPress={onPress} style={style}>

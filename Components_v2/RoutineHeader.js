@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
 import { getDownloadURL, ref, getStorage, deleteObject } from "firebase/storage";
-
 import BubbleText from "./BubbleText";
 import Ticker from "./Ticker";
 import { playSound } from "../audio";
@@ -10,6 +9,7 @@ import CustomSwitch from './CustomSwitch'; // import the custom switch component
 import { deleteKidsRoutine } from "../firebase";
 import { getDatabase, ref as dbRef, remove } from 'firebase/database';
 import * as firebase from "../firebase";
+import { Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 
 

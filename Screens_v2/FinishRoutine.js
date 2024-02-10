@@ -5,6 +5,7 @@ import * as firebase from "../firebase";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BlankButton from "../Components_v2/BlankButton";
+import { Platform } from 'react-native';
 import BubbleText from "../Components_v2/BubbleText";
 import { playSound } from "../audio";
 import { scale, verticalScale, moderateScaleFont } from '../scaling';

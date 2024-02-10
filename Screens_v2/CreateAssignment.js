@@ -3,6 +3,8 @@ import { View, StyleSheet, ImageBackground, Image, Alert } from 'react-native';
 import AppTextInput from '../Components_v2/AppTextInput';
 import BigButton from '../Components_v2/BigButton';
 import BubbleText from '../Components_v2/BubbleText';
+import { Platform } from 'react-native';
+
 
 import BackButton from '../Components_v2/BackButton';
 import ImagePickerExample from '../Components_v2/ImagePicker';

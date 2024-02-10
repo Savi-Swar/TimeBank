@@ -13,6 +13,7 @@ import BlankButton from '../Components_v2/BlankButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScaleFont } from '../scaling';
+import { Platform } from 'react-native';
 
 function EditAssignment({ navigation, route }) {
   // Assuming the data is passed via route.params

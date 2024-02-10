@@ -1,5 +1,6 @@
 import { Audio } from 'expo-av';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+let isSoundEffectsOn = true;
 // Sound file paths
 const soundPaths = {
   alert: require('./assets/audios/alert.mp3'),
@@ -16,6 +17,9 @@ const soundPaths = {
   clock: require('./assets/audios/clock.mp3'),
 };
 
+function setSound(value) {
+  isSoundEffectsOn = value;
+}
 // Preloading sounds
 const sounds = {};
 for (const key in soundPaths) {
@@ -23,6 +27,7 @@ for (const key in soundPaths) {
 }
 
 async function loadSounds() {
+
   try {
     for (const key in sounds) {
       await sounds[key].loadAsync(soundPaths[key]);
@@ -57,17 +62,44 @@ const originalVolumes = {
 };
 
 
-async function playSound(soundKey) {
+async function playSound(soundKey, shouldPlay = true) {
   try {
-    await sounds[soundKey].replayAsync();
+    // Retrieve the sound object from the sounds dictionary
+    const sound = sounds[soundKey];
+
+    // Check if we should play or stop the sound
+    if (shouldPlay) {
+      // For non-music sounds, ensure they are rewound to the start before playing
+      if (soundKey !== 'happyMusic') {
+        if (isSoundEffectsOn) {
+        // Check if the sound is currently playing and stop it
+        const status = await sound.getStatusAsync();
+        if (status.isPlaying) {
+          await sound.stopAsync();
+        }
+        // Rewind to the start
+        await sound.setPositionAsync(0);
+        await sound.playAsync();
+
+      }
+    }
+      // Play the sound
+    } else {
+      // If shouldPlay is false and it's not specific to stopping music, you might want to stop any sound
+      // But if you're only controlling music with shouldPlay, add conditions as necessary
+      await sound.stopAsync();
+    }
+  
   } catch (error) {
     console.log(`Error playing ${soundKey}:`, error);
   }
 }
 
+
+
 // Function to toggle sound effects
 async function toggleSoundEffects() {
-  areSoundEffectsEnabled = !areSoundEffectsEnabled;
+  setSound(!isSoundEffectsOn);
   for (const key in sounds) {
     if (key !== 'happyMusic') { // Exclude background music
       const volume = areSoundEffectsEnabled ? originalVolumes[key] : 0;
@@ -87,4 +119,15 @@ async function unloadSounds() {
   }
 }
 
-export { loadSounds, playSound, unloadSounds, sounds, toggleSoundEffects };
+// async function getStorage() {
+//   const musicEnabledString = await AsyncStorage.getItem('musicEnabled');
+//   const soundEffectsEnabledString = await AsyncStorage.getItem('soundEffectsEnabled');
+  
+//   // Convert string to boolean, defaulting to true if not set
+//   const musicEnabled = musicEnabledString !== 'false';
+//   const soundEffectsEnabled = soundEffectsEnabledString !== 'false';
+  
+//   return { musicEnabled, soundEffectsEnabled };
+// }
+
+export { loadSounds, playSound, unloadSounds, sounds, toggleSoundEffects, setSound };

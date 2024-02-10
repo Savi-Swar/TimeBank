@@ -10,6 +10,7 @@ import BlankButton from '../Components_v2/BlankButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getDatabase, ref, set } from 'firebase/database';
 import * as firebase from "../firebase";
+import { Platform } from 'react-native';
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScaleFont } from '../scaling';
 import { deleteObject, ref as StoreRef, getStorage } from "firebase/storage";

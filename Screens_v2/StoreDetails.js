@@ -6,8 +6,8 @@ import BackButton from '../Components_v2/BackButton';
 import { getDownloadURL, ref, getStorage } from "firebase/storage";
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScale, moderateScaleFont } from '../scaling';
-import { updateRequest } from '../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as firebase from '../firebase';
 
 function StoreScreen({ route, navigation }) {
   const [loaded] = useFonts({
@@ -52,7 +52,7 @@ function StoreScreen({ route, navigation }) {
   const handleBuyItem = async () => {
     const itemName = title; // The item name
     playSound("complete")
-    await updateRequest(kidName, -1*minutes, itemName, "false");
+    await firebase.updateRequest(kidName, -1*minutes, itemName, "false");
     Alert.alert("Item Bought, Ask Your parent to approve your purchase!")
 
     navigation.navigate("KidsNav"); // or wherever you need to navigate after buying

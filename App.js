@@ -35,11 +35,12 @@ import RoutineStats from "./Screens_v2/RoutineStats";
 import EditItem from "./Screens_v2/EditItem";
 import EditAssignment from "./Screens_v2/EditAssignment";
 import EditKid from "./Screens_v2/EditKid";
-import { loadSounds } from './audio'; 
-import { playSound } from './audio'; 
+import { loadSounds, sounds } from './audio'; 
+import { playSound, setSound } from './audio'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import EditRoutine from "./Screens_v2/EditRoutine";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 
 const Stack = createNativeStackNavigator();
@@ -62,22 +63,13 @@ export default function App() {
     loadAssets();
   }, []);
 
-  useEffect(() => {
-    if (areSoundsLoaded) {
-      playSound('happyMusic');
-      // Return a cleanup function to stop the music when the component unmounts
-      return () => {
-        playSound('happyMusic', false); // Stop the music
-      };
-    }
-  }, [areSoundsLoaded]); // Depend on areSoundsLoaded
+
 
   useEffect(() => {
     const initializeSoundSettings = async () => {
       // Check if the settings already exist
       const musicSetting = await AsyncStorage.getItem('music');
       const audioSetting = await AsyncStorage.getItem('audio');
-
       if (musicSetting === null) {
         // Set default to true if not yet initialized
         await AsyncStorage.setItem('music', 'true');
@@ -86,6 +78,16 @@ export default function App() {
       if (audioSetting === null) {
         // Set default to true if not yet initialized
         await AsyncStorage.setItem('audio', 'true');
+      }
+      if (areSoundsLoaded) {
+        setSound(audioSetting !== 'false')
+        if (musicSetting !== 'false') {
+          sounds['happyMusic'].playAsync(); // Play music if enabled
+        }
+        // Return a cleanup function to stop the music when the component unmounts
+        return () => {
+          playSound('happyMusic', false); // Stop the music
+        };
       }
     };
 
