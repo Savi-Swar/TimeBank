@@ -10,7 +10,6 @@ function PrivacyPolicy({ navigation, route }) {
     const [agree, setAgree] = useState(false);
 
     const handleAgree = () => {setAgree(!agree), playSound("select")};
-
     const navigateToPrivacyPolicy = () => {
         if (agree) {
             const userId = route.params.userId;

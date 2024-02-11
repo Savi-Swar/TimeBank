@@ -31,9 +31,6 @@ function StoreScreen({ route, navigation }) {
   
   useEffect(() => {
     fetchKidDetails();
-    const unsubscribeAssignments = firebase.Assignments(setAssignments);
-  
-    return () => unsubscribeAssignments();
   }, []); // Add dependencies if needed
   useEffect(() => {
       const fetchImageUrl = async () => {

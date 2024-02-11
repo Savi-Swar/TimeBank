@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Button, ImageBackground
+  View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Button, ImageBackground, Alert
 } from 'react-native';
 import { Platform } from 'react-native';
 import {
-  getDatabase, ref, set, get
+  getDatabase, ref, set, get, remove
 } from 'firebase/database';
 import * as firebase from '../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,11 +17,15 @@ import { playSound, sounds, toggleSoundEffects } from '../audio';
 import { scale, verticalScale, moderateScale,moderateScaleFont } from '../scaling';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import HomeViewer from '../Components_v2/HomeViewer';
+import { getAuth, deleteUser } from 'firebase/auth';
+
+
 
 function ParentHome({ navigation, route }) {
   const [users, setUsers] = useState([]);
   const [kids, setKids] = useState([]);
   const [isAccessCodeModalVisible, setIsAccessCodeModalVisible] = useState(false);
+  const [isDeleteUserModalVisible, setisDeleteUserModalVisible] = useState(false);
   const [isParentModal, setIsParentModalVisible] = useState(false);
   const [isAddKidModalVisible, setIsAddKidModalVisible] = useState(false);
   const [resetModalVisible, setResetModalVisible] = useState(false);
@@ -37,22 +41,22 @@ function ParentHome({ navigation, route }) {
   const [url, setUrl] = useState(null);
   const [isDeleteKidModalVisible, setIsDeleteKidModalVisible] = useState(false);
   const [deleteKidName, setDeleteKidName] = useState('');
+  const [deleteConfirmationCode, setDeleteConfirmationCode] = useState('');
+
   useEffect(() => {
-    // Setup the listener inside useEffect
-    const unsubscribe = firebase.auth.onAuthStateChanged((user) => {
-      if (user && route.params?.canFetchUserData) {
-        fetchUsers(); // Fetch data for the current user
-      }
-    });
+    // Only proceed if the ParentHome is the current active screen
+    if (navigation.isFocused()) {
+      const unsubscribe = firebase.auth.onAuthStateChanged((user) => {
+        if (user && route.params?.canFetchUserData) {
+
+          fetchUsers(); // Fetch data for the current user
+        }
+      });
   
-    // Return the cleanup function
-    return () => {
-      // Ensure unsubscribe is called if it's defined
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [route.params?.canFetchUserData]); // Add dependencies here
+      return unsubscribe; // Unsubscribe on cleanup
+    }
+  }, [navigation, route.params?.canFetchUserData]);
+  
   
   
   
@@ -309,6 +313,66 @@ const toggleSound = async () => {
     await updateSoundSettings();
   
   };
+  const handleDeleteAccountPress = () => {
+    // Check if the access code is set
+    if (accessCode) {
+      // If the access code is set, show the modal to enter the deletion confirmation code
+      setisDeleteUserModalVisible(true);
+    } else {
+      // If there's no access code, show a confirmation alert before deleting the account
+      Alert.alert(
+        "Delete Account",
+        "Are you sure you want to delete your account? This action cannot be undone.",
+        [
+          { text: "Cancel" },
+          { text: "Delete", onPress: deleteAccountConfirmed },
+        ],
+      );
+    }
+  };
+  const deleteAccountConfirmed = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const db = getDatabase();
+  
+    if (user) {
+      try {
+        // Step to remove user's data from Firebase Realtime Database
+        const userRef = ref(db, `/Users/${user.uid}`);
+        await remove(userRef);
+  
+        // Perform the account deletion
+        await deleteUser(user);
+  
+        // Optionally reset app state or perform other cleanup operations
+        resetData();
+  
+        // Navigate back to the login screen or another appropriate screen
+        navigation.navigate("Login");
+        Alert.alert("Account Deleted", "Your account has been successfully deleted.");
+      } catch (error) {
+        console.error(error);
+        // Handle errors, such as network issues or Firebase rules preventing deletion
+        Alert.alert("Error", "There was a problem deleting the account: " + error.message);
+      }
+    } else {
+      // No user signed in, or user object was not retrieved successfully
+      Alert.alert("Error", "No signed-in user found.");
+    }
+  };
+  
+  
+  const handleDeleteInput = async () => {
+    if (deleteConfirmationCode === accessCode) {
+      // Code is correct, proceed with deletion
+      deleteAccountConfirmed();
+    } else {
+      // Code is incorrect, show an alert
+      Alert.alert("Incorrect Code", "The code you entered is incorrect.");
+    }
+    // Close the modal regardless of outcome
+    setisDeleteUserModalVisible(false);
+  };
   return (
     <ImageBackground  style={styles.background} source={require("../assets/backgrounds/terms_conditions.png")}>
       <ScrollView>
@@ -337,6 +401,9 @@ const toggleSound = async () => {
             <BlankButton text="Reset Code" onPress={() => setResetModalVisible(true)} />
             <View style={{marginBottom: verticalScale(80)}}>
             <BlankButton text="Log Out" onPress={() => { resetData(), handleLogout, navigation.navigate("Login"),  firebase.signoutUser()}} />
+            </View>
+            <View style={{bottom: verticalScale(80)}}>
+              <BlankButton text="Delete Account" onPress={handleDeleteAccountPress} />
             </View>
         </View>
       </View>
@@ -487,6 +554,29 @@ const toggleSound = async () => {
                 </View>
               </View>
             </Modal>
+
+        {/* Access Code Modal */}
+        <Modal
+          animationType="slide"
+          transparent
+          visible={isDeleteUserModalVisible}
+          onRequestClose={() => setisDeleteUserModalVisible(false)}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                style={styles.textInput}
+                onChangeText={setDeleteConfirmationCode} // Update the state when the text changes
+                value={deleteConfirmationCode} // Use the state for the TextInput value
+                placeholder="Enter 6-digit deletion code"
+                keyboardType="numeric"
+                maxLength={6}
+              />
+              <TextButton title="Confirm" onPress={handleDeleteInput} />
+              <TextButton title="Cancel" onPress={() => setisDeleteUserModalVisible(false)} />
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </ImageBackground>
   );

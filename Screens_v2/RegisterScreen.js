@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChang
 import { auth } from "../firebase"; // Make sure this path is correct
 import { playSound } from '../audio';
 import { scale, verticalScale } from '../scaling';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -22,6 +23,7 @@ function RegisterScreen({ navigation }) {
       if (user) {
         // User is signed in
         if (user.emailVerified) {
+
           clearInterval(verificationCheckIntervalId);
           playSound("transition")
           navigation.navigate('Terms', { userId: user.uid, displayName: displayName });
@@ -51,7 +53,9 @@ function RegisterScreen({ navigation }) {
 
     // Create the user with email and password
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredentials) => {
+      .then(async (userCredentials) => {
+        await AsyncStorage.setItem('@displayName', displayName);
+
         // Send email verification
         sendEmailVerification(userCredentials.user)
           .then(() => {

@@ -5,7 +5,8 @@ import BlankButton from '../Components_v2/BlankButton';
 import { FontAwesome } from '@expo/vector-icons';
 import { playSound } from '../audio';
 import { scale, verticalScale, moderateScaleFont } from '../scaling';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth } from 'firebase/auth';
 function Terms({ navigation, route }) {
     const [agree, setAgree] = useState(false);
 
@@ -14,9 +15,24 @@ function Terms({ navigation, route }) {
         playSound("select");
     };
 
-    const navigateToPrivacyPolicy = () => {
+    const navigateToPrivacyPolicy = async () => {
         if (agree) {
-            navigation.navigate('PrivacyPolicy', { userId: route.params.userId, displayName: route.params.displayName });
+            // Get the current user from Firebase
+            const auth = getAuth();
+            const user = auth.currentUser;
+            const userId = user ? user.uid : null;
+    
+            // Retrieve the display name from AsyncStorage
+            const storedDisplayName = await AsyncStorage.getItem('@displayName');
+    
+            // Navigate to the PrivacyPolicy screen with userId and displayName
+            if (userId && storedDisplayName) {
+                navigation.navigate('PrivacyPolicy', { userId, displayName: storedDisplayName });
+            } else {
+                // Handle the case where userId or displayName couldn't be retrieved
+                console.error("Failed to retrieve user ID or display name.");
+                alert("An error occurred. Please try again.");
+            }
         } else {
             alert('You must agree to the terms and conditions before proceeding.');
         }
