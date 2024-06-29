@@ -39,6 +39,13 @@
       "eas": {
         "projectId": "3c1e991c-4a47-47ad-a1a7-bece748a777f"
       }
-    }
+    },  
+    "facebook": {
+      "facebookScheme": "fb[1493133777904595]",
+      "appId": "1493133777904595",
+      "appName": "Time-Bank",
+      "facebookAutoInitEnabled": true,
+      "facebookAutoLogAppEventsEnabled": true
+    } 
   }
 }
