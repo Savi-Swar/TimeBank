@@ -12,12 +12,12 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "useClassicUpdates": false
+      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.JiroAI.TimeBank",
-      "buildNumber": "16",
+      "buildNumber": "17",
       "supportsTablet": false,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "TimeBank requires access to your photo library to allow you to select profile pictures for tasks and rewards. This helps personalize your experience and makes task management more engaging for children.",
@@ -39,13 +39,11 @@
       "eas": {
         "projectId": "3c1e991c-4a47-47ad-a1a7-bece748a777f"
       }
-    },  
-    "facebook": {
-      "facebookScheme": "fb[1493133777904595]",
-      "appId": "1493133777904595",
-      "appName": "Time-Bank",
-      "facebookAutoInitEnabled": true,
-      "facebookAutoLogAppEventsEnabled": true
-    } 
+    },
+    "facebookScheme": "fb1493133777904595",
+    "facebookAppId": "1493133777904595",
+    "facebookDisplayName": "Time-Bank",
+    "facebookAutoInitEnabled": true,
+    "facebookAutoLogAppEventsEnabled": true
   }
 }
