@@ -41,6 +41,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import EditRoutine from "./Screens_v2/EditRoutine";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import * as Facebook from 'expo-facebook';  // Import Facebook SDK
 
 
 const Stack = createNativeStackNavigator();
@@ -64,6 +65,20 @@ export default function App() {
   }, []);
 
 
+  useEffect(() => {
+    async function initializeFacebook() {
+      try {
+        await Facebook.initializeAsync({
+          appId: '1493133777904595',
+        });
+        console.log('Facebook SDK initialized successfully.');
+      } catch (error) {
+        console.error('Error initializing Facebook SDK:', error);
+      }
+    }
+
+    initializeFacebook();
+  }, []);
 
   useEffect(() => {
     const initializeSoundSettings = async () => {
